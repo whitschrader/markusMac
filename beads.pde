@@ -16,11 +16,6 @@ void getSpectrum(){
    stroke(255,0,0);
 
    LiveInput.getSpectrum();
-   // draw a bar for each of the elements in the spectrum array.
-   // Note - the current FFT math is done in Java and is very raw. expect optimized alternative soon.
-   for ( int i = 0; i < LiveInput.spectrum.length; i++){
-      line(i*2, height, i*2, height - LiveInput.spectrum[i]);
-   }
 }
 
 void getMeterLevel(){
@@ -34,8 +29,6 @@ void getMeterLevel(){
    fill(0,100,0);
    float lefta = meterDataLeft*height;
    float righta = meterDataRight*height; 
-   rect(width/2 - 100, height, 100 , lefta*-1);
-   rect(width/2 , height, 100, righta*-1);
 }
 
 // Safely close the sound engine upon Browser shutdown.

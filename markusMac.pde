@@ -43,8 +43,10 @@ boolean decorate = false;
 boolean lightEnable = true;
 
 
+//windows directory
+//String presetDir = "C:/Users/kerim/Google Drive/djMarkusClass/presets/";
 //mac directory
-String presetDir = "C:/Users/kerim/Google Drive/djMarkusClass/presets/";
+String presetDir = "/Users/kocosman/Documents/Processing/djMarkusClass/presets/";
 
 VisualEngine engines[];
 int currentEngineIndex = 0;

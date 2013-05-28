@@ -23,7 +23,7 @@ class Cube extends VisualEngine {
   protected ArrayList<controlP5.Controller> controllers;
   String[] parameterNames = { 
     "cubeAmount", 
-    // "cubeColor", //çift data birden olmuyor canım
+    "cubeColor", //çift data birden olmuyor canım
     "cubeSizeOffsetX", 
     "cubeSizeOffsetY", 
     "cubeSizeOffsetZ", 
@@ -75,233 +75,129 @@ class Cube extends VisualEngine {
 
   public void initGUI(ControlP5 cp5, ControlWindow controlWindow) {
 
-    //   theApplet.rect(borderMargin, (522)*scaleGUI, 706*scaleGUI, heightGUI-borderMargin-(522)*scaleGUI);
+    int cubeGUISep = 45;
 
+    int[] parameterMatrix = {
+      7, 6, 1
+    };    
+
+    PVector[][] parameterPos = new PVector[parameterMatrix.length][max(parameterMatrix)]; 
+    PVector[] parameterSize = new PVector[parameterMatrix.length]; 
+
+    for (int i = 0; i < parameterMatrix.length; i++) {
+      for (int j = 0; j < parameterMatrix[i]; j++) {
+        parameterPos[i][j] = new PVector(visualSpecificParametersBoxX-10 + (visualSpecificParametersBoxWidth/(parameterMatrix[i]*2)*(j*2+1)), visualSpecificParametersBoxY +(visualSpecificParametersBoxHeight/(parameterMatrix.length*2)*(i*2+1)));
+        parameterSize[i] = new PVector((visualSpecificParametersBoxWidth/parameterMatrix[i])-cubeGUISep, (visualSpecificParametersBoxHeight/parameterMatrix.length)-cubeGUISep);
+        noStroke();
+        fill(127);
+        rectMode(CORNER);
+      }
+    }
 
     cp5.addKnob("cubeAmount")
-      .setPosition(borderMargin+10, (522)*scaleGUI+30)
-        .setRange(1, 250)
-          .setRadius(20)
+      .setPosition(parameterPos[0][0].x-parameterSize[0].x/2, parameterPos[0][0].y-parameterSize[0].y/2)   
+        .setRadius((int)parameterSize[0].x)
+          .setRange(1, 250)
             .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow)
-                ;
-    cp5.getController("cubeAmount")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
+              .setWindow(controlWindow);
 
-    controllers.add(cp5.getController("cubeAmount"));
+    cp5.addKnob("rotLimit")
+      .setPosition(parameterPos[0][1].x-parameterSize[0].x/2, parameterPos[0][1].y-parameterSize[0].y/2)   
+        .setRadius((int)parameterSize[0].x)
+          .setRange(0., 4.)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
 
+    cp5.addKnob("rotSelf")
+      .setPosition(parameterPos[0][2].x-parameterSize[0].x/2, parameterPos[0][2].y-parameterSize[0].y/2)   
+        .setRadius((int)parameterSize[0].x)
+          .setRange(-2., 2.)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
+    cp5.addKnob("rotVariance")
+      .setPosition(parameterPos[0][3].x-parameterSize[0].x/2, parameterPos[0][3].y-parameterSize[0].y/2)   
+        .setRadius((int)parameterSize[0].x)
+          .setRange(0., 30.)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
+    cp5.addKnob("rotSpeed")
+      .setPosition(parameterPos[0][4].x-parameterSize[0].x/2, parameterPos[0][4].y-parameterSize[0].y/2)   
+        .setRadius((int)parameterSize[0].x)
+          .setRange(-1., 1.)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
+    cp5.addKnob("outlineStroke")
+      .setPosition(parameterPos[0][5].x-parameterSize[0].x/2, parameterPos[0][5].y-parameterSize[0].y/2)   
+        .setRadius((int)parameterSize[0].x)
+          .setRange(0., 255.)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
+    cp5.addKnob("outlineLength")
+      .setPosition(parameterPos[0][6].x-parameterSize[0].x/2, parameterPos[0][6].y-parameterSize[0].y/2)   
+        .setRadius((int)parameterSize[0].x)
+          .setRange(0., 1.)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+              
+    cp5.addSlider("cubeSizeOffsetX")
+      .setPosition(parameterPos[1][0].x-parameterSize[1].x/2, parameterPos[1][0].y-parameterSize[1].y/2)   
+        .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+          .setRange(0.1, cubeCircleRad*6/10)
+            .setWindow(controlWindow);
+
+    cp5.addSlider("cubeSizeOffsetY")
+      .setPosition(parameterPos[1][1].x-parameterSize[1].x/2, parameterPos[1][1].y-parameterSize[1].y/2)   
+        .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+          .setRange(0.1, cubeCircleRad*6/10)
+            .setWindow(controlWindow);
+
+    cp5.addSlider("cubeSizeOffsetZ")
+      .setPosition(parameterPos[1][2].x-parameterSize[1].x/2, parameterPos[1][2].y-parameterSize[1].y/2)   
+        .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+          .setRange(0.1, cubeCircleRad*6/10)
+            .setWindow(controlWindow);
+
+    cp5.addSlider("cubeSizeVarianceX")
+      .setPosition(parameterPos[1][3].x-parameterSize[1].x/2, parameterPos[1][3].y-parameterSize[1].y/2)   
+        .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+          .setRange(0.1, cubeCircleRad*6/10)
+            .setWindow(controlWindow);
+
+    cp5.addSlider("cubeSizeVarianceY")
+      .setPosition(parameterPos[1][4].x-parameterSize[1].x/2, parameterPos[1][4].y-parameterSize[1].y/2)   
+        .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+          .setRange(0.1, cubeCircleRad*6/10)
+            .setWindow(controlWindow);
+
+    cp5.addSlider("cubeSizeVarianceZ")
+      .setPosition(parameterPos[1][5].x-parameterSize[1].x/2, parameterPos[1][5].y-parameterSize[1].y/2)   
+        .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+          .setRange(0.1, cubeCircleRad*6/10)
+            .setWindow(controlWindow);
+            
     cp5.addRange("cubeColor")
       .setBroadcast(false) 
-        .setPosition(60, 680)
-          .setSize(380, 20)
+        .setPosition(parameterPos[2][0].x-parameterSize[2].x/2, parameterPos[2][0].y-parameterSize[2].y/2)   
+          .setSize((int)parameterSize[2].x, (int)parameterSize[2].y)
             .setHandleSize(10)
               .setRange(0, 255)
                 .setRangeValues(0, 255)
                   .setBroadcast(true)
-                    //                  .setColorForeground(color(255, 40))
-                    //                    .setColorBackground(color(255, 40))  
-                    .setWindow(controlWindow)
-                      ;
+                    .setWindow(controlWindow);
+                    
+    for (int i = 0; i < parameterNames.length; i++) {
+      cp5.getController(parameterNames[i])
+        .getCaptionLabel()
+          .setFont(fontLight)
+            .toUpperCase(false)
+              .setSize(15);
+      controllers.add(cp5.getController(parameterNames[i]));
+    }
 
-    cp5.getController("cubeColor")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("cubeColor"));
-
-    cp5.addSlider("cubeSizeOffsetX")
-      .setPosition(borderMargin+20, visualSpecificGUIOffset+10)
-        .setRange(0.1, cubeCircleRad*6/10)
-          .setSize(20, 185)
-            .setWindow(controlWindow);
-
-    cp5.getController("cubeSizeOffsetX")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("cubeSizeOffsetX"));
-
-    cp5.addSlider("cubeSizeOffsetY")
-      .setPosition(borderMargin+100, visualSpecificGUIOffset+10)
-        .setRange(0.1, cubeCircleRad*6/10)
-          .setSize(20, 185)
-            .setWindow(controlWindow);
-
-    cp5.getController("cubeSizeOffsetY")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("cubeSizeOffsetY"));
-
-    cp5.addSlider("cubeSizeOffsetZ")
-      .setPosition(borderMargin+180, visualSpecificGUIOffset+10)
-        .setRange(0.1, cubeCircleRad*6/10)
-          .setSize(20, 185)
-            .setWindow(controlWindow);
-
-    cp5.getController("cubeSizeOffsetZ")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("cubeSizeOffsetZ"));
-
-    cp5.addKnob("rotLimit")
-      .setPosition(borderMargin+80, (522)*scaleGUI+30)
-        .setRange(0., 4.)
-          .setRadius(20)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
-    cp5.getController("rotLimit")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("rotLimit"));
-
-    cp5.addKnob("outlineStroke")
-      .setPosition(borderMargin+360, (522)*scaleGUI+30)
-        .setRange(0., 255.)
-          .setRadius(20)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
-    cp5.getController("outlineStroke")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("outlineStroke"));
-
-    cp5.addKnob("outlineLength")
-      .setPosition(borderMargin+430, (522)*scaleGUI+30)
-        .setRange(0., 1.)
-          .setRadius(20)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
-    cp5.getController("outlineLength")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("outlineLength"));
-
-    cp5.addKnob("rotSelf")
-      .setPosition(borderMargin+150, (522)*scaleGUI+30)
-        .setRange(-2., 2.)
-          .setRadius(20)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
-    cp5.getController("rotSelf")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("rotSelf"));
-
-    cp5.addKnob("rotVariance")
-      .setPosition(borderMargin+220, (522)*scaleGUI+30)
-        .setRange(0., 30.)
-          .setRadius(20)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
-    cp5.getController("rotVariance")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("rotVariance"));
-
-    cp5.addKnob("rotSpeed")
-      .setPosition(borderMargin+290, (522)*scaleGUI+30)
-        .setRange(-1., 1.)
-          .setRadius(20)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
-    cp5.getController("rotSpeed")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;            
-
-    controllers.add(cp5.getController("rotSpeed"));
-
-    cp5.addSlider("cubeSizeVarianceX")
-      .setPosition(borderMargin+260, visualSpecificGUIOffset+10)
-        .setRange(0.1, cubeCircleRad*6/10)
-          .setSize(20, 185)
-            .setWindow(controlWindow);
-
-    cp5.getController("cubeSizeVarianceX")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("cubeSizeVarianceX"));
-
-    cp5.addSlider("cubeSizeVarianceY")
-      .setPosition(borderMargin+340, visualSpecificGUIOffset+10)
-        .setRange(0.1, cubeCircleRad*6/10)
-          .setSize(20, 185)
-            .setWindow(controlWindow);
-
-    cp5.getController("cubeSizeVarianceY")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("cubeSizeVarianceY"));
-
-    cp5.addSlider("cubeSizeVarianceZ")
-      .setPosition(borderMargin+420, visualSpecificGUIOffset+10)
-        .setRange(0.1, cubeCircleRad*6/10)
-          .setSize(20, 185)
-            .setWindow(controlWindow);
-
-    cp5.getController("cubeSizeVarianceZ")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-
-    controllers.add(cp5.getController("cubeSizeVarianceZ"));
-    presetGUI(cp5, controlWindow);
     showGUI(false);
   }
 
@@ -334,18 +230,18 @@ class Cube extends VisualEngine {
       noStroke();
 
 
-//      cubeSizeOffsetX       = map(fftVar[0].getValue(), 0, 5, 1., 60.);
-//      cubeSizeOffsetY       = map(fftVar[0].getValue(), 0, 50, 1., 60.);
-//      cubeSizeOffsetZ       = map(fftVar[0].getValue(), 0, 5, 1., 60.);
-//      cubeSizeVarianceX     = map(fftVar[0].getValue(), 0, 5, 0., 60.);
-//      cubeSizeVarianceY     = map(fftVar[0].getValue(), 0, 5, 0., 60.);
-//      cubeSizeVarianceZ     = map(fftVar[0].getValue(), 0, 5, 0., 60.);
-//      rotLimit              = map(fftVar[0].getValue(), 0, 5, 0., 4.);
-//      rotVariance           = map(fftVar[0].getValue(), 0, 5, 0., 40.);
-//      rotSpeed              = map(fftVar[0].getValue(), 0, 5, -1., 1.);
-//      outlineStroke         = map(fftVar[0].getValue(), 0, 5, 0., 255.);
+      //      cubeSizeOffsetX       = map(fftVar[0].getValue(), 0, 5, 1., 60.);
+      //      cubeSizeOffsetY       = map(fftVar[0].getValue(), 0, 50, 1., 60.);
+      //      cubeSizeOffsetZ       = map(fftVar[0].getValue(), 0, 5, 1., 60.);
+      //      cubeSizeVarianceX     = map(fftVar[0].getValue(), 0, 5, 0., 60.);
+      //      cubeSizeVarianceY     = map(fftVar[0].getValue(), 0, 5, 0., 60.);
+      //      cubeSizeVarianceZ     = map(fftVar[0].getValue(), 0, 5, 0., 60.);
+      //      rotLimit              = map(fftVar[0].getValue(), 0, 5, 0., 4.);
+      //      rotVariance           = map(fftVar[0].getValue(), 0, 5, 0., 40.);
+      //      rotSpeed              = map(fftVar[0].getValue(), 0, 5, -1., 1.);
+      //      outlineStroke         = map(fftVar[0].getValue(), 0, 5, 0., 255.);
       outlineLength         = map(fftVar[0].getValue(), 0, 5, 0., 1.);
-//      rotSelf               = map(fftVar[0].getValue(), 0, 5, -2, 2.);
+      //      rotSelf               = map(fftVar[0].getValue(), 0, 5, -2, 2.);
 
       box(cubeSizeOffsetX+cubeSizeVarianceX*(sin((frameCount*0.01)+map(i, 0, cubeAmount, 4*PI, 0))), cubeSizeOffsetY+cubeSizeVarianceY*(sin((frameCount*0.01)+map(i, 0, cubeAmount, 4*PI, 0))), cubeSizeOffsetZ+cubeSizeVarianceZ*(sin((frameCount*0.01)+map(i, 0, cubeAmount, 4*PI, 0))));
       popStyle();
@@ -455,34 +351,6 @@ class Cube extends VisualEngine {
     }
   }
 
-  public float[] loadPreset(String dir, String name, int presetNumber) {
-    float[] parameters = {
-    };
-    String[] lines;
-    String[] pieces;
-    String fullAddress = dir + name + presetNumber + ".txt"; 
-    lines = loadStrings(fullAddress);
-    println(sketchPath);
-    println(fullAddress);
-    pieces = split(lines[0], ' ');
-    for (int i = 0; i < pieces.length; i++) {
-      parameters = append(parameters, float(pieces[i]));
-    }
-    return parameters;
-  }
-
-  public void savePreset(String dir, String name, int presetNumber, float[] parameters) {
-    String fullAddress = dir + name + presetNumber + ".txt"; 
-    String[] toWrite00 = {
-      ""
-    };
-    for (int i = 0; i < parameters.length; i++) {
-      toWrite00[0] += parameters[i];
-      if (i != parameters.length-1)
-        toWrite00[0] += ' ';
-    }
-    saveStrings(fullAddress, toWrite00);
-  }
 
   public void mapPresets() {
 
@@ -573,135 +441,12 @@ class Cube extends VisualEngine {
     else if ((!preset1 && !preset2 && !preset3 && !preset4)) {
       presetIndex = 0;
     }
-    //println(presetIndex);
 
     preset1Pre = preset1;
     preset2Pre = preset2;
     preset3Pre = preset3;
     preset4Pre = preset4;
     savePresetPre = savePreset;
-  }
-
-  public void presetGUI(ControlP5 cp5, ControlWindow controlWindow) {
-    //    theApplet.rect(2*borderMargin+(706*scaleGUI), (9+441+72)*scaleGUI, 428*scaleGUI, 307*scaleGUI);
-
-    cp5.addToggle("preset1")
-      .setPosition(2*borderMargin+(706*scaleGUI)+(428*scaleGUI*1/4)-50, ((9+441+72)*scaleGUI)+(307*scaleGUI)*3/4)
-        .setSize(20, 20)
-          .setValue(false)
-            .setWindow(controlWindow);
-
-    cp5.getController("preset1")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-    //    cp5.getController("preset1").captionLabel().getStyle().marginLeft = 25;
-    //    cp5.getController("preset1").captionLabel().getStyle().marginTop = -25;
-
-    controllers.add(cp5.getController("preset1"));
-
-    cp5.addToggle("preset2")
-      .setPosition(2*borderMargin+(706*scaleGUI)+(428*scaleGUI*2/4)-50, ((9+441+72)*scaleGUI)+(307*scaleGUI)*3/4)
-        .setSize(20, 20)
-          .setValue(false)
-            .setWindow(controlWindow);
-
-    cp5.getController("preset2")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-    //    cp5.getController("preset2").captionLabel().getStyle().marginLeft = 25;
-    //    cp5.getController("preset2").captionLabel().getStyle().marginTop = -25;
-
-    controllers.add(cp5.getController("preset2"));
-
-    cp5.addToggle("preset3")
-      .setPosition(2*borderMargin+(706*scaleGUI)+(428*scaleGUI*3/4)-50, ((9+441+72)*scaleGUI)+(307*scaleGUI)*3/4)
-        .setSize(20, 20)
-          .setValue(false)
-            .setWindow(controlWindow);
-
-    cp5.getController("preset3")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-    //    cp5.getController("preset3").captionLabel().getStyle().marginLeft = 25;
-    //    cp5.getController("preset3").captionLabel().getStyle().marginTop = -25;
-
-    controllers.add(cp5.getController("preset3"));
-
-    cp5.addToggle("preset4")
-      .setPosition(2*borderMargin+(706*scaleGUI)+(428*scaleGUI*4/4)-50, ((9+441+72)*scaleGUI)+(307*scaleGUI)*3/4)
-        .setSize(20, 20)
-          .setValue(false)
-            .setWindow(controlWindow);
-
-    cp5.getController("preset4")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-    //    cp5.getController("preset4").captionLabel().getStyle().marginLeft = 25;
-    //    cp5.getController("preset4").captionLabel().getStyle().marginTop = -25;
-
-    controllers.add(cp5.getController("preset4"));
-
-    cp5.addToggle("savePreset")
-      .setPosition(2*borderMargin+(706*scaleGUI)+(428*scaleGUI*3/4)-50, ((9+441+72)*scaleGUI)+((307*scaleGUI)*1/4)-20)
-        .setSize(90, 20)
-          .setValue(false)
-            .setWindow(controlWindow);
-
-    cp5.getController("savePreset")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-    //    cp5.getController("savePreset").captionLabel().getStyle().marginLeft = 25;
-    //    cp5.getController("savePreset").captionLabel().getStyle().marginTop = -25;
-
-    controllers.add(cp5.getController("savePreset"));
-
-    cp5.addToggle("automatic")
-      .setPosition(2*borderMargin+(706*scaleGUI)+(428*scaleGUI*1/4)-50, ((9+441+72)*scaleGUI)+((307*scaleGUI)*1/4)-20)
-        .setSize(90, 20)
-          .setValue(false)
-            .setWindow(controlWindow);
-
-    cp5.getController("automatic")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-    //    cp5.getController("savePreset").captionLabel().getStyle().marginLeft = 25;
-    //    cp5.getController("savePreset").captionLabel().getStyle().marginTop = -25;
-
-    controllers.add(cp5.getController("automatic"));
-
-    cp5.addSlider("transitionTime")
-      .setPosition(2*borderMargin+(706*scaleGUI)+(428*scaleGUI*1/4)-50, ((9+441+72)*scaleGUI)+((307*scaleGUI)*2/4)-10)
-        .setRange(0.1, cubeCircleRad*6/10)
-          .setSize(250, 20)
-            .setWindow(controlWindow);
-
-    cp5.getController("transitionTime")
-      .getCaptionLabel()
-        .setFont(fontLight)
-          .toUpperCase(false)
-            .setSize(18)
-              ;
-    cp5.getController("transitionTime").captionLabel().getStyle().marginLeft = -255;
-    cp5.getController("transitionTime").captionLabel().getStyle().marginTop = 25;
-    controllers.add(cp5.getController("transitionTime"));
   }
 
   public void start() {

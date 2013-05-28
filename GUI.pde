@@ -5,7 +5,6 @@ ControlWindow controlWindow;
 ControlWindowCanvas cc;
 ControlFont fontLight, fontBold, fontRegular;
 
-//Slider particleAmount;
 Range colorRange;
 
 PImage thumb1, thumb2, logo;
@@ -17,9 +16,28 @@ final int soundReactionGUIOffset = 320;
 final int visualSpecificGUIOffset = 450;
 
 final float scaleGUI = 1280./1900.;
-final int widthGUI = int(1900*scaleGUI);
-final int heightGUI = int(1125*scaleGUI);
-float borderMargin = (51.5+9)*scaleGUI;
+final int widthGUI = 1280;
+final int heightGUI = 757;
+
+float borderMarginBig = 51;
+float borderMarginSmall = 34;
+
+float borderLinesThickness = 6;
+
+float thumbnailBoxWidth = 1166;
+float thumbnailBoxHeight = 275;
+
+float visualSpecificParametersBoxWidth = 443;
+float visualSpecificParametersBoxHeight = 378;
+
+float presetsBoxWidth = 313;
+float presetsBoxHeight = 187;
+
+float soundParametersBoxWidth = 342;
+float soundParametersBoxHeight = 187;
+
+float soundWaveBoxWidth = 689;
+float soundWaveBoxHeight = 157;
 
 color mainYellow;
 color mainBlue;
@@ -29,7 +47,20 @@ color label;
 color dimYellow;
 color thinLines;
 
+float thumbnailBoxX = borderLinesThickness+borderMarginBig;
+float thumbnailBoxY = borderLinesThickness;
+float visualSpecificParametersBoxX = borderLinesThickness+borderMarginBig;
+float visualSpecificParametersBoxY = borderLinesThickness+thumbnailBoxHeight+borderMarginBig;
+float presetsBoxX = borderLinesThickness+borderMarginBig+visualSpecificParametersBoxWidth+borderMarginSmall;
+float presetsBoxY = borderLinesThickness+thumbnailBoxHeight+borderMarginBig;
+float soundParametersBoxX = borderLinesThickness+borderMarginBig+visualSpecificParametersBoxWidth+borderMarginSmall*2+presetsBoxWidth;
+float soundParametersBoxY = borderLinesThickness+thumbnailBoxHeight+borderMarginBig;
+float soundWaveBoxX = borderLinesThickness+borderMarginBig+visualSpecificParametersBoxWidth+borderMarginSmall;
+float soundWaveBoxY = borderLinesThickness+thumbnailBoxHeight+borderMarginBig+borderMarginSmall+presetsBoxHeight;
 
+float thumbnailImageWidth = 143;
+float thumbnailImageHeight = 79;
+float thumbnailImageSpacing = 10;
 void initializeGUI() {
 
   colorMode(HSB);
@@ -43,10 +74,9 @@ void initializeGUI() {
 
   cp5 = new ControlP5(this);
   cp5.disableShortcuts();
-  controlWindow = cp5.addControlWindow("GUI", 0, 0, widthGUI, heightGUI, 60)
+  controlWindow = cp5.addControlWindow("GUI", 0, 57, widthGUI, heightGUI, 60)
     .hideCoordinates()
       .setBackground(mainBackground);
-  println(widthGUI + " - " + heightGUI);
 
   controlWindow.setUpdateMode(ControlWindow.NORMAL);
   cc = new MyCanvas();
@@ -61,7 +91,9 @@ void initializeGUI() {
   fontRegular = new ControlFont(pfontRegular, 200);
   cp5.setColorForeground(mainYellow);
   cp5.setColorActive(dimYellow);
+
   soundReactionGUI();
+  presetsGUI(cp5, controlWindow);
   for (int i=0; i<engines.length; ++i) {
     engines[i].initGUI(cp5, controlWindow);
   }
@@ -79,53 +111,53 @@ void controlEvent(ControlEvent theControlEvent) {
 
 class MyCanvas extends ControlWindowCanvas {
 
-//  float widthScale = (widthGUI/LiveInput.spectrum.length)*4;
-  float widthScale = (widthGUI/256)*4;
-  float fftDrawLeft = 2*borderMargin+(706*scaleGUI);
-  float fftDrawTop = (9+441+72+307+54)*scaleGUI;
-  float fftDrawHeight =  (256-76)*scaleGUI;
-  float fftDrawWidth = (1025-12)*scaleGUI;
-
   public boolean mouseDragged() {
     return true;
   }
 
   public void drawThumbnails(PApplet theApplet) {
-    for (int i = 0; i < engines.length; i++) {
-      float thumbX = borderMargin+(663*scaleGUI) + (i * (15+213)*scaleGUI);
-      theApplet.image(engines[i].thumbnail, thumbX, 90*scaleGUI, 213*scaleGUI, 120*scaleGUI);
-      theApplet.textFont(pfontLight, 20);
-      theApplet.text(engines[i].name, thumbX, 240*scaleGUI);
-    }
     theApplet.pushStyle();
+    for (int i = 0; i < engines.length; i++) {
+      //      float thumbX = borderMarginBig+(663*scaleGUI) + (i * (15+213)*scaleGUI);
+      float thumbX = thumbnailBoxX + (thumbnailBoxWidth/3) + thumbnailImageSpacing*2 + (thumbnailImageWidth + thumbnailImageSpacing)*i;
+      theApplet.image(engines[i].thumbnail, thumbX, thumbnailBoxY+borderMarginBig, thumbnailImageWidth, thumbnailImageHeight);
+      theApplet.textFont(pfontLight, 18);
+      if (i == currentEngineIndex) {
+        theApplet.fill(255);
+      } 
+      else {
+        theApplet.fill(mainYellow);
+      }
+      theApplet.text(engines[i].name, thumbX, thumbnailBoxY+borderMarginBig+thumbnailImageHeight+thumbnailImageSpacing*2);
+    }
+
     theApplet.noFill();
     theApplet.stroke(mainYellow);
     theApplet.strokeWeight(5);
     theApplet.rectMode(CORNER);
-    theApplet.rect(borderMargin+(663*scaleGUI) + (currentEngineIndex * (15+213)*scaleGUI), 90*scaleGUI, 213*scaleGUI, 120*scaleGUI);
+    theApplet.rect(thumbnailBoxX + (thumbnailBoxWidth/3) + thumbnailImageSpacing*2 + (thumbnailImageWidth + thumbnailImageSpacing)*currentEngineIndex, thumbnailBoxY+borderMarginBig, thumbnailImageWidth, thumbnailImageHeight);
     theApplet.popStyle();
   }
 
   public void drawFFT(PApplet theApplet) {
 
-//   for (int i = 0; i < LiveInput.spectrum.length; i++) {
-          for (int i = 0; i < LiveInput.spectrum.length; i++) {
+    for (int i = 0; i < LiveInput.spectrum.length; i++) {
       theApplet.pushStyle();
       theApplet.stroke(thinLines);
       theApplet.strokeCap(RECT);
-      theApplet.strokeWeight(fftDrawWidth/LiveInput.spectrum.length);
+      theApplet.strokeWeight(soundWaveBoxWidth/LiveInput.spectrum.length);
       theApplet.fill(255);
       theApplet.line(
-      (fftDrawWidth/LiveInput.spectrum.length)*(i+1)+fftDrawLeft, 
-      fftDrawTop+(fftDrawHeight/2), 
-      (fftDrawWidth/LiveInput.spectrum.length)*(i+1)+fftDrawLeft, 
-      (fftDrawTop+(fftDrawHeight/2))-constrain(LiveInput.spectrum[i], 0, fftDrawHeight/2)
+      (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
+      soundWaveBoxY+(soundWaveBoxHeight/2), 
+      (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
+      (soundWaveBoxY+(soundWaveBoxHeight/2))-constrain(LiveInput.spectrum[i], 0, soundWaveBoxHeight/2)
         );
       theApplet.line(
-      (fftDrawWidth/LiveInput.spectrum.length)*(i+1)+fftDrawLeft, 
-      fftDrawTop+(fftDrawHeight/2), 
-      (fftDrawWidth/LiveInput.spectrum.length)*(i+1)+fftDrawLeft, 
-      (fftDrawTop+(fftDrawHeight/2))+constrain(LiveInput.spectrum[i], 0, fftDrawHeight/2)
+      (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
+      soundWaveBoxY+(soundWaveBoxHeight/2), 
+      (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
+      (soundWaveBoxY+(soundWaveBoxHeight/2))+constrain(LiveInput.spectrum[i], 0, soundWaveBoxHeight/2)
         );
       theApplet.popStyle();
     }
@@ -135,9 +167,9 @@ class MyCanvas extends ControlWindowCanvas {
 
     for (int i = 0; i < fftVar.length; i++) {
 
-      float filterVisualRange = (fftDrawWidth/LiveInput.spectrum.length)*fftVar[i].fftRange*2;
-      float filterVisualWmin = ((fftDrawWidth/LiveInput.spectrum.length)*(fftVar[i].baseFreq-fftVar[i].fftRange));
-      float filterVisualWmax =  ((fftDrawWidth/LiveInput.spectrum.length)*(fftVar[i].baseFreq+fftVar[i].fftRange));
+      float filterVisualRange = (soundWaveBoxWidth/LiveInput.spectrum.length)*fftVar[i].fftRange*2;
+      float filterVisualWmin = ((soundWaveBoxWidth/LiveInput.spectrum.length)*(fftVar[i].baseFreq-fftVar[i].fftRange));
+      float filterVisualWmax =  ((soundWaveBoxWidth/LiveInput.spectrum.length)*(fftVar[i].baseFreq+fftVar[i].fftRange));
 
       theApplet.pushStyle();
       theApplet.strokeCap(RECT);
@@ -145,25 +177,25 @@ class MyCanvas extends ControlWindowCanvas {
       theApplet.stroke(mainBlue, 150);
 
       theApplet.line(
-      ((fftDrawWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+fftDrawLeft, 
-      (fftDrawHeight*(i+1)/(fftVar.length+1))+fftDrawTop, 
-      ((fftDrawWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+fftDrawLeft, 
-      (fftDrawHeight*(i+1)/(fftVar.length+1))+fftDrawTop-constrain(fftVar[i].getValue(), 0, fftDrawHeight/2)
+      ((soundWaveBoxWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+soundWaveBoxX, 
+      (soundWaveBoxHeight*(i+1)/(fftVar.length+1))+soundWaveBoxY, 
+      ((soundWaveBoxWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+soundWaveBoxX, 
+      (soundWaveBoxHeight*(i+1)/(fftVar.length+1))+soundWaveBoxY-constrain(fftVar[i].getValue(), 0, soundWaveBoxHeight/2)
         );
 
       theApplet.line(
-      ((fftDrawWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+fftDrawLeft, 
-      (fftDrawHeight*(i+1)/(fftVar.length+1))+fftDrawTop, 
-      ((fftDrawWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+fftDrawLeft, 
-      (fftDrawHeight*(i+1)/(fftVar.length+1))+fftDrawTop+constrain(fftVar[i].getValue(), 0, fftDrawHeight/2)
+      ((soundWaveBoxWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+soundWaveBoxX, 
+      (soundWaveBoxHeight*(i+1)/(fftVar.length+1))+soundWaveBoxY, 
+      ((soundWaveBoxWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+soundWaveBoxX, 
+      (soundWaveBoxHeight*(i+1)/(fftVar.length+1))+soundWaveBoxY+constrain(fftVar[i].getValue(), 0, soundWaveBoxHeight/2)
         );      
 
-      if ((theApplet.mouseX < filterVisualWmax+fftDrawLeft)&&(theApplet.mouseX > filterVisualWmin+fftDrawLeft)) {
-        if ((theApplet.mouseY < (fftDrawHeight*(i+1)/(fftVar.length+1))+5+fftDrawTop)&&(theApplet.mouseY > (fftDrawHeight*(i+1)/(fftVar.length+1))-5+fftDrawTop)) {
+      if ((theApplet.mouseX < filterVisualWmax+soundWaveBoxX)&&(theApplet.mouseX > filterVisualWmin+soundWaveBoxX)) {
+        if ((theApplet.mouseY < (soundWaveBoxHeight*(i+1)/(fftVar.length+1))+5+soundWaveBoxY)&&(theApplet.mouseY > (soundWaveBoxHeight*(i+1)/(fftVar.length+1))-5+soundWaveBoxY)) {
           theApplet.stroke(mainYellow, 150);
           if (theApplet.mousePressed) {
-            if ((theApplet.mouseX-(fftDrawWidth/LiveInput.spectrum.length)*fftVar[i].fftRange > fftDrawLeft)&&(theApplet.mouseX+(fftDrawWidth/LiveInput.spectrum.length)*fftVar[i].fftRange < fftDrawLeft+fftDrawWidth)) {
-              fftVar[i].setBase(int((theApplet.mouseX-fftDrawLeft)/(fftDrawWidth/LiveInput.spectrum.length)));
+            if ((theApplet.mouseX-(soundWaveBoxWidth/LiveInput.spectrum.length)*fftVar[i].fftRange > soundWaveBoxX)&&(theApplet.mouseX+(soundWaveBoxWidth/LiveInput.spectrum.length)*fftVar[i].fftRange < soundWaveBoxX+soundWaveBoxWidth)) {
+              fftVar[i].setBase(int((theApplet.mouseX-soundWaveBoxX)/(soundWaveBoxWidth/LiveInput.spectrum.length)));
             }
           }
         }      
@@ -178,10 +210,10 @@ class MyCanvas extends ControlWindowCanvas {
 
 
       theApplet.line(
-      ((fftDrawWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+fftDrawLeft, 
-      (fftDrawHeight*(i+1)/(fftVar.length+1))-5+fftDrawTop, 
-      ((fftDrawWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+fftDrawLeft, 
-      (fftDrawHeight*(i+1)/(fftVar.length+1))+5+fftDrawTop
+      ((soundWaveBoxWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+soundWaveBoxX, 
+      (soundWaveBoxHeight*(i+1)/(fftVar.length+1))-5+soundWaveBoxY, 
+      ((soundWaveBoxWidth/LiveInput.spectrum.length))*(fftVar[i].baseFreq)+soundWaveBoxX, 
+      (soundWaveBoxHeight*(i+1)/(fftVar.length+1))+5+soundWaveBoxY
         );
 
 
@@ -197,42 +229,41 @@ class MyCanvas extends ControlWindowCanvas {
     theApplet.background(mainBackground);
 
     theApplet.pushStyle();
-    theApplet.stroke(mainYellow);
-    theApplet.strokeWeight(9);
-    theApplet.strokeCap(RECT);
-    theApplet.line(borderMargin, 0, widthGUI-borderMargin, 0);
-    theApplet.line(borderMargin, heightGUI, widthGUI-borderMargin, heightGUI);
-    theApplet.stroke(mainBlue);
-    theApplet.line(0, 0, 0, heightGUI-borderMargin);
-    theApplet.line(widthGUI, 0, widthGUI, heightGUI-borderMargin);
-
     theApplet.noStroke();
+    theApplet.fill(mainYellow);
+    theApplet.rect(borderLinesThickness+borderMarginBig, 0, thumbnailBoxWidth, borderLinesThickness);
+    theApplet.rect(borderLinesThickness+borderMarginBig, heightGUI-borderLinesThickness, thumbnailBoxWidth, heightGUI);
+    theApplet.fill(mainBlue);
+    theApplet.rect(0, 0, borderLinesThickness, heightGUI-borderMarginSmall-borderLinesThickness);
+    theApplet.rect(widthGUI-borderLinesThickness, 0, widthGUI, heightGUI-borderMarginSmall-borderLinesThickness);
+
     theApplet.fill(panelBackground);
-    theApplet.rect(borderMargin, 9, widthGUI-borderMargin*2, 450*scaleGUI);
-    theApplet.rect(borderMargin, (9+441+72)*scaleGUI, 706*scaleGUI, heightGUI-borderMargin-(9+441+72)*scaleGUI);
-    theApplet.rect(2*borderMargin+(706*scaleGUI), (9+441+72)*scaleGUI, 428*scaleGUI, 307*scaleGUI);
-    theApplet.rect(3*borderMargin+((706+428)*scaleGUI), (9+441+72)*scaleGUI, (541-16)*scaleGUI, 307*scaleGUI);
-    theApplet.rect(2*borderMargin+(706*scaleGUI), (9+441+72+307+54)*scaleGUI, (1025-12)*scaleGUI, (256-76)*scaleGUI);
+    theApplet.rect(thumbnailBoxX, thumbnailBoxY, thumbnailBoxWidth, thumbnailBoxHeight);
+    theApplet.rect(visualSpecificParametersBoxX, visualSpecificParametersBoxY, visualSpecificParametersBoxWidth, visualSpecificParametersBoxHeight);
+    theApplet.rect(presetsBoxX, presetsBoxY, presetsBoxWidth, presetsBoxHeight);
+    theApplet.rect(soundParametersBoxX, soundParametersBoxY, soundParametersBoxWidth, soundParametersBoxHeight);
+    theApplet.rect(soundWaveBoxX, soundWaveBoxY, soundWaveBoxWidth, soundWaveBoxHeight);
 
     theApplet.stroke(mainYellow);
     theApplet.strokeWeight(1);
     theApplet.strokeCap(RECT);
 
-    theApplet.line(borderMargin, (9+441+72)*scaleGUI, borderMargin+706*scaleGUI, (9+441+72)*scaleGUI);
-    theApplet.line(2*borderMargin+(706*scaleGUI), (9+441+72)*scaleGUI, 2*borderMargin+(706*scaleGUI)+428*scaleGUI, (9+441+72)*scaleGUI);
-    theApplet.line(3*borderMargin+((706+428)*scaleGUI), (9+441+72)*scaleGUI, 3*borderMargin+((706+428)*scaleGUI)+(541-16)*scaleGUI, (9+441+72)*scaleGUI);
-    theApplet.line(2*borderMargin+(706*scaleGUI), (9+441+72+307+54)*scaleGUI, 2*borderMargin+(706*scaleGUI)+(1025-12)*scaleGUI, (9+441+72+307+54)*scaleGUI);
+    theApplet.line(visualSpecificParametersBoxX, visualSpecificParametersBoxY, visualSpecificParametersBoxX+visualSpecificParametersBoxWidth, visualSpecificParametersBoxY);
+    theApplet.line(presetsBoxX, presetsBoxY, presetsBoxX+presetsBoxWidth, presetsBoxY);
+    theApplet.line(soundParametersBoxX, soundParametersBoxY, soundParametersBoxX+soundParametersBoxWidth, soundParametersBoxY);
+    theApplet.line(soundWaveBoxX, soundWaveBoxY, soundWaveBoxX+soundWaveBoxWidth, soundWaveBoxY);
 
     theApplet.stroke(thinLines);
-    theApplet.line(borderMargin, 9+450*scaleGUI, widthGUI-borderMargin, 9+450*scaleGUI);
-    theApplet.line(borderMargin, (9+441+72)*scaleGUI+ heightGUI-borderMargin-(9+441+72)*scaleGUI, 706*scaleGUI+borderMargin, (9+441+72)*scaleGUI+ heightGUI-borderMargin-(9+441+72)*scaleGUI);
-    theApplet.line(2*borderMargin+(706*scaleGUI), (9+441+72)*scaleGUI+ 307*scaleGUI, 428*scaleGUI+2*borderMargin+(706*scaleGUI), (9+441+72)*scaleGUI+ 307*scaleGUI);
-    theApplet.line(3*borderMargin+((706+428)*scaleGUI), (9+441+72)*scaleGUI+307*scaleGUI, (541-16)*scaleGUI+3*borderMargin+((706+428)*scaleGUI), (9+441+72)*scaleGUI+307*scaleGUI);
-    theApplet.line(2*borderMargin+(706*scaleGUI), (9+441+72+307+54)*scaleGUI+(256-76)*scaleGUI, (1025-12)*scaleGUI+2*borderMargin+(706*scaleGUI), (9+441+72+307+54)*scaleGUI+(256-76)*scaleGUI);
-    theApplet.line(borderMargin+(621*scaleGUI), (9+79)*scaleGUI, borderMargin+(621*scaleGUI), 420*scaleGUI);
+    theApplet.line(thumbnailBoxX, thumbnailBoxY+thumbnailBoxHeight, thumbnailBoxX+thumbnailBoxWidth, thumbnailBoxY+thumbnailBoxHeight);
+    theApplet.line(visualSpecificParametersBoxX, visualSpecificParametersBoxY+visualSpecificParametersBoxHeight, visualSpecificParametersBoxX+visualSpecificParametersBoxWidth, visualSpecificParametersBoxY+visualSpecificParametersBoxHeight);
+    theApplet.line(presetsBoxX, presetsBoxY+presetsBoxHeight, presetsBoxX+presetsBoxWidth, presetsBoxY+presetsBoxHeight);
+    theApplet.line(soundParametersBoxX, soundParametersBoxY+soundParametersBoxHeight, soundParametersBoxX+soundParametersBoxWidth, soundParametersBoxY+soundParametersBoxHeight);
+    theApplet.line(soundWaveBoxX, soundWaveBoxY+soundWaveBoxHeight, soundWaveBoxX+soundWaveBoxWidth, soundWaveBoxY+soundWaveBoxHeight);
+    theApplet.line(thumbnailBoxX+thumbnailBoxWidth/3, thumbnailBoxY+borderMarginBig, thumbnailBoxX+thumbnailBoxWidth/3, thumbnailBoxY+thumbnailBoxHeight-borderMarginSmall);
+
     theApplet.popStyle();
 
-    theApplet.image(logo, borderMargin+1, 10, 131*scaleGUI, 72*scaleGUI);
+    theApplet.image(logo, thumbnailBoxX, thumbnailBoxY*2, 60, 33);
 
     drawThumbnails(theApplet);
     drawFFT(theApplet);
@@ -242,10 +273,10 @@ class MyCanvas extends ControlWindowCanvas {
     theApplet.stroke(255);
     theApplet.fill(255);
     theApplet.textFont(pfontLight, 24);
-    theApplet.text("SOUND REACTION", 3*borderMargin+((706+428)*scaleGUI), (9+441+72)*scaleGUI-5);
-    theApplet.text("VISUAL SPECIFIC PARAMETERS", borderMargin, (9+441+72)*scaleGUI-5);
-    theApplet.text("PRESETS", 2*borderMargin+(706*scaleGUI), (9+441+72)*scaleGUI-5);
-    theApplet.text("SOUND REACTION ADJUSTMENT", 2*borderMargin+(706*scaleGUI), (9+441+72+307+54)*scaleGUI-5);
+    theApplet.text("VISUAL SPECIFIC PARAMETERS", visualSpecificParametersBoxX, visualSpecificParametersBoxY-2);
+    theApplet.text("SOUND REACTION", soundParametersBoxX, soundParametersBoxY-2);
+    theApplet.text("PRESETS", presetsBoxX, presetsBoxY-2);
+    theApplet.text("SOUND REACTION ADJUSTMENT", soundWaveBoxX, soundWaveBoxY-2);
     theApplet.text("No Preview Available.", 170, 170);
     theApplet.popStyle();
   }
@@ -254,48 +285,172 @@ class MyCanvas extends ControlWindowCanvas {
 
 void soundReactionGUI() {
 
-  //      theApplet.rect(3*borderMargin+((706+428)*scaleGUI), (9+441+72)*scaleGUI, (541-16)*scaleGUI, 307*scaleGUI);
+  String[] parameterNames = {
+    "SR", "gain", "decay"
+  };
+  int soundReactionGUISep = 40;
 
+  int[] parameterMatrix = {
+    1, 1, 1
+  };    //x = 1; y = 3
 
-  cp5.addSlider("gain")
-    .setPosition(3*borderMargin+((706+428)*scaleGUI)+30, (9+441+72)*scaleGUI+(307*scaleGUI*3/4)-20)
-      .setRange(0., 1.)
-        .setSize(200, 20)
-          .setWindow(controlWindow);  
+  PVector[][] parameterPos = new PVector[parameterMatrix.length][max(parameterMatrix)]; 
+  PVector[] parameterSize = new PVector[parameterMatrix.length]; 
 
-  cp5.getController("gain")
-    .getCaptionLabel()
-      .setFont(fontLight)
-        .toUpperCase(false)
-          .setSize(18)
-            ;
+  for (int i = 0; i < parameterMatrix.length; i++) {
+    for (int j = 0; j < parameterMatrix[i]; j++) {
+      parameterPos[i][j] = new PVector(soundParametersBoxX + (soundParametersBoxWidth/(parameterMatrix[i]*2)*(j*2+1)), soundParametersBoxY +(soundParametersBoxHeight/(parameterMatrix.length*2)*(i*2+1)));
+      parameterSize[i] = new PVector((soundParametersBoxWidth/parameterMatrix[i])-soundReactionGUISep, (soundParametersBoxHeight/parameterMatrix.length)-soundReactionGUISep);
+      noStroke();
+      fill(127);
+      rectMode(CORNER);
+    }
+  }
 
-  cp5.addSlider("decay")
-    .setPosition(3*borderMargin+((706+428)*scaleGUI)+30, (9+441+72)*scaleGUI+(307*scaleGUI*2/4)-20)
-      .setRange(0.5, 1.)
-        .setSize(200, 20)
-          .setWindow(controlWindow);  
-
-  cp5.getController("decay")
-    .getCaptionLabel()
-      .setFont(fontLight)
-        .toUpperCase(false)
-          .setSize(18)
-            ;
 
   cp5.addToggle("SR")
-    .setPosition(3*borderMargin+((706+428)*scaleGUI)+30, (9+441+72)*scaleGUI+(307*scaleGUI*1/4)-20)
-      .setSize(20, 20)
+    .setPosition(parameterPos[0][0].x-parameterSize[0].x/2, parameterPos[0][0].y-parameterSize[0].y/2)   
+      .setSize((int)parameterSize[0].x, (int)parameterSize[0].y)
         .setValue(true)
           .setWindow(controlWindow);
 
-  cp5.getController("SR")
-    .getCaptionLabel()
-      .setFont(fontLight)
-        .toUpperCase(false)
-          .setSize(18)
-            ;
-  cp5.getController("SR").captionLabel().getStyle().marginLeft = 25;
-  cp5.getController("SR").captionLabel().getStyle().marginTop = -25;
+  cp5.addSlider("gain")
+    .setPosition(parameterPos[1][0].x-parameterSize[1].x/2, parameterPos[1][0].y-parameterSize[1].y/2)   
+      .setRange(0., 1.)
+        .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+          .setWindow(controlWindow);  
+
+  cp5.addSlider("decay")
+    .setPosition(parameterPos[2][0].x-parameterSize[2].x/2, parameterPos[2][0].y-parameterSize[2].y/2)   
+      .setRange(0.5, 1.)
+        .setSize((int)parameterSize[2].x, (int)parameterSize[2].y)
+          .setWindow(controlWindow);  
+
+  cp5.getController("SR").captionLabel().getStyle().marginLeft = 0;
+  cp5.getController("SR").captionLabel().getStyle().marginTop = 0;
+
+  cp5.getController("gain").captionLabel().getStyle().marginLeft = -(int)parameterSize[1].x-4;
+  cp5.getController("gain").captionLabel().getStyle().marginTop = 22;
+
+  cp5.getController("decay").captionLabel().getStyle().marginLeft = -(int)parameterSize[2].x-4;
+  cp5.getController("decay").captionLabel().getStyle().marginTop = 22;
+
+
+  for (int i = 0; i < parameterNames.length; i++) {
+    cp5.getController(parameterNames[i])
+      .getCaptionLabel()
+        .setFont(fontLight)
+          .toUpperCase(false)
+            .setSize(18)
+              ;
+  }
+}
+
+public void presetsGUI(ControlP5 cp5, ControlWindow controlWindow) {
+  String[] parameterNames = {
+    "preset1", "preset2", "preset3", "preset4", "savePreset", "automatic", "transitionTime"
+  };
+  int presetGUISep = 40;
+
+  int[] parameterMatrix = {
+    2, 1, 4
+  };    //x = 1; y = 3
+
+  PVector[][] parameterPos = new PVector[parameterMatrix.length][max(parameterMatrix)]; 
+  PVector[] parameterSize = new PVector[parameterMatrix.length]; 
+
+  for (int i = 0; i < parameterMatrix.length; i++) {
+    for (int j = 0; j < parameterMatrix[i]; j++) {
+      parameterPos[i][j] = new PVector(presetsBoxX + (presetsBoxWidth/(parameterMatrix[i]*2)*(j*2+1)), presetsBoxY + ((presetsBoxHeight-10)/(parameterMatrix.length*2)*(i*2+1)));
+      parameterSize[i] = new PVector((presetsBoxWidth/parameterMatrix[i])-presetGUISep, (presetsBoxHeight/parameterMatrix.length)-presetGUISep);
+      noStroke();
+      fill(127);
+      rectMode(CORNER);
+    }
+  }
+
+  cp5.addToggle("preset1")
+    .setPosition(parameterPos[2][0].x-parameterSize[2].x/2, parameterPos[2][0].y-parameterSize[2].y/2)   
+      .setSize((int)parameterSize[2].x, (int)parameterSize[2].y)
+        .setValue(false)
+          .setWindow(controlWindow);
+
+  cp5.addToggle("preset2")
+    .setPosition(parameterPos[2][1].x-parameterSize[2].x/2, parameterPos[2][1].y-parameterSize[2].y/2)   
+      .setSize((int)parameterSize[2].x, (int)parameterSize[2].y)
+        .setValue(false)
+          .setWindow(controlWindow);
+
+  cp5.addToggle("preset3")
+    .setPosition(parameterPos[2][2].x-parameterSize[2].x/2, parameterPos[2][2].y-parameterSize[2].y/2)   
+      .setSize((int)parameterSize[2].x, (int)parameterSize[2].y)
+        .setValue(false)
+          .setWindow(controlWindow);
+
+  cp5.addToggle("preset4")
+    .setPosition(parameterPos[2][3].x-parameterSize[2].x/2, parameterPos[2][3].y-parameterSize[2].y/2)   
+      .setSize((int)parameterSize[2].x, (int)parameterSize[2].y)
+        .setValue(false)
+          .setWindow(controlWindow);
+
+  cp5.addToggle("savePreset")
+    .setPosition(parameterPos[0][1].x-parameterSize[0].x/2, parameterPos[0][1].y-parameterSize[0].y/2)   
+      .setSize((int)parameterSize[0].x, (int)parameterSize[0].y)
+        .setValue(false)
+          .setWindow(controlWindow);
+
+  cp5.addToggle("automatic")
+    .setPosition(parameterPos[0][0].x-parameterSize[0].x/2, parameterPos[0][0].y-parameterSize[0].y/2)   
+      .setSize((int)parameterSize[0].x, (int)parameterSize[0].y)
+        .setValue(false)
+          .setWindow(controlWindow);
+
+  cp5.addSlider("transitionTime")
+    .setPosition(parameterPos[1][0].x-parameterSize[1].x/2, parameterPos[1][0].y-parameterSize[1].y/2)   
+      .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
+        .setRange(0.1, cubeCircleRad*6/10)
+          .setWindow(controlWindow);
+
+  cp5.getController("transitionTime").captionLabel().getStyle().marginLeft = -(int)parameterSize[1].x-4;
+  cp5.getController("transitionTime").captionLabel().getStyle().marginTop = 22;
+
+  for (int i = 0; i < parameterNames.length; i++) {
+    cp5.getController(parameterNames[i])
+      .getCaptionLabel()
+        .setFont(fontLight)
+          .toUpperCase(false)
+            .setSize(18)
+              ;
+  }
+}
+
+
+public float[] loadPreset(String dir, String name, int presetNumber) {
+  float[] parameters = {
+  };
+  String[] lines;
+  String[] pieces;
+  String fullAddress = dir + name + presetNumber + ".txt"; 
+  lines = loadStrings(fullAddress);
+  println(sketchPath);
+  println(fullAddress);
+  pieces = split(lines[0], ' ');
+  for (int i = 0; i < pieces.length; i++) {
+    parameters = append(parameters, float(pieces[i]));
+  }
+  return parameters;
+}
+
+public void savePreset(String dir, String name, int presetNumber, float[] parameters) {
+  String fullAddress = dir + name + presetNumber + ".txt"; 
+  String[] toWrite00 = {
+    ""
+  };
+  for (int i = 0; i < parameters.length; i++) {
+    toWrite00[0] += parameters[i];
+    if (i != parameters.length-1)
+      toWrite00[0] += ' ';
+  }
+  saveStrings(fullAddress, toWrite00);
 }
 

@@ -1,11 +1,5 @@
 //base, harmonic 
 
-//import ddf.minim.analysis.*;
-//import ddf.minim.*;
-//
-//Minim minim;
-//AudioInput in;
-//FFT fft;
 FftVar[] fftVar;
 float fftVarAvg;
 
@@ -24,23 +18,12 @@ boolean drawFFT = true;
 boolean SR = false;
 
 void initializeSoundAnalysis() {
-//  minim = new Minim(this);
-//  in = minim.getLineIn(Minim.STEREO, 2048);
-//  fft = new FFT(in.bufferSize(), in.sampleRate()); //2048 - 22050
-//  fft.linAverages(avgAmount);
-
 initializeSonia();
 
-  //  fftComp = new float[fft.avgSize()];
   fftVar = new FftVar[2];
   fftVar[0] = new FftVar(10, 5);
   fftVar[1] = new FftVar(50, 15);
 
-  //  for (int i = 0; i < fft.avgSize(); i++) {
-  //    fftVar[i] = new FftVar(i);
-  //    //fftVar[i].Update();
-  //    fftComp[i] = 0.1;
-  //  }
   getSpectrum();
 
 }
@@ -50,8 +33,6 @@ void soundAnalysis() {
     midiMapSound();
   }
   baseTemp = 0.;
-//  fft.linAverages(avgAmount);
-//  fft.forward(in.mix);
 getSpectrum();
 //  features = ps.getFeatures(); // get the data from the PowerSpectrum object
 
@@ -78,7 +59,6 @@ public class FftVar
   { 
     valuePre = 0;
     for (int i = -fftRange; i < fftRange; i++) {
-     //valuePre += (fft.getAvg(i+baseFreq)*(1.-decay))*gain*100/(2*fftRange);
       valuePre += (LiveInput.spectrum[i+baseFreq]*(1.-decay))*gain*100/(2*fftRange);
 
     }
@@ -98,12 +78,4 @@ public class FftVar
   }
 }
 
-//void stop()
-//{
-//  // always close Minim audio classes when you are done with them
-//  in.close();
-//  minim.stop();
-//
-//  super.stop();
-//}
 
