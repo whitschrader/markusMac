@@ -1,33 +1,11 @@
 
+float triangleArea(PVector v1, PVector v2, PVector v3) {
 
+  PVector a = PVector.sub(v1, v2);
+  PVector b = PVector.sub(v1, v3);
 
-
-
-float nearDist;
-float farDist; 
-color fogColor;
-
-PImage bg;
-PImage f;
-int cubeAmount = 50;
-float cubeColorMin;
-float cubeColorMax;
-
-float cubeSizeOffsetX = 10;
-float cubeSizeOffsetY = 10;
-float cubeSizeOffsetZ = 10;
-
-float cubeSizeVarianceX;
-float cubeSizeVarianceY;
-float cubeSizeVarianceZ;
-
-float outlineStroke;
-float outlineLength;
-float rotSpeed = 0.;
-float rotVariance;
-float rotSelf = 0.;
-float rotLimit = 2.;
-float cubeCircleRad = 100.;
+  return 0.5*(sqrt(pow(a.y*b.z-a.z*b.y, 2)+pow(a.z*b.x-a.x*b.z, 2)+pow(a.x*b.y-a.y*b.x, 2)));
+}
 
 
 float newNoise(float x, float y, float z) {

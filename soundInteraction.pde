@@ -59,7 +59,7 @@ public class FftVar
   { 
     valuePre = 0;
     for (int i = -fftRange; i < fftRange; i++) {
-      valuePre += (LiveInput.spectrum[i+baseFreq]*(1.-decay))*gain*100/(2*fftRange);
+      valuePre += (LiveInput.spectrum[i+baseFreq]*(1.-decay))*gain/(2*fftRange);
 
     }
 

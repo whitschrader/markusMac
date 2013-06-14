@@ -6,24 +6,40 @@ PeasyCam cam;
 import hardcorepawn.fog.*;
 
 fog myFog;
+
+float nearDist;
+float farDist; 
+color fogColor;
+
+PImage bg;
+PImage f;
+float cubeAmount = 50;
+float cubeColorMin;
+float cubeColorMax;
+
+float cubeSizeOffsetX = 10;
+float cubeSizeOffsetY = 10;
+float cubeSizeOffsetZ = 10;
+
+float cubeSizeVarianceX;
+float cubeSizeVarianceY;
+float cubeSizeVarianceZ;
+
+float outlineStroke;
+float outlineLength;
+float rotSpeed = 0.;
+float rotVariance;
+float rotSelf = 0.;
+float rotLimit = 2.;
+float cubeCircleRad = 100.;
+
 boolean fogEnable = false;
-boolean preset1 = false;
-boolean preset2 = false;
-boolean preset3 = false;
-boolean preset4 = false;
-boolean preset1Pre = false;
-boolean preset2Pre = false;
-boolean preset3Pre = false;
-boolean preset4Pre = false;
-boolean savePreset = false;
-boolean savePresetPre = false;
-int presetIndex = 0;
+
 class Cube extends VisualEngine {
 
   protected ArrayList<controlP5.Controller> controllers;
   String[] parameterNames = { 
     "cubeAmount", 
-    "cubeColor", //çift data birden olmuyor canım
     "cubeSizeOffsetX", 
     "cubeSizeOffsetY", 
     "cubeSizeOffsetZ", 
@@ -35,15 +51,20 @@ class Cube extends VisualEngine {
     "cubeSizeVarianceY", 
     "cubeSizeVarianceZ", 
     "outlineLength", 
-    "rotSelf"
+    "rotSelf",
+    "cubeColor" //PRESETLERDE SIKINTI YARATIYOR
+
   };
 
-  float[] parameters1 = new float[parameterNames.length];
-  float[] parameters2 = new float[parameterNames.length];
-  float[] parameters3 = new float[parameterNames.length];
-  float[] parameters4 = new float[parameterNames.length];
-  float[] parametersTemp = new float[parameterNames.length];
+  float[] parameters1 = new float[parameterNames.length-1];
+  float[] parameters2 = new float[parameterNames.length-1];
+  float[] parameters3 = new float[parameterNames.length-1];
+  float[] parameters4 = new float[parameterNames.length-1];
+  float[] parametersTemp = new float[parameterNames.length-1];
 
+  float[] camRotations = new float[3];
+  float[] camLookAt = new float[3];
+  public float camDistance;
 
   public Cube(PApplet myApplet, String name) {
     super(myApplet, name);
@@ -52,9 +73,9 @@ class Cube extends VisualEngine {
   }
 
   public void init() {
-    cam = new PeasyCam(myApplet, 100);
-    cam.setMinimumDistance(-5000);
-    cam.setMaximumDistance(5000);
+    cam = new PeasyCam(myApplet, 50);
+    cam.setMinimumDistance(1);
+    cam.setMaximumDistance(50000);
     background(0);
     bg = loadImage("cubesBG.jpg");
     f = loadImage("cfp.png");
@@ -67,10 +88,12 @@ class Cube extends VisualEngine {
       fogColor=color(0);
       myFog.setColor(fogColor);
     }
+
     parameters1 =     loadPreset(presetDir, name, 1);
     parameters2 =     loadPreset(presetDir, name, 2);
     parameters3 =     loadPreset(presetDir, name, 3);
     parameters4 =     loadPreset(presetDir, name, 4);
+
   }
 
   public void initGUI(ControlP5 cp5, ControlWindow controlWindow) {
@@ -142,7 +165,7 @@ class Cube extends VisualEngine {
           .setRange(0., 1.)
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
-              
+
     cp5.addSlider("cubeSizeOffsetX")
       .setPosition(parameterPos[1][0].x-parameterSize[1].x/2, parameterPos[1][0].y-parameterSize[1].y/2)   
         .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
@@ -178,7 +201,7 @@ class Cube extends VisualEngine {
         .setSize((int)parameterSize[1].x, (int)parameterSize[1].y)
           .setRange(0.1, cubeCircleRad*6/10)
             .setWindow(controlWindow);
-            
+
     cp5.addRange("cubeColor")
       .setBroadcast(false) 
         .setPosition(parameterPos[2][0].x-parameterSize[2].x/2, parameterPos[2][0].y-parameterSize[2].y/2)   
@@ -188,7 +211,7 @@ class Cube extends VisualEngine {
                 .setRangeValues(0, 255)
                   .setBroadcast(true)
                     .setWindow(controlWindow);
-                    
+
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
@@ -212,13 +235,15 @@ class Cube extends VisualEngine {
     mapPresets();
     colorMode(HSB);
     background(0, 0, 20);
+    noLights();
     if (lightEnable) {
       lightSetting();
-    }
+    } 
+
     rS +=rotSpeed*0.05;
     rX += rotSelf*0.01;
 
-    for (int i = 0; i < cubeAmount; i++) {
+    for (int i = 0; i < (int)cubeAmount; i++) {
       pushMatrix();
       translate(cubeCircleRad*sin(map(i, 0, cubeAmount, 0, 2*PI)+rS), rotVariance*sin((frameCount*0.01)+map(i, 0, cubeAmount, 0, 4*PI)), rotVariance*3*cos((frameCount*0.01)+map(i, 0, cubeAmount, 0, 4*PI))+cubeCircleRad*cos(map(i, 0, cubeAmount, 0, 2*PI)+rS));
       float angle = newNoise((float)i/50, rX, 0) * TWO_PI*rotLimit; //newNoise is smoother
@@ -357,85 +382,36 @@ class Cube extends VisualEngine {
     if (preset1 && !preset1Pre) {
       presetIndex = 1;
       parameters1 =     loadPreset(presetDir, name, 1);
-      cp5.getController("cubeAmount").setValue((int)parameters1[0]);
-      cp5.getController("cubeSizeOffsetX").setValue(parameters1[1]);
-      cp5.getController("cubeSizeOffsetY").setValue(parameters1[2]);
-      cp5.getController("cubeSizeOffsetZ").setValue(parameters1[3]); 
-      cp5.getController("outlineStroke").setValue(parameters1[4]); 
-      cp5.getController("rotLimit").setValue(parameters1[5]); 	
-      cp5.getController("rotVariance").setValue(parameters1[6]); 	
-      cp5.getController("rotSpeed").setValue(parameters1[7]); 		
-      cp5.getController("cubeSizeVarianceX").setValue(parameters1[8]); 		
-      cp5.getController("cubeSizeVarianceY").setValue(parameters1[9]); 		
-      cp5.getController("cubeSizeVarianceZ").setValue(parameters1[10]);		
-      cp5.getController("outlineLength").setValue(parameters1[11]);	
-      cp5.getController("rotSelf").setValue(parameters1[12]);
+      for (int i = 0; i < parameterNames.length-1; i++) {
+        cp5.getController(parameterNames[i]).setValue(parameters1[i]);
+      }
     } 
     else     if (preset2 && !preset2Pre) {
       presetIndex = 2;
       parameters2 =     loadPreset(presetDir, name, 2);
-      cp5.getController("cubeAmount").setValue((int)parameters2[0]);
-      cp5.getController("cubeSizeOffsetX").setValue(parameters2[1]);
-      cp5.getController("cubeSizeOffsetY").setValue(parameters2[2]);
-      cp5.getController("cubeSizeOffsetZ").setValue(parameters2[3]); 
-      cp5.getController("outlineStroke").setValue(parameters2[4]); 
-      cp5.getController("rotLimit").setValue(parameters2[5]); 	
-      cp5.getController("rotVariance").setValue(parameters2[6]); 	
-      cp5.getController("rotSpeed").setValue(parameters2[7]); 		
-      cp5.getController("cubeSizeVarianceX").setValue(parameters2[8]); 		
-      cp5.getController("cubeSizeVarianceY").setValue(parameters2[9]); 		
-      cp5.getController("cubeSizeVarianceZ").setValue(parameters2[10]);		
-      cp5.getController("outlineLength").setValue(parameters2[11]);	
-      cp5.getController("rotSelf").setValue(parameters2[12]);
+      for (int i = 0; i < parameterNames.length-1; i++) {
+        cp5.getController(parameterNames[i]).setValue(parameters2[i]);
+      }
     } 
     else     if (preset3 && !preset3Pre) {
       presetIndex = 3;
       parameters3 =     loadPreset(presetDir, name, 3);
-      cp5.getController("cubeAmount").setValue((int)parameters3[0]);
-      cp5.getController("cubeSizeOffsetX").setValue(parameters3[1]);
-      cp5.getController("cubeSizeOffsetY").setValue(parameters3[2]);
-      cp5.getController("cubeSizeOffsetZ").setValue(parameters3[3]); 
-      cp5.getController("outlineStroke").setValue(parameters3[4]); 
-      cp5.getController("rotLimit").setValue(parameters3[5]); 	
-      cp5.getController("rotVariance").setValue(parameters3[6]); 	
-      cp5.getController("rotSpeed").setValue(parameters3[7]); 		
-      cp5.getController("cubeSizeVarianceX").setValue(parameters3[8]); 		
-      cp5.getController("cubeSizeVarianceY").setValue(parameters3[9]); 		
-      cp5.getController("cubeSizeVarianceZ").setValue(parameters3[10]);		
-      cp5.getController("outlineLength").setValue(parameters3[11]);	
-      cp5.getController("rotSelf").setValue(parameters3[12]);
+      for (int i = 0; i < parameterNames.length-1; i++) {
+        cp5.getController(parameterNames[i]).setValue(parameters3[i]);
+        println("3- " + i);
+      }
     } 
     else     if (preset4 && !preset4Pre) {
       presetIndex = 4;
       parameters4 =     loadPreset(presetDir, name, 4);
-      cp5.getController("cubeAmount").setValue((int)parameters4[0]);
-      cp5.getController("cubeSizeOffsetX").setValue(parameters4[1]);
-      cp5.getController("cubeSizeOffsetY").setValue(parameters4[2]);
-      cp5.getController("cubeSizeOffsetZ").setValue(parameters4[3]); 
-      cp5.getController("outlineStroke").setValue(parameters4[4]); 
-      cp5.getController("rotLimit").setValue(parameters4[5]); 	
-      cp5.getController("rotVariance").setValue(parameters4[6]); 	
-      cp5.getController("rotSpeed").setValue(parameters4[7]); 		
-      cp5.getController("cubeSizeVarianceX").setValue(parameters4[8]); 		
-      cp5.getController("cubeSizeVarianceY").setValue(parameters4[9]); 		
-      cp5.getController("cubeSizeVarianceZ").setValue(parameters4[10]);		
-      cp5.getController("outlineLength").setValue(parameters4[11]);	
-      cp5.getController("rotSelf").setValue(parameters4[12]);
+      for (int i = 0; i < parameterNames.length-1; i++) {
+        cp5.getController(parameterNames[i]).setValue(parameters4[i]);
+      }
     } 
     else if ( savePreset && !savePresetPre) {
-      parametersTemp[0] = cubeAmount;
-      parametersTemp[1] = cubeSizeOffsetX;
-      parametersTemp[2] = cubeSizeOffsetY;
-      parametersTemp[3] = cubeSizeOffsetZ;
-      parametersTemp[4] = outlineStroke;
-      parametersTemp[5] = rotLimit;
-      parametersTemp[6] = rotVariance;
-      parametersTemp[7] = rotSpeed;
-      parametersTemp[8] = cubeSizeVarianceX;
-      parametersTemp[9] = cubeSizeVarianceY;
-      parametersTemp[10] = cubeSizeVarianceZ;
-      parametersTemp[11] = outlineLength;
-      parametersTemp[12] = rotSelf;
+      for (int i = 0; i < parameterNames.length-1; i++) {
+        parametersTemp[i] = cp5.getController(parameterNames[i]).getValue();
+      }
       savePreset(presetDir, name, presetIndex, parametersTemp) ;
     } 
     else if ((!preset1 && !preset2 && !preset3 && !preset4)) {
@@ -450,11 +426,35 @@ class Cube extends VisualEngine {
   }
 
   public void start() {
-    println("Starting cubes");
+    println("Starting " + name);
+    hint(ENABLE_DEPTH_TEST);
+    cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
+    cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
+    cam.setDistance(camDistance);
   }
 
   public void exit() {
-    println("Exitting cubes");
+    println("Exitting " + name);
+
+    specular(0);
+
+    //    getCamMatrix(camLookAt, camRotations, camDistance);  
+
+    camLookAt[0] = cam.getLookAt()[0];
+    camLookAt[1] = cam.getLookAt()[1];
+    camLookAt[2] = cam.getLookAt()[2];
+
+    camRotations[0] = cam.getRotations()[0];
+    camRotations[1] = cam.getRotations()[1];
+    camRotations[2] = cam.getRotations()[2];
+
+    camDistance = (float)cam.getDistance();
+
+    println("CUBES CAM");
+    println(camLookAt);
+    println(camRotations);
+    println(camDistance);
+    //    noLights();
   }
 }
 

@@ -151,13 +151,13 @@ class MyCanvas extends ControlWindowCanvas {
       (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
       soundWaveBoxY+(soundWaveBoxHeight/2), 
       (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
-      (soundWaveBoxY+(soundWaveBoxHeight/2))-constrain(LiveInput.spectrum[i], 0, soundWaveBoxHeight/2)
+      (soundWaveBoxY+(soundWaveBoxHeight/2))-constrain(LiveInput.spectrum[i]*gain, 0, soundWaveBoxHeight/2)
         );
       theApplet.line(
       (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
       soundWaveBoxY+(soundWaveBoxHeight/2), 
       (soundWaveBoxWidth/LiveInput.spectrum.length)*(i+1)+soundWaveBoxX, 
-      (soundWaveBoxY+(soundWaveBoxHeight/2))+constrain(LiveInput.spectrum[i], 0, soundWaveBoxHeight/2)
+      (soundWaveBoxY+(soundWaveBoxHeight/2))+constrain(LiveInput.spectrum[i]*gain, 0, soundWaveBoxHeight/2)
         );
       theApplet.popStyle();
     }
@@ -425,32 +425,4 @@ public void presetsGUI(ControlP5 cp5, ControlWindow controlWindow) {
 }
 
 
-public float[] loadPreset(String dir, String name, int presetNumber) {
-  float[] parameters = {
-  };
-  String[] lines;
-  String[] pieces;
-  String fullAddress = dir + name + presetNumber + ".txt"; 
-  lines = loadStrings(fullAddress);
-  println(sketchPath);
-  println(fullAddress);
-  pieces = split(lines[0], ' ');
-  for (int i = 0; i < pieces.length; i++) {
-    parameters = append(parameters, float(pieces[i]));
-  }
-  return parameters;
-}
-
-public void savePreset(String dir, String name, int presetNumber, float[] parameters) {
-  String fullAddress = dir + name + presetNumber + ".txt"; 
-  String[] toWrite00 = {
-    ""
-  };
-  for (int i = 0; i < parameters.length; i++) {
-    toWrite00[0] += parameters[i];
-    if (i != parameters.length-1)
-      toWrite00[0] += ' ';
-  }
-  saveStrings(fullAddress, toWrite00);
-}
 

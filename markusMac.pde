@@ -7,34 +7,13 @@ Yapılacaklar
  preset
  
  
-// circleRad = 100
-// buna göre tüm parametreleri update et
- 
-// rotationlar genelde iki yönlü olsun 
- 
-// FOG??
- 
-// küplerin hareketi perlin noise
-// ışık toparla
- 
-// genel rotation düzelt rotSpeed
-// kendi ekseni etrafındaki dönüşün rotation hızı parametresi
- 
- dışarıdaki çizgilerin ışıktan etkilenmesi
- Visual Engine exit functions 
- farklı kamera açısı presetleri + free running mode 
+presets update: transition, soundFilter base & range, camera angles 
 
+sound 'nteraction algorithm
 
- sound filter mouse interaction exceptions
- ışıkları kameraya bağla
-  
- Presets: load,save,transition 
-   visual specific parameters
-   sound parameters
-   filter base & range
- 
- 
- particle forces update
+gui layout
+
+preview 
  
  */
 
@@ -46,12 +25,11 @@ boolean lightEnable = true;
 //windows directory
 //String presetDir = "C:/Users/kerim/Google Drive/djMarkusClass/presets/";
 //mac directory
-String presetDir = "/Users/kocosman/Documents/Processing/djMarkusClass/presets/";
+String presetDir = "/Users/kocosman/markusMac/presets/";
 
 VisualEngine engines[];
 int currentEngineIndex = 0;
 int previousEngineIndex = 0;
-
 
 void changeVisualEngine(int newIndex)
 {
@@ -61,7 +39,6 @@ void changeVisualEngine(int newIndex)
   println("Changing to visual engine #" + newIndex);
   previousEngineIndex = currentEngineIndex;
   currentEngineIndex = newIndex;
-  //  engines[currentEngineIndex].init();
 
     engines[previousEngineIndex].exit();
     engines[newIndex].start();
@@ -76,13 +53,16 @@ void changeVisualEngine(int newIndex)
 void setup() {
   java.util.Locale.setDefault(java.util.Locale.US);
   size(1680, 1050, OPENGL);
-  frame.setLocation(1366, 0);
+  frame.setLocation(1680, 0);
   frameRate(60);
 
   engines = new VisualEngine[] {
     new Cube(this, "Cubes"), 
+    new Polyface(this, "Polyface"),
     new Particle(this, "Particles")
     };
+
+  println("Engines length: " + engines.length);
 
     if (midiEnable) {
       initializeMidi();
@@ -95,16 +75,18 @@ void setup() {
   }
 
   initializeGUI();
-  changeVisualEngine(0);
+  changeVisualEngine(1);
+  
+  noCursor();
+  
 }
 
 void draw() {
   frame.setTitle(int(frameRate)+"fps");
-
+  
   engines[currentEngineIndex].update();
 
   soundAnalysis();
-
 }
 
 
@@ -117,6 +99,7 @@ public void init() {
   // call PApplet.init() to take care of business
   super.init();
 }
+
 
 
 
