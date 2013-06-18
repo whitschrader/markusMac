@@ -27,9 +27,6 @@ float swRand = 0.;
 float constX = 0.01;
 float constY = 0.01;
 
-
-
-
 class Particle extends VisualEngine {
 
   protected Vector<controlP5.Controller> controllers;

@@ -53,12 +53,13 @@ void changeVisualEngine(int newIndex)
 void setup() {
   java.util.Locale.setDefault(java.util.Locale.US);
   size(1680, 1050, OPENGL);
-  frame.setLocation(1680, 0);
+  frame.setLocation(-1680, 0);
   frameRate(60);
 
   engines = new VisualEngine[] {
     new Cube(this, "Cubes"), 
     new Polyface(this, "Polyface"),
+    new Deform(this,"Deform"),
     new Particle(this, "Particles")
     };
 
@@ -75,7 +76,7 @@ void setup() {
   }
 
   initializeGUI();
-  changeVisualEngine(1);
+  changeVisualEngine(2);
   
   noCursor();
   

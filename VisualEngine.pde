@@ -1,4 +1,3 @@
-import java.util.Vector;
 
 abstract class VisualEngine {
 
