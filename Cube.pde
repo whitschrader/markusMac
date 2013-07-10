@@ -51,9 +51,8 @@ class Cube extends VisualEngine {
     "cubeSizeVarianceY", 
     "cubeSizeVarianceZ", 
     "outlineLength", 
-    "rotSelf",
+    "rotSelf", 
     "cubeColor" //PRESETLERDE SIKINTI YARATIYOR
-
   };
 
   float[] parameters1 = new float[parameterNames.length-1];
@@ -93,7 +92,6 @@ class Cube extends VisualEngine {
     parameters2 =     loadPreset(presetDir, name, 2);
     parameters3 =     loadPreset(presetDir, name, 3);
     parameters4 =     loadPreset(presetDir, name, 4);
-
   }
 
   public void initGUI(ControlP5 cp5, ControlWindow controlWindow) {

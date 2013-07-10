@@ -118,9 +118,8 @@ class MyCanvas extends ControlWindowCanvas {
   public void drawThumbnails(PApplet theApplet) {
     theApplet.pushStyle();
     for (int i = 0; i < engines.length; i++) {
-      //      float thumbX = borderMarginBig+(663*scaleGUI) + (i * (15+213)*scaleGUI);
-      float thumbX = thumbnailBoxX + (thumbnailBoxWidth/3) + thumbnailImageSpacing*2 + (thumbnailImageWidth + thumbnailImageSpacing)*i;
-      theApplet.image(engines[i].thumbnail, thumbX, thumbnailBoxY+borderMarginBig, thumbnailImageWidth, thumbnailImageHeight);
+      float thumbX = thumbnailBoxX + (thumbnailBoxWidth/3) + thumbnailImageSpacing*2 + (thumbnailImageWidth + thumbnailImageSpacing)*(i%5);
+      theApplet.image(engines[i].thumbnail, thumbX, (thumbnailBoxY+borderMarginBig)+(((int)i/5)*(thumbnailImageHeight+borderMarginSmall)), thumbnailImageWidth, thumbnailImageHeight);
       theApplet.textFont(pfontLight, 18);
       if (i == currentEngineIndex) {
         theApplet.fill(255);
@@ -128,14 +127,14 @@ class MyCanvas extends ControlWindowCanvas {
       else {
         theApplet.fill(mainYellow);
       }
-      theApplet.text(engines[i].name, thumbX, thumbnailBoxY+borderMarginBig+thumbnailImageHeight+thumbnailImageSpacing*2);
+      theApplet.text(engines[i].name, thumbX, (thumbnailBoxY+borderMarginBig)+(((int)i/5)*(thumbnailImageHeight+borderMarginSmall))+thumbnailImageHeight+thumbnailImageSpacing*2);
     }
 
     theApplet.noFill();
     theApplet.stroke(mainYellow);
     theApplet.strokeWeight(5);
     theApplet.rectMode(CORNER);
-    theApplet.rect(thumbnailBoxX + (thumbnailBoxWidth/3) + thumbnailImageSpacing*2 + (thumbnailImageWidth + thumbnailImageSpacing)*currentEngineIndex, thumbnailBoxY+borderMarginBig, thumbnailImageWidth, thumbnailImageHeight);
+    theApplet.rect(thumbnailBoxX + (thumbnailBoxWidth/3) + thumbnailImageSpacing*2 + (thumbnailImageWidth + thumbnailImageSpacing)*(currentEngineIndex%5), thumbnailBoxY+borderMarginBig+((int)currentEngineIndex/5)*(thumbnailImageHeight+borderMarginSmall), thumbnailImageWidth, thumbnailImageHeight);
     theApplet.popStyle();
   }
 
@@ -278,6 +277,7 @@ class MyCanvas extends ControlWindowCanvas {
     theApplet.text("PRESETS", presetsBoxX, presetsBoxY-2);
     theApplet.text("SOUND REACTION ADJUSTMENT", soundWaveBoxX, soundWaveBoxY-2);
     theApplet.text("No Preview Available.", 170, 170);
+//    theApplet.image(preview,thumbnailBoxX, (thumbnailBoxY+borderMarginBig),373,207);
     theApplet.popStyle();
   }
 }

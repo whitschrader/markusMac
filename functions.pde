@@ -57,14 +57,25 @@ float superformulaPointR(float mm, float nn1, float nn2, float nn3, float phi) {
 }
 
 
+float[] mapArrays(float[] inputArray, int outputArraySize){
+  return null;
+}
+
 
 
 float triangleArea(PVector v1, PVector v2, PVector v3) {
-
   PVector a = PVector.sub(v1, v2);
   PVector b = PVector.sub(v1, v3);
 
   return 0.5*(sqrt(pow(a.y*b.z-a.z*b.y, 2)+pow(a.z*b.x-a.x*b.z, 2)+pow(a.x*b.y-a.y*b.x, 2)));
+}
+
+float polygonArea(PVector[] p) {
+  float result = 0;
+  for (int i = 0; i < p.length; i++) {
+    result += ((p[i].x*p[(i+1)%p.length].y)-(p[i].y*p[(i+1)%p.length].x))/2;
+  }
+  return abs(result);
 }
 
 

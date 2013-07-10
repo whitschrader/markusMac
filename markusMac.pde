@@ -7,13 +7,13 @@ Yapılacaklar
  preset
  
  
-presets update: transition, soundFilter base & range, camera angles 
-
-sound 'nteraction algorithm
-
-gui layout
-
-preview 
+ presets update: transition, soundFilter base & range, camera angles 
+ 
+ sound 'nteraction algorithm
+ 
+ gui layout
+ 
+ preview 
  
  */
 
@@ -21,6 +21,7 @@ boolean midiEnable = false;
 boolean decorate = false;
 boolean lightEnable = true;
 
+PImage preview;
 
 //windows directory
 //String presetDir = "C:/Users/kerim/Google Drive/djMarkusClass/presets/";
@@ -40,34 +41,36 @@ void changeVisualEngine(int newIndex)
   previousEngineIndex = currentEngineIndex;
   currentEngineIndex = newIndex;
 
-    engines[previousEngineIndex].exit();
-    engines[newIndex].start();
+  engines[previousEngineIndex].exit();
+  engines[newIndex].start();
 
   for (int i = 0; i < engines.length; ++i) {
     engines[i].showGUI(i == newIndex);
   }
-  
 }
 
 
 void setup() {
   java.util.Locale.setDefault(java.util.Locale.US);
   size(1680, 1050, OPENGL);
-  frame.setLocation(-1680, 0);
+  frame.setLocation(500, 0);
   frameRate(60);
 
   engines = new VisualEngine[] {
     new Cube(this, "Cubes"), 
-    new Polyface(this, "Polyface"),
-    new Deform(this,"Deform"),
+    new Polyface(this, "Polyface"), 
+    new Deform(this, "Deform"), 
+    new Soundplate(this, "Soundplate"), 
+    new Vorovis(this, "Vorovis"), 
+    new Splines(this,"Splines"),
     new Particle(this, "Particles")
     };
 
-  println("Engines length: " + engines.length);
+    println("Engines length: " + engines.length);
 
-    if (midiEnable) {
-      initializeMidi();
-    }  
+  if (midiEnable) {
+    initializeMidi();
+  }  
 
 
   initializeSoundAnalysis();
@@ -76,18 +79,23 @@ void setup() {
   }
 
   initializeGUI();
-  changeVisualEngine(2);
-  
+  changeVisualEngine(5);
+
   noCursor();
-  
+  preview = createImage(width, height, HSB);
 }
 
 void draw() {
   frame.setTitle(int(frameRate)+"fps");
-  
+  //    frame.setLocation(mouseX, 0);
+
   engines[currentEngineIndex].update();
 
   soundAnalysis();
+
+  loadPixels();
+  arrayCopy(pixels, preview.pixels);
+  preview.updatePixels();
 }
 
 
@@ -100,7 +108,6 @@ public void init() {
   // call PApplet.init() to take care of business
   super.init();
 }
-
 
 
 

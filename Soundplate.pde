@@ -1,46 +1,49 @@
-int dotsPerCircle = 50;
-int circleAmount = 50;
 
-float tet = TWO_PI / dotsPerCircle;
-float phi = PI / circleAmount;
-dotCircle[] dc = new dotCircle[circleAmount];
+/*
 
-float scaler = 100;
-float m1 = 2;
-float n11 = 18;
-float n12 = 1;
-float n13 = 1;
-float m2 = 2;
-float n21 = 18;
-float n22 = 1;
-float n23 = 1;
-boolean linesEnable = false;
-boolean facesEnable = true;
-float linesAlfa = 255;
-float facesAlfa = 255;
+ verticalLineEnable
+ horizontalLineEnable
+ faceEnable
+ pointEnable
+ alfas
+ color palette
+ noiseGain
+ 
+ */
 
-float posTemp;
-float posMin = 1000.;
-float posMax = 0.;
+boolean vLineEnable = true;
+boolean hLineEnable = true;
+boolean pFaceEnable = true;
+boolean pPointEnable = true;
 
-class Deform extends VisualEngine {
+float vLineAlfa = 255.;
+float hLineAlfa = 255.;
+float pFaceAlfa = 255.;
+float pPointAlfa = 255.;
+float noiseGain = 100.;
+float soundWaveGain = 1000.;
+
+float soundPlateVal = 0.;
+class Soundplate extends VisualEngine {
   protected ArrayList<controlP5.Controller> controllers;
 
   String[] parameterNames = { 
-    "m1", 
-    "n11", 
-    "n12", 
-    "n13", 
-    "m2", 
-    "n21", 
-    "n22", 
-    "n23", 
-    "scaler", 
-    "linesEnable", 
-    "facesEnable", 
-    "linesAlfa", 
-    "facesAlfa"
+    "vLineEnable", 
+    "hLineEnable", 
+    "pFaceEnable", 
+    "pPointEnable", 
+    "vLineAlfa", 
+    "hLineAlfa", 
+    "pFaceAlfa", 
+    "pPointAlfa", 
+    "noiseGain", 
+    "soundWaveGain"
   };
+
+  int dotsPerPlate = 200;
+  int plateAmount = 20;
+  dotPlate[] dp = new dotPlate[numLines];
+
 
   float[] parameters1 = new float[parameterNames.length];
   float[] parameters2 = new float[parameterNames.length];
@@ -50,11 +53,12 @@ class Deform extends VisualEngine {
 
   float[] camRotations = new float[3];
   float[] camLookAt = new float[3];
+
   public float camDistance;
 
-  public Deform(PApplet myApplet, String name) {
+  public Soundplate(PApplet myApplet, String name) {
     super(myApplet, name);
-    println("Deform Constructor.");
+    println("Soundplate Constructor.");
     controllers = new ArrayList<controlP5.Controller>();
   }
 
@@ -63,19 +67,20 @@ class Deform extends VisualEngine {
     cam.setMinimumDistance(1);
     cam.setMaximumDistance(500000);
 
-    for (int i = 0; i<circleAmount;i++) {
-      dc[i] = new dotCircle(dotsPerCircle, i);
+    for (int i = 0; i<plateAmount;i++) {
+      dp[i] = new dotPlate(dotsPerPlate, i);
     }
     colorMode(HSB);
-    hint(ENABLE_DEPTH_TEST);
+    hint(ENABLE_DEPTH_TEST); 
+    background(0);
   }
 
   public void initGUI(ControlP5 cp5, ControlWindow controlWindow) {
-    int deformGUISep = 30;
+    int soundplateGUISep = 30;
     int rowIndex;
     int columnIndex;
     int[] parameterMatrix = {
-      5, 4, 4
+      5, 5
     };    
 
     PVector[][] parameterPos = new PVector[parameterMatrix.length][max(parameterMatrix)]; 
@@ -84,98 +89,75 @@ class Deform extends VisualEngine {
     for (int i = 0; i < parameterMatrix.length; i++) {
       for (int j = 0; j < parameterMatrix[i]; j++) {
         parameterPos[i][j] = new PVector(visualSpecificParametersBoxX + (visualSpecificParametersBoxWidth/(parameterMatrix[i]*2)*(j*2+1)), visualSpecificParametersBoxY +(visualSpecificParametersBoxHeight/(parameterMatrix.length*2)*(i*2+1)));
-        parameterSize[i] = new PVector((visualSpecificParametersBoxWidth/parameterMatrix[i])-deformGUISep, (visualSpecificParametersBoxHeight/parameterMatrix.length)-deformGUISep);
+        parameterSize[i] = new PVector((visualSpecificParametersBoxWidth/parameterMatrix[i])-soundplateGUISep, (visualSpecificParametersBoxHeight/parameterMatrix.length)-soundplateGUISep);
         rectMode(CORNER);
       }
     }
 
-
-    rowIndex = 1; 
-    columnIndex = 0; 
-    cp5.addSlider("m1")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 20.)
-            .setWindow(controlWindow);
-    columnIndex = 1; 
-    cp5.addSlider("n11")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 100.)
-            .setWindow(controlWindow);
-    columnIndex = 2; 
-    cp5.addSlider("n12")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 100.)
-            .setWindow(controlWindow);
-    columnIndex = 3; 
-    cp5.addSlider("n13")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 100.)
-            .setWindow(controlWindow);
-
-    rowIndex = 2; 
-    columnIndex = 0; 
-    cp5.addSlider("m2")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 20.)
-            .setWindow(controlWindow);
-    columnIndex = 1; 
-    cp5.addSlider("n21")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 100.)
-            .setWindow(controlWindow);
-    columnIndex = 2; 
-    cp5.addSlider("n22")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 100.)
-            .setWindow(controlWindow);
-    columnIndex = 3; 
-    cp5.addSlider("n23")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
-          .setRange(0., 100.)
-            .setWindow(controlWindow);
-
     rowIndex = 0; 
     columnIndex = 0; 
-    cp5.addToggle("linesEnable")
+    cp5.addToggle("vLineEnable")
       .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
         .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
           .setValue(false)
             .setWindow(controlWindow);
     columnIndex = 1; 
-    cp5.addToggle("facesEnable")
+    cp5.addToggle("hLineEnable")
+      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
+        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
+          .setValue(false)
+            .setWindow(controlWindow);
+    columnIndex = 2; 
+    cp5.addToggle("pFaceEnable")
+      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
+        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
+          .setValue(false)
+            .setWindow(controlWindow);
+    columnIndex = 3; 
+    cp5.addToggle("pPointEnable")
       .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
         .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
           .setValue(true)
             .setWindow(controlWindow);
-    columnIndex = 2; 
-    cp5.addKnob("linesAlfa")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setRadius((int)parameterSize[rowIndex].x*0.7)
-          .setRange(0., 255.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-    columnIndex = 3; 
-    cp5.addKnob("facesAlfa")
-      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
-        .setRadius((int)parameterSize[rowIndex].x*0.7)
-          .setRange(0., 255.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
     columnIndex = 4; 
-    cp5.addKnob("scaler")
+    cp5.addKnob("noiseGain")
       .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
         .setRadius((int)parameterSize[rowIndex].x*0.7)
-          .setRange(0., 1000.)
+          .setRange(0., 5000.)
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
+    rowIndex = 1; 
+    columnIndex = 0; 
+    cp5.addSlider("vLineAlfa")
+      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
+        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
+          .setRange(0., 255.)
+            .setWindow(controlWindow);
+    columnIndex = 1; 
+    cp5.addSlider("hLineAlfa")
+      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
+        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
+          .setRange(0., 255.)
+            .setWindow(controlWindow);
+    columnIndex = 2; 
+    cp5.addSlider("pFaceAlfa")
+      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
+        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
+          .setRange(0., 255.)
+            .setWindow(controlWindow);
+    columnIndex = 3; 
+    cp5.addSlider("pPointAlfa")
+      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
+        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
+          .setRange(0., 255.)
+            .setWindow(controlWindow);
+    columnIndex = 4; 
+    cp5.addSlider("soundWaveGain")
+      .setPosition(parameterPos[rowIndex][columnIndex].x-parameterSize[rowIndex].x/2, parameterPos[rowIndex][columnIndex].y-parameterSize[rowIndex].y/2)   
+        .setSize((int)parameterSize[rowIndex].x, (int)parameterSize[rowIndex].y)
+          .setRange(0., 1000.)
+            .setWindow(controlWindow);
+
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
@@ -192,78 +174,77 @@ class Deform extends VisualEngine {
   public void update() {
     background(0);
     mapPresets();
+    soundPlateVal = fftVar[0].getValue();
+    //    soundPlateVal = map(mouseX, 0, width, 0., 10.);
 
-    for (int i = 0; i<circleAmount;i++) {
-      dc[i].update();
+    for (int i = 0; i<plateAmount;i++) {
+      dp[i].update();
     }
 
-    rotateY(PI);
-    //    lightSettings();
+    for (int i = 0; i<plateAmount;i++) {
+      for (int j = 0; j<dotsPerPlate;j++) {
 
-    for (int i = 0; i<circleAmount;i++) {
-      //      beginShape(POINTS);
-      //      for (int j = 0; j<dotsPerCircle;j++) {
-      //        stroke(255, 200);
-      //        strokeWeight(10);
-      //        //                 curveVertex(dc[i].getPos(j).x, dc[i].getPos(j).y, dc[i].getPos(j).z);
-      //        vertex(dc[i].getPos(j).x, dc[i].getPos(j).y, dc[i].getPos(j).z);
-      //      }
-      //      endShape();
-
-      beginShape(TRIANGLE_STRIP);
-      for (int j = 0; j<dotsPerCircle;j++) {
-
-        posTemp = dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0);
-
-        if (posMin > posTemp) {
-          posMin = posTemp;
+        if (pPointEnable) {
+          beginShape(POINTS);
+          vertexC(i, j); 
+          endShape();
         }
 
-        if (posMax < posTemp) {
-          posMax = posTemp;
-        }
+        // Horizontal Lines
+        if (hLineEnable) {
+          beginShape(LINES);
+          vertexC(i, j); 
+          vertexC(i, (j+1)%dotsPerPlate); 
+          endShape();
+        }  
 
-        if ((i<circleAmount-1)) {
-          vertexC(i+1, j);
-          vertexC(i, j);
-          if ((j == dotsPerCircle-1)) {
-            vertexC(i, j);
-            vertexC(i, 0);
-            vertexC(i+1, j);
-            vertexC(i+1, 0);
+        if (i < plateAmount - 1) {
+          // Vertical Lines
+          if (vLineEnable) {
+            beginShape(LINES);
+            vertexC(i%plateAmount, j%dotsPerPlate); 
+            vertexC((i+1)%plateAmount, j%dotsPerPlate); 
+            endShape();
           }
-        } 
-        else {
-          colorVertex(0,0);
-          vertex(dc[0].getPos(0).x, dc[0].getPos(0).y, -dc[0].getPos(0).z);          
-          vertexC(circleAmount-1, j);
-          if ((j == dotsPerCircle-1)) {
-            colorVertex(0,0);
-            vertex(dc[0].getPos(0).x, dc[0].getPos(0).y, -dc[0].getPos(0).z);
-            vertexC(circleAmount-1, 0);
+
+          if (pFaceEnable) {
+            noStroke();
+            beginShape(QUAD_STRIP);
+            vertexC(i%plateAmount, j%dotsPerPlate); 
+            vertexC((i+1)%plateAmount, j%dotsPerPlate); 
+            vertexC(i%plateAmount, (j+1)%dotsPerPlate); 
+            vertexC((i+1)%plateAmount, (j+1)%dotsPerPlate); 
+            endShape();
           }
         }
       }
-      endShape();
     }
   }
 
   public void colorVertex(int i, int j) {
-    fill(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), scaler, scaler+50, 0, 255), facesAlfa);    
-    if (!facesEnable) {
-      noFill();
+
+    if (pPointEnable) {
+      stroke(map(j, 0, dotsPerPlate, 0, 255), 255, map(dist(dp[i].getX(j), dp[i].getY(j), dp[i].getZ(j), 0, 0, 0), scaler, scaler+50, 0, 255), pPointAlfa);
+      strokeWeight(3);
     }
-    stroke(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), scaler, scaler+50, 0, 255), linesAlfa);    
-    if (!linesEnable) {
-      noStroke();
+    if (hLineEnable) {
+      stroke(map(j, 0, dotsPerPlate, 0, 255), 255, map(dist(dp[i].getX(j), dp[i].getY(j), dp[i].getZ(j), 0, 0, 0), scaler, scaler+50, 0, 255), hLineAlfa);
+      strokeWeight(1);
+    }
+    if (vLineEnable) {
+      stroke(map(j, 0, dotsPerPlate, 0, 255), 255, map(dist(dp[i].getX(j), dp[i].getY(j), dp[i].getZ(j), 0, 0, 0), scaler, scaler+50, 0, 255), vLineAlfa);
+      strokeWeight(1);
+    }
+    if (pFaceEnable) {
+      fill(map(j, 0, dotsPerPlate, 0, 255), 255, map(dist(dp[i].getX(j), dp[i].getY(j), dp[i].getZ(j), 0, 0, 0), scaler, scaler+50, 0, 255), pFaceAlfa);
     }
   }
 
   public void vertexC(int i, int j) {
-    float x = dc[i].getX(j);
-    float y = dc[i].getY(j);
-    float z = dc[i].getZ(j);
-    colorVertex(i,j);
+    float x = dp[i].getX(j);
+    float y = dp[i].getY(j);
+    float z = dp[i].getZ(j);
+    colorVertex(i, j);
     vertex(x, y, z);
   }
 
@@ -401,7 +382,7 @@ class Deform extends VisualEngine {
   }
 }
 
-class dotCircle {
+class dotPlate {
 
   int dotAmount;
   int lineId;
@@ -417,11 +398,19 @@ class dotCircle {
   PVector sep;
   float kp = 0.1;
   float inc = 0.;
-
-  dotCircle(int nd, int id) {
+  int rad = 50;
+  int bufSize;
+  float[] soundBuf;
+  int bufSpeed = 1;
+  dotPlate(int nd, int id) {
     dotAmount = nd;
     lineId = id;
     initializeArrays();
+    bufSize = dotAmount;
+    soundBuf = new float[bufSize];
+    for (int i = 0; i < bufSize; i++) {
+      soundBuf[i] = 0.;
+    }
   }
 
 
@@ -430,11 +419,17 @@ class dotCircle {
     inc += 0.01;
 
     for (int i = 0; i<dotAmount;i++) {
-      float rr1 = superformulaPointR(m1, n11, n12, n13, tet*i);
-      float rr2 = superformulaPointR(m2, n21, n22, n23, phi*lineId);
 
-      target[i].set(cos(tet*i)*sin(phi*lineId)*rr1*rr2, sin(tet*i)*sin(phi*lineId)*rr1*rr2, cos(phi*lineId)*rr2);
-      target[i].mult(scaler);
+      if (i <dotAmount - bufSpeed)
+        soundBuf[i] = soundBuf[i+bufSpeed];
+      //      }
+      //      soundBuf[bufSize-1] = getSoundLevel(0.9);
+      soundBuf[bufSize-1] = map(soundPlateVal, 0, 5, 0., 1.);
+
+
+      offset[i].set((newNoise((frameCount*.01)+lineId*.1, i*.1, i*.1)*0+rad*lineId*5)*sin(map(i, 0, dotAmount, -PI, PI)), 
+      (newNoise((float)i/13, frameCount*0.01, pow(lineId, 3)) * TWO_PI*noiseGain)- (soundWaveGain * soundBuf[i]), 
+      (newNoise((frameCount*.01)+lineId*.1, i*.1, i*.1)*0+rad*lineId*5)*cos(map(i, 0, dotAmount, -PI, PI)));
 
       error[i] = PVector.sub(target[i], pos[i]);
       error[i].mult(kp);
@@ -489,12 +484,8 @@ class dotCircle {
       pos[i] = new PVector(0, 0, 0);
       error[i] = new PVector(0, 0, 0);
       offset[i] = new PVector(0, 0, 0);
-      target[i]=new PVector(cos(tet*i)*sin(phi*lineId), sin(tet*i)*sin(phi*lineId), cos(phi*lineId));
-      target[i].mult(scaler);
+      target[i]=new PVector(rad*sin(map(i, 0, dotAmount, -PI, PI)), 0, rad*cos(map(i, 0, dotAmount, -PI, PI)));
     }
   }
 }
-
-
-// cos sin - sin sin - cos
 
