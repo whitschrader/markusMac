@@ -567,10 +567,10 @@ class Soundplate extends VisualEngine {
 
     cp5.getController("noiseGain").setValue(cp5.getController("noiseGain").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("noiseGain").getMax()-cp5.getController("noiseGain").getMin())));
 
-    cp5.getController("vLineEnable").setValue(    buttonsMVal[0]);
-    cp5.getController("hLineEnable").setValue(    buttonsMVal[8]);
-    cp5.getController("pFaceEnable").setValue(  buttonsMVal[16]);
-    cp5.getController("pPointEnable").setValue(    buttonsMVal[1]);
+    cp5.getController("vLineEnable").setValue((cp5.getController("vLineEnable").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("hLineEnable").setValue((cp5.getController("hLineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("pFaceEnable").setValue((cp5.getController("pFaceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("pPointEnable").setValue((cp5.getController("pPointEnable").getValue()+abs(buttonsMValDiff[1]))%2);
   }
 
   public void start() {

@@ -585,9 +585,10 @@ class Splines extends VisualEngine {
     cp5.getController("ribbonCount").setValue(cp5.getController("ribbonCount").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("ribbonCount").getMax()-cp5.getController("ribbonCount").getMin())));
     cp5.getController("ribbonSpeed").setValue(cp5.getController("ribbonSpeed").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("ribbonSpeed").getMax()-cp5.getController("ribbonSpeed").getMin())));
 
-    cp5.getController("ribbonHelix").setValue(    buttonsMVal[0]);
-    cp5.getController("ribbonCycloid").setValue(    buttonsMVal[8]);
-    cp5.getController("ribbonNoise").setValue(  buttonsMVal[16]);
+    cp5.getController("ribbonHelix").setValue((cp5.getController("ribbonHelix").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("ribbonCycloid").setValue((cp5.getController("ribbonCycloid").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("ribbonNoise").setValue((cp5.getController("ribbonNoise").getValue()+abs(buttonsMValDiff[16]))%2);
+
   }
 
   public void start() {

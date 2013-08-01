@@ -617,10 +617,11 @@ class Vorovis extends VisualEngine {
 
     cp5.getController("flockAmount").setValue(cp5.getController("flockAmount").getValue()+(map(  knobValDiff[0], 0, 127, 0, cp5.getController("flockAmount").getMax()-cp5.getController("flockAmount").getMin())));
 
-    cp5.getController("showDela").setValue(    buttonsMVal[0]);
-    cp5.getController("showVoro").setValue(    buttonsMVal[8]);
-    cp5.getController("showBezier").setValue(  buttonsMVal[16]);
-    cp5.getController("showStar").setValue(    buttonsMVal[1]);
+    cp5.getController("showDela").setValue((cp5.getController("showDela").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("showVoro").setValue((cp5.getController("showVoro").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("showBezier").setValue((cp5.getController("showBezier").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("showStar").setValue((cp5.getController("showStar").getValue()+abs(buttonsMValDiff[1]))%2);
+
   }
 
   public void start() {

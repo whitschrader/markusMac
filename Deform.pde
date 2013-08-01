@@ -573,8 +573,10 @@ class Deform extends VisualEngine {
     cp5.getController("deformRotX").setValue(cp5.getController("deformRotX").getValue()+(map(   knobValDiff[2], 0, 127, 0, cp5.getController("deformRotX").getMax()-cp5.getController("deformRotX").getMin())));
     cp5.getController("deformRotY").setValue(cp5.getController("deformRotY").getValue()+(map(   knobValDiff[3], 0, 127, 0, cp5.getController("deformRotY").getMax()-cp5.getController("deformRotY").getMin())));
 
-    cp5.getController("linesEnable").setValue(    buttonsMVal[0]);
-    cp5.getController("facesEnable").setValue(    buttonsMVal[8]);
+
+    cp5.getController("linesEnable").setValue((cp5.getController("linesEnable").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("facesEnable").setValue((cp5.getController("facesEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+
   }
 
   public void start() {

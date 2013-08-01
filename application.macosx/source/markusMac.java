@@ -1367,8 +1367,10 @@ class Deform extends VisualEngine {
     cp5.getController("deformRotX").setValue(cp5.getController("deformRotX").getValue()+(map(   knobValDiff[2], 0, 127, 0, cp5.getController("deformRotX").getMax()-cp5.getController("deformRotX").getMin())));
     cp5.getController("deformRotY").setValue(cp5.getController("deformRotY").getValue()+(map(   knobValDiff[3], 0, 127, 0, cp5.getController("deformRotY").getMax()-cp5.getController("deformRotY").getMin())));
 
-    cp5.getController("linesEnable").setValue(    buttonsMVal[0]);
-    cp5.getController("facesEnable").setValue(    buttonsMVal[8]);
+
+    cp5.getController("linesEnable").setValue((cp5.getController("linesEnable").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("facesEnable").setValue((cp5.getController("facesEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+
   }
 
   public void start() {
@@ -3103,10 +3105,10 @@ class Polyface extends VisualEngine {
     cp5.getController("faceAlfa").setValue(cp5.getController("faceAlfa").getValue()+(map(            faderValDiff[6], 0, 127, 0, cp5.getController("faceAlfa").getMax()-cp5.getController("faceAlfa").getMin()                )));
     cp5.getController("movementAmount").setValue(cp5.getController("movementAmount").getValue()+(map(      faderValDiff[7], 0, 127, 0, cp5.getController("movementAmount").getMax()-cp5.getController("movementAmount").getMin()    )));
 
-    cp5.getController("pointEnable").setValue(    buttonsMVal[0]);
-    cp5.getController("lineEnable").setValue(    buttonsMVal[8]);
-    cp5.getController("faceEnable").setValue(  buttonsMVal[16]);
-    cp5.getController("resetGrid").setValue(    buttonsMVal[1]);
+    cp5.getController("pointEnable").setValue((cp5.getController("pointEnable").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("lineEnable").setValue(  (  cp5.getController("lineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("faceEnable").setValue( (cp5.getController("faceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("resetGrid").setValue(  ( cp5.getController("resetGrid").getValue()+ abs(buttonsMValDiff[1]))%2);
   }
 
   public void start() {
@@ -3832,10 +3834,10 @@ class Soundplate extends VisualEngine {
 
     cp5.getController("noiseGain").setValue(cp5.getController("noiseGain").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("noiseGain").getMax()-cp5.getController("noiseGain").getMin())));
 
-    cp5.getController("vLineEnable").setValue(    buttonsMVal[0]);
-    cp5.getController("hLineEnable").setValue(    buttonsMVal[8]);
-    cp5.getController("pFaceEnable").setValue(  buttonsMVal[16]);
-    cp5.getController("pPointEnable").setValue(    buttonsMVal[1]);
+    cp5.getController("vLineEnable").setValue((cp5.getController("vLineEnable").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("hLineEnable").setValue((cp5.getController("hLineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("pFaceEnable").setValue((cp5.getController("pFaceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("pPointEnable").setValue((cp5.getController("pPointEnable").getValue()+abs(buttonsMValDiff[1]))%2);
   }
 
   public void start() {
@@ -4568,9 +4570,10 @@ class Splines extends VisualEngine {
     cp5.getController("ribbonCount").setValue(cp5.getController("ribbonCount").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("ribbonCount").getMax()-cp5.getController("ribbonCount").getMin())));
     cp5.getController("ribbonSpeed").setValue(cp5.getController("ribbonSpeed").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("ribbonSpeed").getMax()-cp5.getController("ribbonSpeed").getMin())));
 
-    cp5.getController("ribbonHelix").setValue(    buttonsMVal[0]);
-    cp5.getController("ribbonCycloid").setValue(    buttonsMVal[8]);
-    cp5.getController("ribbonNoise").setValue(  buttonsMVal[16]);
+    cp5.getController("ribbonHelix").setValue((cp5.getController("ribbonHelix").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("ribbonCycloid").setValue((cp5.getController("ribbonCycloid").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("ribbonNoise").setValue((cp5.getController("ribbonNoise").getValue()+abs(buttonsMValDiff[16]))%2);
+
   }
 
   public void start() {
@@ -5591,10 +5594,11 @@ class Vorovis extends VisualEngine {
 
     cp5.getController("flockAmount").setValue(cp5.getController("flockAmount").getValue()+(map(  knobValDiff[0], 0, 127, 0, cp5.getController("flockAmount").getMax()-cp5.getController("flockAmount").getMin())));
 
-    cp5.getController("showDela").setValue(    buttonsMVal[0]);
-    cp5.getController("showVoro").setValue(    buttonsMVal[8]);
-    cp5.getController("showBezier").setValue(  buttonsMVal[16]);
-    cp5.getController("showStar").setValue(    buttonsMVal[1]);
+    cp5.getController("showDela").setValue((cp5.getController("showDela").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("showVoro").setValue((cp5.getController("showVoro").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("showBezier").setValue((cp5.getController("showBezier").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("showStar").setValue((cp5.getController("showStar").getValue()+abs(buttonsMValDiff[1]))%2);
+
   }
 
   public void start() {
@@ -6604,7 +6608,11 @@ Note note
   else if ((pit <= knobStopAddress)&&(pit >= knobStartAddress)) {
     knobVal[pit-knobStartAddress] = 0;
   }
-
+  for (int i = 0; i < buttonsMAdd.length; i++) {
+    if (pit == buttonsMAdd[i]) {
+      buttonsMVal[i] = 0;
+    }
+  }
 }
 
 public void midiCalculator() {
@@ -6617,6 +6625,15 @@ public void midiCalculator() {
     knobValDiff[i] = knobVal[i] - knobValPre[i];
     knobValPre[i] = knobVal[i];
   }
+  
+    for (int i = 0; i<buttonsMVal.length; i++) {
+      if(buttonsMVal[i] - buttonsMValPre[i] != -1){
+          buttonsMValDiff[i] = buttonsMVal[i] - buttonsMValPre[i];
+
+      }
+    buttonsMValPre[i] = buttonsMVal[i];
+  }
+  
 }
 
 public void midiMapSound() {

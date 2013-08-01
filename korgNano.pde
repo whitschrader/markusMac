@@ -66,7 +66,11 @@ Note note
   else if ((pit <= knobStopAddress)&&(pit >= knobStartAddress)) {
     knobVal[pit-knobStartAddress] = 0;
   }
-
+  for (int i = 0; i < buttonsMAdd.length; i++) {
+    if (pit == buttonsMAdd[i]) {
+      buttonsMVal[i] = 0;
+    }
+  }
 }
 
 void midiCalculator() {
@@ -79,6 +83,15 @@ void midiCalculator() {
     knobValDiff[i] = knobVal[i] - knobValPre[i];
     knobValPre[i] = knobVal[i];
   }
+  
+    for (int i = 0; i<buttonsMVal.length; i++) {
+      if(buttonsMVal[i] - buttonsMValPre[i] != -1){
+          buttonsMValDiff[i] = buttonsMVal[i] - buttonsMValPre[i];
+
+      }
+    buttonsMValPre[i] = buttonsMVal[i];
+  }
+  
 }
 
 void midiMapSound() {

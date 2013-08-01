@@ -615,10 +615,10 @@ class Polyface extends VisualEngine {
     cp5.getController("faceAlfa").setValue(cp5.getController("faceAlfa").getValue()+(map(            faderValDiff[6], 0, 127, 0, cp5.getController("faceAlfa").getMax()-cp5.getController("faceAlfa").getMin()                )));
     cp5.getController("movementAmount").setValue(cp5.getController("movementAmount").getValue()+(map(      faderValDiff[7], 0, 127, 0, cp5.getController("movementAmount").getMax()-cp5.getController("movementAmount").getMin()    )));
 
-    cp5.getController("pointEnable").setValue(    buttonsMVal[0]);
-    cp5.getController("lineEnable").setValue(    buttonsMVal[8]);
-    cp5.getController("faceEnable").setValue(  buttonsMVal[16]);
-    cp5.getController("resetGrid").setValue(    buttonsMVal[1]);
+    cp5.getController("pointEnable").setValue((cp5.getController("pointEnable").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("lineEnable").setValue(  (  cp5.getController("lineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("faceEnable").setValue( (cp5.getController("faceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("resetGrid").setValue(  ( cp5.getController("resetGrid").getValue()+ abs(buttonsMValDiff[1]))%2);
   }
 
   public void start() {
