@@ -13,7 +13,9 @@ float th;
 float ph;
 int rRes = 40;
 int RRes = 20;
-
+float wireRotX = 0.;
+float wireRotY = 0.;
+boolean wireRotStop = false;
 float x, y, z;
 float rotIncX = 0.;
 float rotX = 0.;
@@ -30,7 +32,10 @@ class Wireframe extends VisualEngine {
     "rRes", 
     "RRes", 
     "rotIncX", 
-    "rotIncY"
+    "rotIncY", 
+    "wireRotX", 
+    "wireRotY", 
+    "wireRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -83,10 +88,14 @@ class Wireframe extends VisualEngine {
     mapPresets();
     frame.setTitle(int(frameRate) + "fps");
     background(0);
+    if (!wireRotStop) {
+      cam.rotateX(wireRotX);
+      cam.rotateY(wireRotY);
+    }
 
     rotX += rotIncX;
     rotY += rotIncY;
-//    float wireSoundVal = fftVar[0].getValue();
+    //    float wireSoundVal = fftVar[0].getValue();
     float inLevelMax = 10.;
     float inLevelMin = 0.;
 
@@ -118,7 +127,7 @@ class Wireframe extends VisualEngine {
 
     for (int i = 0; i < RRes; i++) {
       beginShape(LINES);
-//      fill(0, 0, 0);
+      //      fill(0, 0, 0);
       noFill();
       for (int j = 0; j < rRes; j++) {
         theta = (map(i, 0, RRes, 0, TWO_PI*th)+rotX)%TWO_PI;
@@ -140,7 +149,6 @@ class Wireframe extends VisualEngine {
       }
       endShape(CLOSE);
     }
-
   }  
 
   float lpfOutPre;
@@ -202,6 +210,19 @@ class Wireframe extends VisualEngine {
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
 
+    cp5.addKnob("wireRotX")
+      .setPosition(knobPosX[4]+visualSpecificParametersBoxX-knobWidth, knobPosY[4]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05, 0.05)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+    cp5.addKnob("wireRotY")
+      .setPosition(knobPosX[5]+visualSpecificParametersBoxX-knobWidth, knobPosY[5]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05, 0.05)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
     cp5.addSlider("th")
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
@@ -222,6 +243,12 @@ class Wireframe extends VisualEngine {
         .setSize(sliderWidth, sliderHeight)
           .setRange(-0.05, 0.05 )
             .setWindow(controlWindow);  
+
+    cp5.addToggle("wireRotStop")
+      .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setWindow(controlWindow);
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
@@ -436,16 +463,21 @@ class Wireframe extends VisualEngine {
     cp5.getController("Rad").setValue(cp5.getController("Rad").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("Rad").getMax()-cp5.getController("Rad").getMin())));
     cp5.getController("rRes").setValue(cp5.getController("rRes").getValue()+(map(  knobValDiff[2], 0, 127, 0, cp5.getController("rRes").getMax()-cp5.getController("rRes").getMin())));
     cp5.getController("RRes").setValue(cp5.getController("RRes").getValue()+(map(  knobValDiff[3], 0, 127, 0, cp5.getController("RRes").getMax()-cp5.getController("RRes").getMin())));
+    cp5.getController("wireRotX").setValue(cp5.getController("wireRotX").getValue()+(map(  knobValDiff[4], 0, 127, 0, cp5.getController("wireRotX").getMax()-cp5.getController("wireRotX").getMin())));
+    cp5.getController("wireRotY").setValue(cp5.getController("wireRotY").getValue()+(map(  knobValDiff[5], 0, 127, 0, cp5.getController("wireRotY").getMax()-cp5.getController("wireRotY").getMin())));
 
     cp5.getController("th").setValue(cp5.getController("th").getValue()+(map(         faderValDiff[0], 0, 127, 0, cp5.getController("th").getMax()-cp5.getController("th").getMin())));
     cp5.getController("ph").setValue(cp5.getController("ph").getValue()+(map(         faderValDiff[1], 0, 127, 0, cp5.getController("ph").getMax()-cp5.getController("ph").getMin())));
     cp5.getController("rotIncX").setValue(cp5.getController("rotIncX").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("rotIncX").getMax()-cp5.getController("rotIncX").getMin())));
-    cp5.getController("rotIncY").setValue(cp5.getController("rotIncY").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("rotIncY").getMax()-cp5.getController("rotIncY").getMin())));
+    cp5.getController("rotIncY").setValue(cp5.getController("rotIncY").getValue()+(map(   faderValDiff[3], 0, 127, 0, cp5.getController("rotIncY").getMax()-cp5.getController("rotIncY").getMin())));
+
+    cp5.getController("wireRotStop").setValue((cp5.getController("wireRotStop").getValue()+abs(buttonsMValDiff[0]))%2);
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(RGB);
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);

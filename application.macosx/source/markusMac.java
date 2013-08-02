@@ -130,8 +130,8 @@ public void setup() {
   }
 
   initializeGUI();
-  changeVisualEngine(5);
-  //  noCursor();
+  changeVisualEngine(0);
+  cursor(loadImage("cursorImg.jpg"));
   preview = createImage(width, height, HSB);
   //  noLoop();
 }
@@ -165,7 +165,7 @@ public void draw() {
   fill(0, blackAlpha);
   rect(-30, -30, 120, 120);
   tint(255, logoAlpha);
-  image(msLogo, -25, -25, 50, 50);
+  image(msLogo,-msLogo.width/80,-msLogo.height/80,msLogo.width/40,msLogo.height/40);
   cam.endHUD();
   hint(ENABLE_DEPTH_TEST);
 }
@@ -217,7 +217,7 @@ float rotVariance;
 float rotSelf = 0.f;
 float rotLimit = 2.f;
 float cubeCircleRad = 300.f;
-
+boolean cubeRotStop = false;
 boolean fogEnable = false;
 
 class Cube extends VisualEngine {
@@ -237,7 +237,8 @@ class Cube extends VisualEngine {
     "cubeSizeVarianceZ", 
     "outlineColor", 
     "outlineScale", 
-    "rotSelf"
+    "rotSelf", 
+    "cubeRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -251,9 +252,9 @@ class Cube extends VisualEngine {
   float[] parameters7 = new float[presetSize];
   float[] parameters8 = new float[presetSize];
   float[] parametersTemp = new float[presetSize];
-//  float[] parametersTemp = new float[presetSize];
-//  float[] parametersTemp = new float[presetSize];
- 
+  //  float[] parametersTemp = new float[presetSize];
+  //  float[] parametersTemp = new float[presetSize];
+
   float[] camRotations = new float[3];
   float[] camLookAt = new float[3];
   public float camDistance;
@@ -404,6 +405,12 @@ class Cube extends VisualEngine {
           .setRange(0.1f, cubeCircleRad*6/10)
             .setWindow(controlWindow);
 
+    cp5.addToggle("cubeRotStop")
+      .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setWindow(controlWindow);
+
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
@@ -432,7 +439,11 @@ class Cube extends VisualEngine {
       lightSetting();
     } 
 
-    rS +=rotSpeed*0.05f;
+    if (!cubeRotStop) {
+      rS +=rotSpeed*0.05f;
+    } 
+
+
     rX += rotSelf*0.01f;
 
     for (int i = 0; i < (int)cubeAmount; i++) {
@@ -497,49 +508,94 @@ class Cube extends VisualEngine {
     //    200, 0, 0); // Position
     //    point(2000, 0, 0);
     //    directionalLight(255, 0, 50, 0, -1, -1);
-    //directionalLight(255, 0, 50, 0, -1, 0); 
+    //    directionalLight(255, 0, 50, 1, 0, 0); 
     ambientLight(0, 255, 20);
-    int lightY = 150;
-    int lightYBr = 255;
-    int lightYCon = 100;
+    int lightY = 250;
+    int lightYBr = 100;
+    int lightYCon = 5;
 
-    spotLight(255, 0, 255, // Color
-    0, 100, 150, // Position
-    0, -0.3f, -1, // Direction
-    PI, 20); // Angle, concentration
-    //    point(0, 10, 150);
+
+
+    //    spotLight(255, 0, 255, // Color
+    //    0, 100, 150, // Position
+    //    0, -0.3, -1, // Direction
+    //    PI, 20); // Angle, concentration
+    //    //    point(0, 10, 150);
+    //
+    //    spotLight(255, 0, 255, // Color
+    //    0, 100, -150, // Position
+    //    0, -0.3, 1, // Direction
+    //    PI, 20); // Angle, concentration
+
+
+    //    stroke(255);
+    //    strokeWeight(20);
+
+
 
     //    if ( key == 'q') {
-    spotLight(255, 0, lightYBr, // Color
-    0, -lightY, 0, // Position
-    0, 1, 0, // Direction
-    PI, 6); // Angle, concentration
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, 6); // Angle, concentration
     //    point(0, -lightY, 0);
 
     //    } else if ( key == 'w') {
-    spotLight(255, 0, lightYBr, // Color
-    cubeCircleRad, -lightY, 0, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
+    //    spotLight(255, 0, lightYBr, // Color
+    //    cubeCircleRad, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
     //    point(cubeCircleRad, -lightY, 0);
-    //    } else if ( key == 'e') {
-    spotLight(255, 0, lightYBr, // Color
-    -cubeCircleRad, -lightY, 0, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
-    //    point(-cubeCircleRad, -lightY, 0);
-    //    } else if ( key == 'r') {
-    spotLight(255, 0, lightYBr, // Color
-    0, -lightY, cubeCircleRad, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
+    //    //    } else if ( key == 'e') {
+    //
+    //    spotLight(255, 0, lightYBr, // Color
+    //    -cubeCircleRad, lightY, 0, // Position
+    //    0, -1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    point(-cubeCircleRad, lightY, 0);
+    //
+    //    //    } else if ( key == 'r') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
     //    point(0, -lightY, cubeCircleRad);
-    //    } else if ( key == 't') {
-    spotLight(255, 0, lightYBr, // Color
-    0, -lightY, -cubeCircleRad, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
+    //    //    } else if ( key == 't') {
+    //
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, -cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
     //    point(0, -lightY, -cubeCircleRad);
+
+
+    spotLight(255, 0, 200, // Color
+    (cubeCircleRad+500), 0, 0, // Position
+    -1, 0, 0, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point((cubeCircleRad+500), 0, 0);
+    //    } else if ( key == 'e') {
+
+    spotLight(255, 0, 100, // Color
+    -(cubeCircleRad+500), 0, 0, // Position
+    1, 0, 0, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point(-(cubeCircleRad+500), 0, 0);
+
+    //    } else if ( key == 'r') {
+    spotLight(255, 0, 150, // Color
+    0, 0, (cubeCircleRad+500), // Position
+    0, 0, -1, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point(0, 0, (cubeCircleRad+500));
+    //    } else if ( key == 't') {
+
+    spotLight(255, 0, 50, // Color
+    0, 0, -(cubeCircleRad+500), // Position
+    0, 0, 1, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point(0, 0, -(cubeCircleRad+500));
+
     //}
   }
 
@@ -757,11 +813,16 @@ class Cube extends VisualEngine {
     cp5.getController("rotSpeed").setValue(cp5.getController("rotSpeed").getValue()+(map(                          knobValDiff[4], 0, 127, 0, cp5.getController("rotSpeed").getMax()-cp5.getController("rotSpeed").getMin())));
     cp5.getController("rotLimit").setValue(cp5.getController("rotLimit").getValue()+(map(                          knobValDiff[1], 0, 127, 0, cp5.getController("rotLimit").getMax()-cp5.getController("rotLimit").getMin())));
     cp5.getController("rotSelf").setValue(cp5.getController("rotSelf").getValue()+(map(                            knobValDiff[2], 0, 127, 0, cp5.getController("rotSelf").getMax()-cp5.getController("rotSelf").getMin())));
-  }
+
+    cp5.getController("cubeRotStop").setValue((cp5.getController("cubeRotStop").getValue()+abs(buttonsMValDiff[0]))%2);
+  
+
+}
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -814,6 +875,7 @@ float linesAlfa = 255;
 float facesAlfa = 255;
 float deformRotX;
 float deformRotY;
+boolean deformRotStop = false;
 float posTemp;
 float posMin = 1000.f;
 float posMax = 0.f;
@@ -835,7 +897,8 @@ class Deform extends VisualEngine {
     "deformRotX", 
     "deformRotY", 
     "linesAlfa", 
-    "facesAlfa"
+    "facesAlfa", 
+    "deformRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -969,6 +1032,13 @@ class Deform extends VisualEngine {
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
             .setWindow(controlWindow);
+
+    cp5.addToggle("deformRotStop")
+      .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setWindow(controlWindow);
+
     columnIndex = 2; 
     cp5.addKnob("linesAlfa")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
@@ -983,7 +1053,7 @@ class Deform extends VisualEngine {
           .setRange(0.f, 255.f)
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
-              
+
     cp5.addKnob("deformRotX")
       .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
@@ -1019,8 +1089,10 @@ class Deform extends VisualEngine {
     }
     mapPresets();
 
-    cam.rotateX(deformRotX);
-    cam.rotateY(deformRotY);
+    if (!deformRotStop) {
+      cam.rotateX(deformRotX);
+      cam.rotateY(deformRotY);
+    }
 
     for (int i = 0; i<circleAmount;i++) {
       dc[i].update();
@@ -1081,7 +1153,7 @@ class Deform extends VisualEngine {
 
   public void colorVertex(int i, int j) {
     //    fill(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0),0.5,2,0,255), facesAlfa);    
-//    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
+    //    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
     fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), facesAlfa, facesAlfa, 255);    
 
     //    tint(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 100, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
@@ -1091,6 +1163,7 @@ class Deform extends VisualEngine {
     }
     //    stroke(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0),0,2,0,255), linesAlfa);    
     stroke(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), linesAlfa);    
+    strokeWeight(2);
     if (!linesEnable) {
       //      noStroke();
     }
@@ -1108,8 +1181,9 @@ class Deform extends VisualEngine {
 
   public void lightSettings() {
 
-    stroke(255);
-    strokeWeight(20);
+    //    stroke(255);
+    //    strokeWeight(20);
+
     lightSpecular(0, 0, 255);
     shininess(255);
     specular(255);
@@ -1370,12 +1444,15 @@ class Deform extends VisualEngine {
 
     cp5.getController("linesEnable").setValue((cp5.getController("linesEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("facesEnable").setValue((cp5.getController("facesEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("deformRotStop").setValue((cp5.getController("deformRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
 
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -1604,6 +1681,7 @@ public void initializeGUI() {
   cp5.setColorActive(dimYellow);
   cp5.setColorBackground(mainBlue);
   cp5.setColorCaptionLabel(textColor);
+  cp5.setColorValueLabel(textColor);
   cp5.setAutoDraw(false);
 
   cwControllers = new ArrayList<controlP5.Controller>();
@@ -1680,6 +1758,7 @@ class MyCanvas extends ControlWindowCanvas {
 
   public void drawFFT(PApplet theApplet) {
     soundWaveBoxHeight = soundWaveBoxHeight/2;
+    soundWaveBoxY = soundWaveBoxY+1;
     for (int i = 0; i < LiveInput.spectrum.length; i++) {
       theApplet.pushStyle();
       theApplet.colorMode(HSB);
@@ -1701,6 +1780,7 @@ class MyCanvas extends ControlWindowCanvas {
         );
       theApplet.popStyle();
     }
+    soundWaveBoxY = soundWaveBoxY-1;
     soundWaveBoxHeight = soundWaveBoxHeight*2;
   }
 
@@ -1793,8 +1873,8 @@ class MyCanvas extends ControlWindowCanvas {
 
 
   public void draw(PApplet theApplet) {
-    theApplet.frame.setTitle(PApplet.parseInt(frameRate)+"fps");
-
+    //    theApplet.frame.setTitle(int(frameRate)+"fps");
+    theApplet.frame.setTitle("NOS Visual Engine");
     if (theApplet.frameCount<10) {
       theApplet.image(about, theApplet.width/2-about.width/2, theApplet.height/2-about.height/2);
       cwVisible = true;
@@ -1862,6 +1942,11 @@ class MyCanvas extends ControlWindowCanvas {
       theApplet.text("SOUND REACTION", soundParametersBoxX, soundParametersBoxY-2);
       theApplet.text("PRESETS", presetsBoxX, presetsBoxY-2);
       theApplet.text("SOUND REACTION ADJUSTMENT", soundWaveBoxX, soundWaveBoxY-2);
+      theApplet.textFont(pfontLight, 20);
+      theApplet.text("v1.0", borderLinesThickness+borderMarginBig+100, borderLinesThickness+80);
+      //      theApplet.text("fps: " + (int)frameRate, borderLinesThickness+borderMarginBig+10, borderLinesThickness+280);
+      theApplet.textFont(pfontLight, 18);
+      theApplet.text("fps: " + (int)frameRate, theApplet.width-116, theApplet.height-14);
       //    theApplet.text("No Preview Available.", 170, 170);
 
       //    theApplet.image(preview,thumbnailBoxX, (thumbnailBoxY+borderMarginBig),373,207);
@@ -1898,7 +1983,7 @@ public void soundReactionGUI(ControlP5 cp5, ControlWindow controlWindow) {
 
   cp5.addToggle("SR")
     .setPosition(parameterPos[0][0].x-parameterSize[0].x/2, parameterPos[0][0].y-parameterSize[0].y/2)   
-      .setSize((int)parameterSize[0].x, (int)parameterSize[0].y)
+      .setSize((int)parameterSize[0].y, (int)parameterSize[0].y)
         .setValue(true)
           .setWindow(controlWindow);
 
@@ -2524,7 +2609,7 @@ float ffy = 0.f;
 float movementAmount = 1000;
 float polyRotX = 0.f;
 float polyRotY = 0.f;
-
+boolean polyRotStop = false;
 float[][] polySoundMatrix = new float[numLines][numDots];
 
 int[] palette1;
@@ -2558,7 +2643,8 @@ class Polyface extends VisualEngine {
     "forceFieldRange", 
     "forceFieldXFreq", 
     "forceFieldYFreq", 
-    "forceFieldPower" 
+    "forceFieldPower", 
+    "polyRotStop" 
       //    "palette1", 
     //    "palette2", 
     //    "palette3"
@@ -2622,8 +2708,10 @@ class Polyface extends VisualEngine {
 
     mapPresets();
 
-    cam.rotateX(polyRotX);
-    cam.rotateY(polyRotY);
+    if (!polyRotStop) {
+      cam.rotateX(polyRotX);
+      cam.rotateY(polyRotY);
+    }
 
     for (int i = 0; i < numLines-1; i++) {
       for (int j = 0; j < numDots-1; j++) {
@@ -2643,8 +2731,8 @@ class Polyface extends VisualEngine {
       point(forceFieldX, forceFieldY, forceFieldZ);
     }
 
-//    for (int i = 0; i<numLines;i++) {
-//    }
+    //    for (int i = 0; i<numLines;i++) {
+    //    }
     for (int i = 0; i<numLines;i++) {
       d[i].update();
 
@@ -2740,14 +2828,6 @@ class Polyface extends VisualEngine {
     }
 
 
-    /* 
-     
-     
-     "palette1", 
-     "palette2", 
-     "palette3"
-     */
-
     cp5.addToggle("pointEnable")
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
@@ -2771,7 +2851,13 @@ class Polyface extends VisualEngine {
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
             .setWindow(controlWindow);
-
+            
+    cp5.addToggle("polyRotStop")
+      .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setWindow(controlWindow);
+            
     cp5.addKnob("forceFieldPower")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
@@ -3109,11 +3195,15 @@ class Polyface extends VisualEngine {
     cp5.getController("lineEnable").setValue(  (  cp5.getController("lineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("faceEnable").setValue( (cp5.getController("faceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
     cp5.getController("resetGrid").setValue(  ( cp5.getController("resetGrid").getValue()+ abs(buttonsMValDiff[1]))%2);
+    cp5.getController("polyRotStop").setValue((cp5.getController("polyRotStop").getValue()+abs(buttonsMValDiff[9]))%2);
+
   }
 
   public void start() {
     println("Starting " + name);
     hint(DISABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -3283,13 +3373,13 @@ boolean hLineEnable = true;
 boolean pFaceEnable = true;
 boolean pPointEnable = true;
 
-float vLineAlfa = 255.f;
-float hLineAlfa = 255.f;
+float pStrokeAlfa = 255.f;
 float pFaceAlfa = 255.f;
-float pPointAlfa = 255.f;
 float noiseGain = 100.f;
 float soundWaveGain = 1000.f;
-
+float plateRotX = 0.f;
+float plateRotY = 0.f;
+boolean plateRotStop = false;
 float soundPlateVal = 0.f;
 int dotsPerPlate = 100;
 int plateAmount = 20;
@@ -3302,12 +3392,13 @@ class Soundplate extends VisualEngine {
     "hLineEnable", 
     "pFaceEnable", 
     "pPointEnable", 
-    "vLineAlfa", 
-    "hLineAlfa", 
     "pFaceAlfa", 
-    "pPointAlfa", 
+    "pStrokeAlfa", 
     "noiseGain", 
-    "soundWaveGain"
+    "soundWaveGain", 
+    "plateRotX", 
+    "plateRotY", 
+    "plateRotStop"
   };
 
 
@@ -3392,52 +3483,61 @@ class Soundplate extends VisualEngine {
           .setValue(false)
             .setWindow(controlWindow);
     columnIndex = 2; 
-    cp5.addToggle("pFaceEnable")
+    cp5.addToggle("pPointEnable")
       .setPosition(mRectPosX[2]+visualSpecificParametersBoxX, mRectPosY[2]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
             .setWindow(controlWindow);
     columnIndex = 3; 
-    cp5.addToggle("pPointEnable")
+    cp5.addToggle("pFaceEnable")
       .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
             .setWindow(controlWindow);
+
+    cp5.addToggle("plateRotStop")
+      .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setWindow(controlWindow);
+
     columnIndex = 4; 
     cp5.addKnob("noiseGain")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0.f, 5000.f)
+          .setRange(0.f, 750.f)
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
+    cp5.addKnob("plateRotX")
+      .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05f, 0.05f)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+    cp5.addKnob("plateRotY")
+      .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05f, 0.05f)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
     rowIndex = 1; 
     columnIndex = 0; 
-    cp5.addSlider("vLineAlfa")
-      .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0.f, 255.f)
-            .setWindow(controlWindow);
-    columnIndex = 1; 
-    cp5.addSlider("hLineAlfa")
+    columnIndex = 2; 
+    cp5.addSlider("pFaceAlfa")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.f, 255.f)
             .setWindow(controlWindow);
-    columnIndex = 2; 
-    cp5.addSlider("pFaceAlfa")
-      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0.f, 255.f)
-            .setWindow(controlWindow);
     columnIndex = 3; 
-    cp5.addSlider("pPointAlfa")
-      .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
+    cp5.addSlider("pStrokeAlfa")
+      .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.f, 255.f)
             .setWindow(controlWindow);
     columnIndex = 4; 
     cp5.addSlider("soundWaveGain")
-      .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
+      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01f, 2.f)
             .setWindow(controlWindow);
@@ -3461,7 +3561,11 @@ class Soundplate extends VisualEngine {
       mapMidiInterface();
     }
     mapPresets();
-//    soundPlateVal = fftVar[0].getValue();
+    if (!plateRotStop) {
+      cam.rotateX(plateRotX);
+      cam.rotateY(plateRotY);
+    }
+    //    soundPlateVal = fftVar[0].getValue();
     //    soundPlateVal = map(mouseX, 0, width, 0., 10.);
 
     for (int i = 0; i<plateAmount;i++) {
@@ -3544,21 +3648,22 @@ class Soundplate extends VisualEngine {
 
   public void colorVertex(int i, int j) {
 
+    if (pFaceEnable) {
+      //      fill(map(j, 0, dotsPerPlate, 0, 255), 255, 255, 255-pFaceAlfa);
+      noStroke();
+      fill(map(i, 0, plateAmount, 0, 255), 255, map(abs(dp[i].getY(j)), 200, 2000, 0, 255), pFaceAlfa);
+    }
     if (pPointEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pPointAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
       strokeWeight(3);
     }
     if (hLineEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, hLineAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
       strokeWeight(1);
     }
     if (vLineEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, vLineAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
       strokeWeight(1);
-    }
-    if (pFaceEnable) {
-      //      fill(map(j, 0, dotsPerPlate, 0, 255), 255, 255, 255-pFaceAlfa);
-      fill(map(i, 0, plateAmount, 0, 255), 255, map(abs(dp[i].getY(j)), 200, 2000, 0, 255), 255);
     }
   }
 
@@ -3826,23 +3931,26 @@ class Soundplate extends VisualEngine {
 
   public void mapMidiInterface() {
 
-    cp5.getController("vLineAlfa").setValue(cp5.getController("vLineAlfa").getValue()+(map(       faderValDiff[0], 0, 127, 0, cp5.getController("vLineAlfa").getMax()-cp5.getController("vLineAlfa").getMin())));
-    cp5.getController("hLineAlfa").setValue(cp5.getController("hLineAlfa").getValue()+(map(       faderValDiff[1], 0, 127, 0, cp5.getController("hLineAlfa").getMax()-cp5.getController("hLineAlfa").getMin())));
-    cp5.getController("pFaceAlfa").setValue(cp5.getController("pFaceAlfa").getValue()+(map(       faderValDiff[2], 0, 127, 0, cp5.getController("pFaceAlfa").getMax()-cp5.getController("pFaceAlfa").getMin())));
-    cp5.getController("pPointAlfa").setValue(cp5.getController("pPointAlfa").getValue()+(map(      faderValDiff[3], 0, 127, 0, cp5.getController("pPointAlfa").getMax()-cp5.getController("pPointAlfa").getMin())));
-    cp5.getController("soundWaveGain").setValue(cp5.getController("soundWaveGain").getValue()+(map(   faderValDiff[4], 0, 127, 0, cp5.getController("soundWaveGain").getMax()-cp5.getController("soundWaveGain").getMin())));
+    cp5.getController("pFaceAlfa").setValue(cp5.getController("pFaceAlfa").getValue()+(map(       faderValDiff[1], 0, 127, 0, cp5.getController("pFaceAlfa").getMax()-cp5.getController("pFaceAlfa").getMin())));
+    cp5.getController("pStrokeAlfa").setValue(cp5.getController("pStrokeAlfa").getValue()+(map(      faderValDiff[0], 0, 127, 0, cp5.getController("pStrokeAlfa").getMax()-cp5.getController("pStrokeAlfa").getMin())));
+    cp5.getController("soundWaveGain").setValue(cp5.getController("soundWaveGain").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("soundWaveGain").getMax()-cp5.getController("soundWaveGain").getMin())));
 
     cp5.getController("noiseGain").setValue(cp5.getController("noiseGain").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("noiseGain").getMax()-cp5.getController("noiseGain").getMin())));
+    cp5.getController("plateRotX").setValue(cp5.getController("plateRotX").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("plateRotX").getMax()-cp5.getController("plateRotX").getMin())));
+    cp5.getController("plateRotY").setValue(cp5.getController("plateRotY").getValue()+(map(   knobValDiff[2], 0, 127, 0, cp5.getController("plateRotY").getMax()-cp5.getController("plateRotY").getMin())));
 
     cp5.getController("vLineEnable").setValue((cp5.getController("vLineEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("hLineEnable").setValue((cp5.getController("hLineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
-    cp5.getController("pFaceEnable").setValue((cp5.getController("pFaceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
-    cp5.getController("pPointEnable").setValue((cp5.getController("pPointEnable").getValue()+abs(buttonsMValDiff[1]))%2);
+    cp5.getController("pFaceEnable").setValue((cp5.getController("pFaceEnable").getValue()+abs(buttonsMValDiff[1]))%2);
+    cp5.getController("pPointEnable").setValue((cp5.getController("pPointEnable").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("plateRotStop").setValue((cp5.getController("plateRotStop").getValue()+abs(buttonsMValDiff[9]))%2);
   }
 
   public void start() {
     println("Starting " + name);
     hint(DISABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -3916,7 +4024,8 @@ class dotPlate {
       if (lineId == 19) {
         offset[i].set((newNoise((frameCount*.01f)+lineId*.1f, i*.1f, i*.1f)*0+rad*lineId*5)*sin(map(i, 0, dotAmount, -PI, PI)), 
         0, 
-        (newNoise((frameCount*.01f)+lineId*.1f, i*.1f, i*.1f)*0+rad*lineId*5)*cos(map(i, 0, dotAmount, -PI, PI)));      } 
+        (newNoise((frameCount*.01f)+lineId*.1f, i*.1f, i*.1f)*0+rad*lineId*5)*cos(map(i, 0, dotAmount, -PI, PI)));
+      } 
       else {
         offset[i].set((newNoise((frameCount*.01f)+lineId*.1f, i*.1f, i*.1f)*0+rad*lineId*5)*sin(map(i, 0, dotAmount, -PI, PI)), 
         (newNoise((float)i/13, frameCount*0.01f, pow(lineId, 3)) * TWO_PI*noiseGain)- (soundWaveGain*soundLPFBuf[PApplet.parseInt(((lineId+10)%plateAmount)*spectrumLength/plateAmount)]), 
@@ -3997,6 +4106,7 @@ boolean ribbonCycloid;
 boolean ribbonNoise;
 float ribbonRotX;
 float ribbonRotY;
+boolean ribbonRotStop = false;
 
 class Splines extends VisualEngine {
   protected ArrayList<controlP5.Controller> controllers;
@@ -4015,7 +4125,8 @@ class Splines extends VisualEngine {
     "ribbonCY", 
     "ribbonNoise", 
     "ribbonRotX", 
-    "ribbonRotY"
+    "ribbonRotY", 
+    "ribbonRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -4080,19 +4191,23 @@ class Splines extends VisualEngine {
 
   public void update() {
     background(0);
-    
-//    if(ribbonCount < 60){
-//      if(frameCount%2 == 0){
-//      cp5.getController("ribbonCount").setValue(ribbonCount++);
-//      }
-//    }
-    
+
+    //    if(ribbonCount < 60){
+    //      if(frameCount%2 == 0){
+    //      cp5.getController("ribbonCount").setValue(ribbonCount++);
+    //      }
+    //    }
+
     if (midiEnable) {
       mapMidiInterface();
     }
     mapPresets();
-    cam.rotateX(ribbonRotX);
-    cam.rotateY(ribbonRotY);
+
+    if (!ribbonRotStop) {
+      cam.rotateX(ribbonRotX);
+      cam.rotateY(ribbonRotY);
+    }
+
     lightSetting();
     for (int i=0; i<ribbonCount; i++) {
 
@@ -4161,51 +4276,51 @@ class Splines extends VisualEngine {
     //directionalLight(255, 0, 50, 0, -1, 0); 
     ambientLight(0, 0, 100);
     directionalLight(0, 0, 200, 0, -1, -1); 
-//    directionalLight(0, 0, 200, 0, 1, -1); 
+    //    directionalLight(0, 0, 200, 0, 1, -1); 
     directionalLight(0, 0, 200, 1, 0, -1); 
 
-//    int lightY = 150;
-//    int lightYBr = 255;
-//    int lightYCon = 100;
-//
-//    spotLight(255, 0, 255, // Color
-//    0, 100, 150, // Position
-//    0, -0.3, -1, // Direction
-//    PI, 20); // Angle, concentration
-//    //    point(0, 10, 150);
-//
-//    //    if ( key == 'q') {
-//    spotLight(255, 0, lightYBr, // Color
-//    0, -lightY, 0, // Position
-//    0, 1, 0, // Direction
-//    PI, 6); // Angle, concentration
-//    //    point(0, -lightY, 0);
-//
-//    //    } else if ( key == 'w') {
-//    spotLight(255, 0, lightYBr, // Color
-//    cubeCircleRad, -lightY, 0, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(cubeCircleRad, -lightY, 0);
-//    //    } else if ( key == 'e') {
-//    spotLight(255, 0, lightYBr, // Color
-//    -cubeCircleRad, -lightY, 0, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(-cubeCircleRad, -lightY, 0);
-//    //    } else if ( key == 'r') {
-//    spotLight(255, 0, lightYBr, // Color
-//    0, -lightY, cubeCircleRad, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(0, -lightY, cubeCircleRad);
-//    //    } else if ( key == 't') {
-//    spotLight(255, 0, lightYBr, // Color
-//    0, -lightY, -cubeCircleRad, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(0, -lightY, -cubeCircleRad);
-//    //}
+    //    int lightY = 150;
+    //    int lightYBr = 255;
+    //    int lightYCon = 100;
+    //
+    //    spotLight(255, 0, 255, // Color
+    //    0, 100, 150, // Position
+    //    0, -0.3, -1, // Direction
+    //    PI, 20); // Angle, concentration
+    //    //    point(0, 10, 150);
+    //
+    //    //    if ( key == 'q') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, 6); // Angle, concentration
+    //    //    point(0, -lightY, 0);
+    //
+    //    //    } else if ( key == 'w') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    cubeCircleRad, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(cubeCircleRad, -lightY, 0);
+    //    //    } else if ( key == 'e') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    -cubeCircleRad, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(-cubeCircleRad, -lightY, 0);
+    //    //    } else if ( key == 'r') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(0, -lightY, cubeCircleRad);
+    //    //    } else if ( key == 't') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, -cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(0, -lightY, -cubeCircleRad);
+    //    //}
   }
 
 
@@ -4285,6 +4400,11 @@ class Splines extends VisualEngine {
           .setValue(false)
             .setWindow(controlWindow);            
 
+    cp5.addToggle("ribbonRotStop")
+      .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setWindow(controlWindow);
 
 
     rowIndex = 1; 
@@ -4313,7 +4433,7 @@ class Splines extends VisualEngine {
     cp5.addSlider("ribbonSound")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
-          .setRange(0.f, 100.f)
+          .setRange(0.f, 30.f)
             .setWindow(controlWindow);
 
     columnIndex = 4; 
@@ -4569,16 +4689,21 @@ class Splines extends VisualEngine {
 
     cp5.getController("ribbonCount").setValue(cp5.getController("ribbonCount").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("ribbonCount").getMax()-cp5.getController("ribbonCount").getMin())));
     cp5.getController("ribbonSpeed").setValue(cp5.getController("ribbonSpeed").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("ribbonSpeed").getMax()-cp5.getController("ribbonSpeed").getMin())));
+    cp5.getController("ribbonRotX").setValue(cp5.getController("ribbonRotX").getValue()+(map(   knobValDiff[2], 0, 127, 0, cp5.getController("ribbonRotX").getMax()-cp5.getController("ribbonRotX").getMin())));
+    cp5.getController("ribbonRotY").setValue(cp5.getController("ribbonRotY").getValue()+(map(   knobValDiff[3], 0, 127, 0, cp5.getController("ribbonRotY").getMax()-cp5.getController("ribbonRotY").getMin())));
 
     cp5.getController("ribbonHelix").setValue((cp5.getController("ribbonHelix").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("ribbonCycloid").setValue((cp5.getController("ribbonCycloid").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("ribbonNoise").setValue((cp5.getController("ribbonNoise").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("ribonRotStop").setValue((cp5.getController("ribonRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
 
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -4615,7 +4740,8 @@ class Ribbon {
   float kp = 0.1f;
   float rX, rY, rZ;
   float colR;
-
+  float colG;
+  float colB;
   Ribbon (int i, PVector theP, int theCount) {
     id = i;
     ref = new PVector(0, 0, 0);
@@ -4858,7 +4984,7 @@ class Ribbon {
 
   public void drawMeshRibbon(int theMeshCol, float theWidth) {
     // draw the ribbons with meshes
-    int colorFader = 30;
+    int colorFader = 50;
     float colorFadeDiff = 100;
 
     int alfaFader = 30;
@@ -4882,12 +5008,15 @@ class Ribbon {
       //      else
       //        ribbonAlfa = 255;
 
-      colR = map(id, 0, ribbonCount, 0.f, 200.f);
-      colR = 127;
+      colR = 100;
+      colG = 127;
+      colB = 0;
       if (i < colorFader) 
         colR = colR -(colorFader-i)*(colorFadeDiff)/colorFader;
-//      else if (count*ribbonLength - i < colorFader)
-//        colR = colR -(colorFader-abs(count*ribbonLength-i))*(colorFadeDiff)/colorFader;
+      colG = colG -(colorFader-i)*(colorFadeDiff)/colorFader;
+      colB = colB -(colorFader-i)*(colorFadeDiff)/colorFader;
+      //      else if (count*ribbonLength - i < colorFader)
+      //        colR = colR -(colorFader-abs(count*ribbonLength-i))*(colorFadeDiff)/colorFader;
       //      else
       //        colR = 255;
 
@@ -4898,9 +5027,9 @@ class Ribbon {
 
       if (i < widthFader) 
         theWidth = theWidth -(widthFader-i)*(widthFadeDiff)/widthFader;
-//      else 
-//      if (count*ribbonLength - i < colorFader)
-//        theWidth = theWidth -(widthFader-abs(count*ribbonLength-i))*(widthFadeDiff)/widthFader;
+      //      else 
+      //      if (count*ribbonLength - i < colorFader)
+      //        theWidth = theWidth -(widthFader-abs(count*ribbonLength-i))*(widthFadeDiff)/widthFader;
       //      else
       //        theWidth = 255;
 
@@ -5080,7 +5209,7 @@ class Vorovis extends VisualEngine {
     initFlock();
     updateMesh();
     colorMode(HSB);
-    
+
     parameters1 =     loadPreset(presetDir, name, 1);
     parameters2 =     loadPreset(presetDir, name, 2);
     parameters3 =     loadPreset(presetDir, name, 3);
@@ -5088,7 +5217,7 @@ class Vorovis extends VisualEngine {
     parameters5 =     loadPreset(presetDir, name, 5);
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
-    parameters8 =     loadPreset(presetDir, name, 8);   
+    parameters8 =     loadPreset(presetDir, name, 8);
   }    // setup function
 
   public void update() {    
@@ -5191,72 +5320,70 @@ class Vorovis extends VisualEngine {
       float rcArea = polygonArea(rc);
       float areaMin = 2000;
       float areaMax = 300000;
-      if(rcArea > 1000000){
+      if (rcArea > 1000000) {
         fill(0);
-      } else {
-      
-
-      if (showVoro) {
-//        fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa*soundLevelLPF); // use random color for each region
-        fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]),0,2000,255,0), 255, map(soundLPFBuf[PApplet.parseInt(i*spectrumLength/myRegions.length)],10,3000,areaMin,areaMax)-rcArea); // use random color for each region
-
-        beginShape();
-        for (int j = 0; j < regionCoordinates.length;j++) {
-          vertex(regionCoordinates[j][0], regionCoordinates[j][1], 0);
-        }
-        endShape(CLOSE);
-      }
-      if (showStar) {
-        beginShape(TRIANGLE_FAN);
-        fill(map(rcArea,  areaMin, areaMax, 0, 255), 255, 255, centerAlfa); // use random color for each region
-        vertex(flock.bPos[i][0], flock.bPos[i][1]);
-        for (int j = 0; j < regionCoordinates.length+1;j++) {
-          fill(map(rcArea,  areaMin, areaMax, 0, 255), 255, 255, voroAlfa); // use random color for each region
-
-          vertex(regionCoordinates[j%regionCoordinates.length][0], regionCoordinates[j%regionCoordinates.length][1], 0);
-        }
-        endShape(CLOSE);
-      }
+      } 
+      else {
 
 
-      if (showBezier) {
-        float ts = 0.1f;
-        //          ts = map(mouseX, 0, width, 0., 1.);
-        //          ts = 0;
-        // calculate bezier points
-        int nv = regionCoordinates.length;
-        float x1, x2, y1, y2, x3, y3;
-        beginShape();
-//        fill(map(rcArea,  areaMin, areaMax, 127, 190), 255, 255, bezierAlfa); // use random color for each region
-        fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]),0,2000,255,0), 255, map(soundLPFBuf[PApplet.parseInt(i*spectrumLength/myRegions.length)],10,100,areaMin,areaMax)-rcArea); // use random color for each region
+        if (showVoro) {
+          //        fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa*soundLevelLPF); // use random color for each region
+          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[PApplet.parseInt(i*spectrumLength/myRegions.length)], 10, 3000, areaMin, areaMax)-rcArea); // use random color for each region
 
-        for (int j = 0; j < nv; j++) {
-          PVector v1 = new PVector (regionCoordinates[j % nv][0], regionCoordinates[j % nv][1], 0);
-          PVector v2 = new PVector (regionCoordinates[(j+1) % nv][0], regionCoordinates[(j+1) % nv][1], 0);
-          PVector v3 = new PVector (regionCoordinates[(j+2) % nv][0], regionCoordinates[(j+2) % nv][1], 0);
-          x1 =  lerp(lerp(v1.x, v2.x, 0.5f), flock.bPos[i][0], ts);
-          y1 =  lerp(lerp(v1.y, v2.y, 0.5f), flock.bPos[i][1], ts);
-          x2 =  lerp(v2.x, flock.bPos[i][0], ts);
-          y2 =  lerp(v2.y, flock.bPos[i][1], ts);
-          x3 =  lerp(lerp(v2.x, v3.x, 0.5f), flock.bPos[i][0], ts);
-          y3 =  lerp(lerp(v2.y, v3.y, 0.5f), flock.bPos[i][1], ts);
-          // evaluate bezier curve in 10 different points
-          for (int k = 0; k < 10; k++) {
-            float tt = k / (float) 10;
-            float xpos = (1.0f - tt) * ( lerp(x1, x2, tt)) + tt
-              * ( lerp(x2, x3, tt));
-            float ypos = (1.0f - tt) * ( lerp(y1, y2, tt)) + tt
-              * ( lerp(y2, y3, tt));
-            vertex(xpos, ypos, 0);
+          beginShape();
+          for (int j = 0; j < regionCoordinates.length;j++) {
+            vertex(regionCoordinates[j][0], regionCoordinates[j][1], 0);
           }
+          endShape(CLOSE);
         }
-        endShape(CLOSE);
+        if (showStar) {
+          beginShape(TRIANGLE_FAN);
+          fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, centerAlfa); // use random color for each region
+          vertex(flock.bPos[i][0], flock.bPos[i][1]);
+          for (int j = 0; j < regionCoordinates.length+1;j++) {
+            fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa); // use random color for each region
+
+            vertex(regionCoordinates[j%regionCoordinates.length][0], regionCoordinates[j%regionCoordinates.length][1], 0);
+          }
+          endShape(CLOSE);
+        }
+
+
+        if (showBezier) {
+          float ts = 0.1f;
+          //          ts = map(mouseX, 0, width, 0., 1.);
+          //          ts = 0;
+          // calculate bezier points
+          int nv = regionCoordinates.length;
+          float x1, x2, y1, y2, x3, y3;
+          beginShape();
+          //        fill(map(rcArea,  areaMin, areaMax, 127, 190), 255, 255, bezierAlfa); // use random color for each region
+//          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 100, areaMin, areaMax)-rcArea); // use random color for each region
+noFill();
+          for (int j = 0; j < nv; j++) {
+            PVector v1 = new PVector (regionCoordinates[j % nv][0], regionCoordinates[j % nv][1], 0);
+            PVector v2 = new PVector (regionCoordinates[(j+1) % nv][0], regionCoordinates[(j+1) % nv][1], 0);
+            PVector v3 = new PVector (regionCoordinates[(j+2) % nv][0], regionCoordinates[(j+2) % nv][1], 0);
+            x1 =  lerp(lerp(v1.x, v2.x, 0.5f), flock.bPos[i][0], ts);
+            y1 =  lerp(lerp(v1.y, v2.y, 0.5f), flock.bPos[i][1], ts);
+            x2 =  lerp(v2.x, flock.bPos[i][0], ts);
+            y2 =  lerp(v2.y, flock.bPos[i][1], ts);
+            x3 =  lerp(lerp(v2.x, v3.x, 0.5f), flock.bPos[i][0], ts);
+            y3 =  lerp(lerp(v2.y, v3.y, 0.5f), flock.bPos[i][1], ts);
+            // evaluate bezier curve in 10 different points
+            for (int k = 0; k < 10; k++) {
+              float tt = k / (float) 10;
+              float xpos = (1.0f - tt) * ( lerp(x1, x2, tt)) + tt
+                * ( lerp(x2, x3, tt));
+              float ypos = (1.0f - tt) * ( lerp(y1, y2, tt)) + tt
+                * ( lerp(y2, y3, tt));
+              vertex(xpos, ypos, 0);
+            }
+          }
+          endShape(CLOSE);
+        }
       }
     }
-
-
-
-}
 
 
 
@@ -5598,12 +5725,13 @@ class Vorovis extends VisualEngine {
     cp5.getController("showVoro").setValue((cp5.getController("showVoro").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("showBezier").setValue((cp5.getController("showBezier").getValue()+abs(buttonsMValDiff[16]))%2);
     cp5.getController("showStar").setValue((cp5.getController("showStar").getValue()+abs(buttonsMValDiff[1]))%2);
-
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -5891,7 +6019,9 @@ float th;
 float ph;
 int rRes = 40;
 int RRes = 20;
-
+float wireRotX = 0.f;
+float wireRotY = 0.f;
+boolean wireRotStop = false;
 float x, y, z;
 float rotIncX = 0.f;
 float rotX = 0.f;
@@ -5908,7 +6038,10 @@ class Wireframe extends VisualEngine {
     "rRes", 
     "RRes", 
     "rotIncX", 
-    "rotIncY"
+    "rotIncY", 
+    "wireRotX", 
+    "wireRotY", 
+    "wireRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -5961,10 +6094,14 @@ class Wireframe extends VisualEngine {
     mapPresets();
     frame.setTitle(PApplet.parseInt(frameRate) + "fps");
     background(0);
+    if (!wireRotStop) {
+      cam.rotateX(wireRotX);
+      cam.rotateY(wireRotY);
+    }
 
     rotX += rotIncX;
     rotY += rotIncY;
-//    float wireSoundVal = fftVar[0].getValue();
+    //    float wireSoundVal = fftVar[0].getValue();
     float inLevelMax = 10.f;
     float inLevelMin = 0.f;
 
@@ -5996,7 +6133,7 @@ class Wireframe extends VisualEngine {
 
     for (int i = 0; i < RRes; i++) {
       beginShape(LINES);
-//      fill(0, 0, 0);
+      //      fill(0, 0, 0);
       noFill();
       for (int j = 0; j < rRes; j++) {
         theta = (map(i, 0, RRes, 0, TWO_PI*th)+rotX)%TWO_PI;
@@ -6018,7 +6155,6 @@ class Wireframe extends VisualEngine {
       }
       endShape(CLOSE);
     }
-
   }  
 
   float lpfOutPre;
@@ -6080,6 +6216,19 @@ class Wireframe extends VisualEngine {
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
 
+    cp5.addKnob("wireRotX")
+      .setPosition(knobPosX[4]+visualSpecificParametersBoxX-knobWidth, knobPosY[4]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05f, 0.05f)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+    cp5.addKnob("wireRotY")
+      .setPosition(knobPosX[5]+visualSpecificParametersBoxX-knobWidth, knobPosY[5]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05f, 0.05f)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
     cp5.addSlider("th")
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
@@ -6100,6 +6249,12 @@ class Wireframe extends VisualEngine {
         .setSize(sliderWidth, sliderHeight)
           .setRange(-0.05f, 0.05f )
             .setWindow(controlWindow);  
+
+    cp5.addToggle("wireRotStop")
+      .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setWindow(controlWindow);
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
@@ -6314,16 +6469,21 @@ class Wireframe extends VisualEngine {
     cp5.getController("Rad").setValue(cp5.getController("Rad").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("Rad").getMax()-cp5.getController("Rad").getMin())));
     cp5.getController("rRes").setValue(cp5.getController("rRes").getValue()+(map(  knobValDiff[2], 0, 127, 0, cp5.getController("rRes").getMax()-cp5.getController("rRes").getMin())));
     cp5.getController("RRes").setValue(cp5.getController("RRes").getValue()+(map(  knobValDiff[3], 0, 127, 0, cp5.getController("RRes").getMax()-cp5.getController("RRes").getMin())));
+    cp5.getController("wireRotX").setValue(cp5.getController("wireRotX").getValue()+(map(  knobValDiff[4], 0, 127, 0, cp5.getController("wireRotX").getMax()-cp5.getController("wireRotX").getMin())));
+    cp5.getController("wireRotY").setValue(cp5.getController("wireRotY").getValue()+(map(  knobValDiff[5], 0, 127, 0, cp5.getController("wireRotY").getMax()-cp5.getController("wireRotY").getMin())));
 
     cp5.getController("th").setValue(cp5.getController("th").getValue()+(map(         faderValDiff[0], 0, 127, 0, cp5.getController("th").getMax()-cp5.getController("th").getMin())));
     cp5.getController("ph").setValue(cp5.getController("ph").getValue()+(map(         faderValDiff[1], 0, 127, 0, cp5.getController("ph").getMax()-cp5.getController("ph").getMin())));
     cp5.getController("rotIncX").setValue(cp5.getController("rotIncX").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("rotIncX").getMax()-cp5.getController("rotIncX").getMin())));
-    cp5.getController("rotIncY").setValue(cp5.getController("rotIncY").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("rotIncY").getMax()-cp5.getController("rotIncY").getMin())));
+    cp5.getController("rotIncY").setValue(cp5.getController("rotIncY").getValue()+(map(   faderValDiff[3], 0, 127, 0, cp5.getController("rotIncY").getMax()-cp5.getController("rotIncY").getMin())));
+
+    cp5.getController("wireRotStop").setValue((cp5.getController("wireRotStop").getValue()+abs(buttonsMValDiff[0]))%2);
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(RGB);
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);

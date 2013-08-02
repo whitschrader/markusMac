@@ -34,7 +34,7 @@ float ffy = 0.;
 float movementAmount = 1000;
 float polyRotX = 0.;
 float polyRotY = 0.;
-
+boolean polyRotStop = false;
 float[][] polySoundMatrix = new float[numLines][numDots];
 
 color[] palette1;
@@ -68,7 +68,8 @@ class Polyface extends VisualEngine {
     "forceFieldRange", 
     "forceFieldXFreq", 
     "forceFieldYFreq", 
-    "forceFieldPower" 
+    "forceFieldPower", 
+    "polyRotStop" 
       //    "palette1", 
     //    "palette2", 
     //    "palette3"
@@ -132,8 +133,10 @@ class Polyface extends VisualEngine {
 
     mapPresets();
 
-    cam.rotateX(polyRotX);
-    cam.rotateY(polyRotY);
+    if (!polyRotStop) {
+      cam.rotateX(polyRotX);
+      cam.rotateY(polyRotY);
+    }
 
     for (int i = 0; i < numLines-1; i++) {
       for (int j = 0; j < numDots-1; j++) {
@@ -153,8 +156,8 @@ class Polyface extends VisualEngine {
       point(forceFieldX, forceFieldY, forceFieldZ);
     }
 
-//    for (int i = 0; i<numLines;i++) {
-//    }
+    //    for (int i = 0; i<numLines;i++) {
+    //    }
     for (int i = 0; i<numLines;i++) {
       d[i].update();
 
@@ -250,14 +253,6 @@ class Polyface extends VisualEngine {
     }
 
 
-    /* 
-     
-     
-     "palette1", 
-     "palette2", 
-     "palette3"
-     */
-
     cp5.addToggle("pointEnable")
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
@@ -281,7 +276,13 @@ class Polyface extends VisualEngine {
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
             .setWindow(controlWindow);
-
+            
+    cp5.addToggle("polyRotStop")
+      .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setWindow(controlWindow);
+            
     cp5.addKnob("forceFieldPower")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
@@ -619,11 +620,15 @@ class Polyface extends VisualEngine {
     cp5.getController("lineEnable").setValue(  (  cp5.getController("lineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("faceEnable").setValue( (cp5.getController("faceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
     cp5.getController("resetGrid").setValue(  ( cp5.getController("resetGrid").getValue()+ abs(buttonsMValDiff[1]))%2);
+    cp5.getController("polyRotStop").setValue((cp5.getController("polyRotStop").getValue()+abs(buttonsMValDiff[9]))%2);
+
   }
 
   public void start() {
     println("Starting " + name);
     hint(DISABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);

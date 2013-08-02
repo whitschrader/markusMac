@@ -20,6 +20,7 @@ float linesAlfa = 255;
 float facesAlfa = 255;
 float deformRotX;
 float deformRotY;
+boolean deformRotStop = false;
 float posTemp;
 float posMin = 1000.;
 float posMax = 0.;
@@ -41,7 +42,8 @@ class Deform extends VisualEngine {
     "deformRotX", 
     "deformRotY", 
     "linesAlfa", 
-    "facesAlfa"
+    "facesAlfa", 
+    "deformRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -175,6 +177,13 @@ class Deform extends VisualEngine {
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
             .setWindow(controlWindow);
+
+    cp5.addToggle("deformRotStop")
+      .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setWindow(controlWindow);
+
     columnIndex = 2; 
     cp5.addKnob("linesAlfa")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
@@ -189,7 +198,7 @@ class Deform extends VisualEngine {
           .setRange(0., 255.)
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
-              
+
     cp5.addKnob("deformRotX")
       .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
@@ -225,8 +234,10 @@ class Deform extends VisualEngine {
     }
     mapPresets();
 
-    cam.rotateX(deformRotX);
-    cam.rotateY(deformRotY);
+    if (!deformRotStop) {
+      cam.rotateX(deformRotX);
+      cam.rotateY(deformRotY);
+    }
 
     for (int i = 0; i<circleAmount;i++) {
       dc[i].update();
@@ -287,7 +298,7 @@ class Deform extends VisualEngine {
 
   public void colorVertex(int i, int j) {
     //    fill(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0),0.5,2,0,255), facesAlfa);    
-//    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
+    //    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
     fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), facesAlfa, facesAlfa, 255);    
 
     //    tint(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 100, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
@@ -297,6 +308,7 @@ class Deform extends VisualEngine {
     }
     //    stroke(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0),0,2,0,255), linesAlfa);    
     stroke(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), linesAlfa);    
+    strokeWeight(2);
     if (!linesEnable) {
       //      noStroke();
     }
@@ -314,8 +326,9 @@ class Deform extends VisualEngine {
 
   public void lightSettings() {
 
-    stroke(255);
-    strokeWeight(20);
+    //    stroke(255);
+    //    strokeWeight(20);
+
     lightSpecular(0, 0, 255);
     shininess(255);
     specular(255);
@@ -576,12 +589,15 @@ class Deform extends VisualEngine {
 
     cp5.getController("linesEnable").setValue((cp5.getController("linesEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("facesEnable").setValue((cp5.getController("facesEnable").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("deformRotStop").setValue((cp5.getController("deformRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
 
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);

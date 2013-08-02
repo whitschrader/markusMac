@@ -101,6 +101,7 @@ void initializeGUI() {
   cp5.setColorActive(dimYellow);
   cp5.setColorBackground(mainBlue);
   cp5.setColorCaptionLabel(textColor);
+  cp5.setColorValueLabel(textColor);
   cp5.setAutoDraw(false);
 
   cwControllers = new ArrayList<controlP5.Controller>();
@@ -177,6 +178,7 @@ class MyCanvas extends ControlWindowCanvas {
 
   public void drawFFT(PApplet theApplet) {
     soundWaveBoxHeight = soundWaveBoxHeight/2;
+    soundWaveBoxY = soundWaveBoxY+1;
     for (int i = 0; i < LiveInput.spectrum.length; i++) {
       theApplet.pushStyle();
       theApplet.colorMode(HSB);
@@ -198,6 +200,7 @@ class MyCanvas extends ControlWindowCanvas {
         );
       theApplet.popStyle();
     }
+    soundWaveBoxY = soundWaveBoxY-1;
     soundWaveBoxHeight = soundWaveBoxHeight*2;
   }
 
@@ -290,8 +293,8 @@ class MyCanvas extends ControlWindowCanvas {
 
 
   public void draw(PApplet theApplet) {
-    theApplet.frame.setTitle(int(frameRate)+"fps");
-
+    //    theApplet.frame.setTitle(int(frameRate)+"fps");
+    theApplet.frame.setTitle("NOS Visual Engine");
     if (theApplet.frameCount<10) {
       theApplet.image(about, theApplet.width/2-about.width/2, theApplet.height/2-about.height/2);
       cwVisible = true;
@@ -359,6 +362,11 @@ class MyCanvas extends ControlWindowCanvas {
       theApplet.text("SOUND REACTION", soundParametersBoxX, soundParametersBoxY-2);
       theApplet.text("PRESETS", presetsBoxX, presetsBoxY-2);
       theApplet.text("SOUND REACTION ADJUSTMENT", soundWaveBoxX, soundWaveBoxY-2);
+      theApplet.textFont(pfontLight, 20);
+      theApplet.text("v1.0", borderLinesThickness+borderMarginBig+100, borderLinesThickness+80);
+      //      theApplet.text("fps: " + (int)frameRate, borderLinesThickness+borderMarginBig+10, borderLinesThickness+280);
+      theApplet.textFont(pfontLight, 18);
+      theApplet.text("fps: " + (int)frameRate, theApplet.width-116, theApplet.height-14);
       //    theApplet.text("No Preview Available.", 170, 170);
 
       //    theApplet.image(preview,thumbnailBoxX, (thumbnailBoxY+borderMarginBig),373,207);
@@ -395,7 +403,7 @@ void soundReactionGUI(ControlP5 cp5, ControlWindow controlWindow) {
 
   cp5.addToggle("SR")
     .setPosition(parameterPos[0][0].x-parameterSize[0].x/2, parameterPos[0][0].y-parameterSize[0].y/2)   
-      .setSize((int)parameterSize[0].x, (int)parameterSize[0].y)
+      .setSize((int)parameterSize[0].y, (int)parameterSize[0].y)
         .setValue(true)
           .setWindow(controlWindow);
 

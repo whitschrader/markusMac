@@ -12,6 +12,7 @@ boolean ribbonCycloid;
 boolean ribbonNoise;
 float ribbonRotX;
 float ribbonRotY;
+boolean ribbonRotStop = false;
 
 class Splines extends VisualEngine {
   protected ArrayList<controlP5.Controller> controllers;
@@ -30,7 +31,8 @@ class Splines extends VisualEngine {
     "ribbonCY", 
     "ribbonNoise", 
     "ribbonRotX", 
-    "ribbonRotY"
+    "ribbonRotY", 
+    "ribbonRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -95,19 +97,23 @@ class Splines extends VisualEngine {
 
   public void update() {
     background(0);
-    
-//    if(ribbonCount < 60){
-//      if(frameCount%2 == 0){
-//      cp5.getController("ribbonCount").setValue(ribbonCount++);
-//      }
-//    }
-    
+
+    //    if(ribbonCount < 60){
+    //      if(frameCount%2 == 0){
+    //      cp5.getController("ribbonCount").setValue(ribbonCount++);
+    //      }
+    //    }
+
     if (midiEnable) {
       mapMidiInterface();
     }
     mapPresets();
-    cam.rotateX(ribbonRotX);
-    cam.rotateY(ribbonRotY);
+
+    if (!ribbonRotStop) {
+      cam.rotateX(ribbonRotX);
+      cam.rotateY(ribbonRotY);
+    }
+
     lightSetting();
     for (int i=0; i<ribbonCount; i++) {
 
@@ -176,51 +182,51 @@ class Splines extends VisualEngine {
     //directionalLight(255, 0, 50, 0, -1, 0); 
     ambientLight(0, 0, 100);
     directionalLight(0, 0, 200, 0, -1, -1); 
-//    directionalLight(0, 0, 200, 0, 1, -1); 
+    //    directionalLight(0, 0, 200, 0, 1, -1); 
     directionalLight(0, 0, 200, 1, 0, -1); 
 
-//    int lightY = 150;
-//    int lightYBr = 255;
-//    int lightYCon = 100;
-//
-//    spotLight(255, 0, 255, // Color
-//    0, 100, 150, // Position
-//    0, -0.3, -1, // Direction
-//    PI, 20); // Angle, concentration
-//    //    point(0, 10, 150);
-//
-//    //    if ( key == 'q') {
-//    spotLight(255, 0, lightYBr, // Color
-//    0, -lightY, 0, // Position
-//    0, 1, 0, // Direction
-//    PI, 6); // Angle, concentration
-//    //    point(0, -lightY, 0);
-//
-//    //    } else if ( key == 'w') {
-//    spotLight(255, 0, lightYBr, // Color
-//    cubeCircleRad, -lightY, 0, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(cubeCircleRad, -lightY, 0);
-//    //    } else if ( key == 'e') {
-//    spotLight(255, 0, lightYBr, // Color
-//    -cubeCircleRad, -lightY, 0, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(-cubeCircleRad, -lightY, 0);
-//    //    } else if ( key == 'r') {
-//    spotLight(255, 0, lightYBr, // Color
-//    0, -lightY, cubeCircleRad, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(0, -lightY, cubeCircleRad);
-//    //    } else if ( key == 't') {
-//    spotLight(255, 0, lightYBr, // Color
-//    0, -lightY, -cubeCircleRad, // Position
-//    0, 1, 0, // Direction
-//    PI, lightYCon); // Angle, concentration
-//    //    point(0, -lightY, -cubeCircleRad);
-//    //}
+    //    int lightY = 150;
+    //    int lightYBr = 255;
+    //    int lightYCon = 100;
+    //
+    //    spotLight(255, 0, 255, // Color
+    //    0, 100, 150, // Position
+    //    0, -0.3, -1, // Direction
+    //    PI, 20); // Angle, concentration
+    //    //    point(0, 10, 150);
+    //
+    //    //    if ( key == 'q') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, 6); // Angle, concentration
+    //    //    point(0, -lightY, 0);
+    //
+    //    //    } else if ( key == 'w') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    cubeCircleRad, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(cubeCircleRad, -lightY, 0);
+    //    //    } else if ( key == 'e') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    -cubeCircleRad, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(-cubeCircleRad, -lightY, 0);
+    //    //    } else if ( key == 'r') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(0, -lightY, cubeCircleRad);
+    //    //    } else if ( key == 't') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, -cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    //    point(0, -lightY, -cubeCircleRad);
+    //    //}
   }
 
 
@@ -300,6 +306,11 @@ class Splines extends VisualEngine {
           .setValue(false)
             .setWindow(controlWindow);            
 
+    cp5.addToggle("ribbonRotStop")
+      .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setWindow(controlWindow);
 
 
     rowIndex = 1; 
@@ -328,7 +339,7 @@ class Splines extends VisualEngine {
     cp5.addSlider("ribbonSound")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 100.)
+          .setRange(0., 30.)
             .setWindow(controlWindow);
 
     columnIndex = 4; 
@@ -584,16 +595,21 @@ class Splines extends VisualEngine {
 
     cp5.getController("ribbonCount").setValue(cp5.getController("ribbonCount").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("ribbonCount").getMax()-cp5.getController("ribbonCount").getMin())));
     cp5.getController("ribbonSpeed").setValue(cp5.getController("ribbonSpeed").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("ribbonSpeed").getMax()-cp5.getController("ribbonSpeed").getMin())));
+    cp5.getController("ribbonRotX").setValue(cp5.getController("ribbonRotX").getValue()+(map(   knobValDiff[2], 0, 127, 0, cp5.getController("ribbonRotX").getMax()-cp5.getController("ribbonRotX").getMin())));
+    cp5.getController("ribbonRotY").setValue(cp5.getController("ribbonRotY").getValue()+(map(   knobValDiff[3], 0, 127, 0, cp5.getController("ribbonRotY").getMax()-cp5.getController("ribbonRotY").getMin())));
 
     cp5.getController("ribbonHelix").setValue((cp5.getController("ribbonHelix").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("ribbonCycloid").setValue((cp5.getController("ribbonCycloid").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("ribbonNoise").setValue((cp5.getController("ribbonNoise").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("ribonRotStop").setValue((cp5.getController("ribonRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
 
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -630,7 +646,8 @@ class Ribbon {
   float kp = 0.1;
   float rX, rY, rZ;
   float colR;
-
+  float colG;
+  float colB;
   Ribbon (int i, PVector theP, int theCount) {
     id = i;
     ref = new PVector(0, 0, 0);
@@ -873,7 +890,7 @@ class Ribbon {
 
   void drawMeshRibbon(color theMeshCol, float theWidth) {
     // draw the ribbons with meshes
-    int colorFader = 30;
+    int colorFader = 50;
     float colorFadeDiff = 100;
 
     int alfaFader = 30;
@@ -897,12 +914,15 @@ class Ribbon {
       //      else
       //        ribbonAlfa = 255;
 
-      colR = map(id, 0, ribbonCount, 0., 200.);
-      colR = 127;
+      colR = 100;
+      colG = 127;
+      colB = 0;
       if (i < colorFader) 
         colR = colR -(colorFader-i)*(colorFadeDiff)/colorFader;
-//      else if (count*ribbonLength - i < colorFader)
-//        colR = colR -(colorFader-abs(count*ribbonLength-i))*(colorFadeDiff)/colorFader;
+      colG = colG -(colorFader-i)*(colorFadeDiff)/colorFader;
+      colB = colB -(colorFader-i)*(colorFadeDiff)/colorFader;
+      //      else if (count*ribbonLength - i < colorFader)
+      //        colR = colR -(colorFader-abs(count*ribbonLength-i))*(colorFadeDiff)/colorFader;
       //      else
       //        colR = 255;
 
@@ -913,9 +933,9 @@ class Ribbon {
 
       if (i < widthFader) 
         theWidth = theWidth -(widthFader-i)*(widthFadeDiff)/widthFader;
-//      else 
-//      if (count*ribbonLength - i < colorFader)
-//        theWidth = theWidth -(widthFader-abs(count*ribbonLength-i))*(widthFadeDiff)/widthFader;
+      //      else 
+      //      if (count*ribbonLength - i < colorFader)
+      //        theWidth = theWidth -(widthFader-abs(count*ribbonLength-i))*(widthFadeDiff)/widthFader;
       //      else
       //        theWidth = 255;
 

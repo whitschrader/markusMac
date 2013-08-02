@@ -103,7 +103,7 @@ class Vorovis extends VisualEngine {
     initFlock();
     updateMesh();
     colorMode(HSB);
-    
+
     parameters1 =     loadPreset(presetDir, name, 1);
     parameters2 =     loadPreset(presetDir, name, 2);
     parameters3 =     loadPreset(presetDir, name, 3);
@@ -111,7 +111,7 @@ class Vorovis extends VisualEngine {
     parameters5 =     loadPreset(presetDir, name, 5);
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
-    parameters8 =     loadPreset(presetDir, name, 8);   
+    parameters8 =     loadPreset(presetDir, name, 8);
   }    // setup function
 
   public void update() {    
@@ -214,72 +214,70 @@ class Vorovis extends VisualEngine {
       float rcArea = polygonArea(rc);
       float areaMin = 2000;
       float areaMax = 300000;
-      if(rcArea > 1000000){
+      if (rcArea > 1000000) {
         fill(0);
-      } else {
-      
-
-      if (showVoro) {
-//        fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa*soundLevelLPF); // use random color for each region
-        fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]),0,2000,255,0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)],10,3000,areaMin,areaMax)-rcArea); // use random color for each region
-
-        beginShape();
-        for (int j = 0; j < regionCoordinates.length;j++) {
-          vertex(regionCoordinates[j][0], regionCoordinates[j][1], 0);
-        }
-        endShape(CLOSE);
-      }
-      if (showStar) {
-        beginShape(TRIANGLE_FAN);
-        fill(map(rcArea,  areaMin, areaMax, 0, 255), 255, 255, centerAlfa); // use random color for each region
-        vertex(flock.bPos[i][0], flock.bPos[i][1]);
-        for (int j = 0; j < regionCoordinates.length+1;j++) {
-          fill(map(rcArea,  areaMin, areaMax, 0, 255), 255, 255, voroAlfa); // use random color for each region
-
-          vertex(regionCoordinates[j%regionCoordinates.length][0], regionCoordinates[j%regionCoordinates.length][1], 0);
-        }
-        endShape(CLOSE);
-      }
+      } 
+      else {
 
 
-      if (showBezier) {
-        float ts = 0.1f;
-        //          ts = map(mouseX, 0, width, 0., 1.);
-        //          ts = 0;
-        // calculate bezier points
-        int nv = regionCoordinates.length;
-        float x1, x2, y1, y2, x3, y3;
-        beginShape();
-//        fill(map(rcArea,  areaMin, areaMax, 127, 190), 255, 255, bezierAlfa); // use random color for each region
-        fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]),0,2000,255,0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)],10,100,areaMin,areaMax)-rcArea); // use random color for each region
+        if (showVoro) {
+          //        fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa*soundLevelLPF); // use random color for each region
+          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 3000, areaMin, areaMax)-rcArea); // use random color for each region
 
-        for (int j = 0; j < nv; j++) {
-          PVector v1 = new PVector (regionCoordinates[j % nv][0], regionCoordinates[j % nv][1], 0);
-          PVector v2 = new PVector (regionCoordinates[(j+1) % nv][0], regionCoordinates[(j+1) % nv][1], 0);
-          PVector v3 = new PVector (regionCoordinates[(j+2) % nv][0], regionCoordinates[(j+2) % nv][1], 0);
-          x1 =  lerp(lerp(v1.x, v2.x, 0.5f), flock.bPos[i][0], ts);
-          y1 =  lerp(lerp(v1.y, v2.y, 0.5f), flock.bPos[i][1], ts);
-          x2 =  lerp(v2.x, flock.bPos[i][0], ts);
-          y2 =  lerp(v2.y, flock.bPos[i][1], ts);
-          x3 =  lerp(lerp(v2.x, v3.x, 0.5f), flock.bPos[i][0], ts);
-          y3 =  lerp(lerp(v2.y, v3.y, 0.5f), flock.bPos[i][1], ts);
-          // evaluate bezier curve in 10 different points
-          for (int k = 0; k < 10; k++) {
-            float tt = k / (float) 10;
-            float xpos = (1.0f - tt) * ( lerp(x1, x2, tt)) + tt
-              * ( lerp(x2, x3, tt));
-            float ypos = (1.0f - tt) * ( lerp(y1, y2, tt)) + tt
-              * ( lerp(y2, y3, tt));
-            vertex(xpos, ypos, 0);
+          beginShape();
+          for (int j = 0; j < regionCoordinates.length;j++) {
+            vertex(regionCoordinates[j][0], regionCoordinates[j][1], 0);
           }
+          endShape(CLOSE);
         }
-        endShape(CLOSE);
+        if (showStar) {
+          beginShape(TRIANGLE_FAN);
+          fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, centerAlfa); // use random color for each region
+          vertex(flock.bPos[i][0], flock.bPos[i][1]);
+          for (int j = 0; j < regionCoordinates.length+1;j++) {
+            fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa); // use random color for each region
+
+            vertex(regionCoordinates[j%regionCoordinates.length][0], regionCoordinates[j%regionCoordinates.length][1], 0);
+          }
+          endShape(CLOSE);
+        }
+
+
+        if (showBezier) {
+          float ts = 0.1f;
+          //          ts = map(mouseX, 0, width, 0., 1.);
+          //          ts = 0;
+          // calculate bezier points
+          int nv = regionCoordinates.length;
+          float x1, x2, y1, y2, x3, y3;
+          beginShape();
+          //        fill(map(rcArea,  areaMin, areaMax, 127, 190), 255, 255, bezierAlfa); // use random color for each region
+//          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 100, areaMin, areaMax)-rcArea); // use random color for each region
+noFill();
+          for (int j = 0; j < nv; j++) {
+            PVector v1 = new PVector (regionCoordinates[j % nv][0], regionCoordinates[j % nv][1], 0);
+            PVector v2 = new PVector (regionCoordinates[(j+1) % nv][0], regionCoordinates[(j+1) % nv][1], 0);
+            PVector v3 = new PVector (regionCoordinates[(j+2) % nv][0], regionCoordinates[(j+2) % nv][1], 0);
+            x1 =  lerp(lerp(v1.x, v2.x, 0.5f), flock.bPos[i][0], ts);
+            y1 =  lerp(lerp(v1.y, v2.y, 0.5f), flock.bPos[i][1], ts);
+            x2 =  lerp(v2.x, flock.bPos[i][0], ts);
+            y2 =  lerp(v2.y, flock.bPos[i][1], ts);
+            x3 =  lerp(lerp(v2.x, v3.x, 0.5f), flock.bPos[i][0], ts);
+            y3 =  lerp(lerp(v2.y, v3.y, 0.5f), flock.bPos[i][1], ts);
+            // evaluate bezier curve in 10 different points
+            for (int k = 0; k < 10; k++) {
+              float tt = k / (float) 10;
+              float xpos = (1.0f - tt) * ( lerp(x1, x2, tt)) + tt
+                * ( lerp(x2, x3, tt));
+              float ypos = (1.0f - tt) * ( lerp(y1, y2, tt)) + tt
+                * ( lerp(y2, y3, tt));
+              vertex(xpos, ypos, 0);
+            }
+          }
+          endShape(CLOSE);
+        }
       }
     }
-
-
-
-}
 
 
 
@@ -621,12 +619,13 @@ class Vorovis extends VisualEngine {
     cp5.getController("showVoro").setValue((cp5.getController("showVoro").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("showBezier").setValue((cp5.getController("showBezier").getValue()+abs(buttonsMValDiff[16]))%2);
     cp5.getController("showStar").setValue((cp5.getController("showStar").getValue()+abs(buttonsMValDiff[1]))%2);
-
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);

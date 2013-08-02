@@ -95,8 +95,8 @@ void setup() {
   }
 
   initializeGUI();
-  changeVisualEngine(5);
-  //  noCursor();
+  changeVisualEngine(0);
+  cursor(loadImage("cursorImg.jpg"));
   preview = createImage(width, height, HSB);
   //  noLoop();
 }
@@ -130,7 +130,7 @@ void draw() {
   fill(0, blackAlpha);
   rect(-30, -30, 120, 120);
   tint(255, logoAlpha);
-  image(msLogo, -25, -25, 50, 50);
+  image(msLogo,-msLogo.width/80,-msLogo.height/80,msLogo.width/40,msLogo.height/40);
   cam.endHUD();
   hint(ENABLE_DEPTH_TEST);
 }

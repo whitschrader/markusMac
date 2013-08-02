@@ -16,13 +16,13 @@ boolean hLineEnable = true;
 boolean pFaceEnable = true;
 boolean pPointEnable = true;
 
-float vLineAlfa = 255.;
-float hLineAlfa = 255.;
+float pStrokeAlfa = 255.;
 float pFaceAlfa = 255.;
-float pPointAlfa = 255.;
 float noiseGain = 100.;
 float soundWaveGain = 1000.;
-
+float plateRotX = 0.;
+float plateRotY = 0.;
+boolean plateRotStop = false;
 float soundPlateVal = 0.;
 int dotsPerPlate = 100;
 int plateAmount = 20;
@@ -35,12 +35,13 @@ class Soundplate extends VisualEngine {
     "hLineEnable", 
     "pFaceEnable", 
     "pPointEnable", 
-    "vLineAlfa", 
-    "hLineAlfa", 
     "pFaceAlfa", 
-    "pPointAlfa", 
+    "pStrokeAlfa", 
     "noiseGain", 
-    "soundWaveGain"
+    "soundWaveGain", 
+    "plateRotX", 
+    "plateRotY", 
+    "plateRotStop"
   };
 
 
@@ -125,52 +126,61 @@ class Soundplate extends VisualEngine {
           .setValue(false)
             .setWindow(controlWindow);
     columnIndex = 2; 
-    cp5.addToggle("pFaceEnable")
+    cp5.addToggle("pPointEnable")
       .setPosition(mRectPosX[2]+visualSpecificParametersBoxX, mRectPosY[2]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
             .setWindow(controlWindow);
     columnIndex = 3; 
-    cp5.addToggle("pPointEnable")
+    cp5.addToggle("pFaceEnable")
       .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
             .setWindow(controlWindow);
+
+    cp5.addToggle("plateRotStop")
+      .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setWindow(controlWindow);
+
     columnIndex = 4; 
     cp5.addKnob("noiseGain")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0., 5000.)
+          .setRange(0., 750.)
             .setViewStyle(Knob.ARC)
               .setWindow(controlWindow);
+    cp5.addKnob("plateRotX")
+      .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05, 0.05)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+    cp5.addKnob("plateRotY")
+      .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setRange(-0.05, 0.05)
+            .setViewStyle(Knob.ARC)
+              .setWindow(controlWindow);
+
     rowIndex = 1; 
     columnIndex = 0; 
-    cp5.addSlider("vLineAlfa")
-      .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 255.)
-            .setWindow(controlWindow);
-    columnIndex = 1; 
-    cp5.addSlider("hLineAlfa")
+    columnIndex = 2; 
+    cp5.addSlider("pFaceAlfa")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 255.)
             .setWindow(controlWindow);
-    columnIndex = 2; 
-    cp5.addSlider("pFaceAlfa")
-      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 255.)
-            .setWindow(controlWindow);
     columnIndex = 3; 
-    cp5.addSlider("pPointAlfa")
-      .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
+    cp5.addSlider("pStrokeAlfa")
+      .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 255.)
             .setWindow(controlWindow);
     columnIndex = 4; 
     cp5.addSlider("soundWaveGain")
-      .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
+      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 2.)
             .setWindow(controlWindow);
@@ -194,7 +204,11 @@ class Soundplate extends VisualEngine {
       mapMidiInterface();
     }
     mapPresets();
-//    soundPlateVal = fftVar[0].getValue();
+    if (!plateRotStop) {
+      cam.rotateX(plateRotX);
+      cam.rotateY(plateRotY);
+    }
+    //    soundPlateVal = fftVar[0].getValue();
     //    soundPlateVal = map(mouseX, 0, width, 0., 10.);
 
     for (int i = 0; i<plateAmount;i++) {
@@ -277,21 +291,22 @@ class Soundplate extends VisualEngine {
 
   public void colorVertex(int i, int j) {
 
+    if (pFaceEnable) {
+      //      fill(map(j, 0, dotsPerPlate, 0, 255), 255, 255, 255-pFaceAlfa);
+      noStroke();
+      fill(map(i, 0, plateAmount, 0, 255), 255, map(abs(dp[i].getY(j)), 200, 2000, 0, 255), pFaceAlfa);
+    }
     if (pPointEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pPointAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
       strokeWeight(3);
     }
     if (hLineEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, hLineAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
       strokeWeight(1);
     }
     if (vLineEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, vLineAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
       strokeWeight(1);
-    }
-    if (pFaceEnable) {
-      //      fill(map(j, 0, dotsPerPlate, 0, 255), 255, 255, 255-pFaceAlfa);
-      fill(map(i, 0, plateAmount, 0, 255), 255, map(abs(dp[i].getY(j)), 200, 2000, 0, 255), 255);
     }
   }
 
@@ -559,23 +574,26 @@ class Soundplate extends VisualEngine {
 
   public void mapMidiInterface() {
 
-    cp5.getController("vLineAlfa").setValue(cp5.getController("vLineAlfa").getValue()+(map(       faderValDiff[0], 0, 127, 0, cp5.getController("vLineAlfa").getMax()-cp5.getController("vLineAlfa").getMin())));
-    cp5.getController("hLineAlfa").setValue(cp5.getController("hLineAlfa").getValue()+(map(       faderValDiff[1], 0, 127, 0, cp5.getController("hLineAlfa").getMax()-cp5.getController("hLineAlfa").getMin())));
-    cp5.getController("pFaceAlfa").setValue(cp5.getController("pFaceAlfa").getValue()+(map(       faderValDiff[2], 0, 127, 0, cp5.getController("pFaceAlfa").getMax()-cp5.getController("pFaceAlfa").getMin())));
-    cp5.getController("pPointAlfa").setValue(cp5.getController("pPointAlfa").getValue()+(map(      faderValDiff[3], 0, 127, 0, cp5.getController("pPointAlfa").getMax()-cp5.getController("pPointAlfa").getMin())));
-    cp5.getController("soundWaveGain").setValue(cp5.getController("soundWaveGain").getValue()+(map(   faderValDiff[4], 0, 127, 0, cp5.getController("soundWaveGain").getMax()-cp5.getController("soundWaveGain").getMin())));
+    cp5.getController("pFaceAlfa").setValue(cp5.getController("pFaceAlfa").getValue()+(map(       faderValDiff[1], 0, 127, 0, cp5.getController("pFaceAlfa").getMax()-cp5.getController("pFaceAlfa").getMin())));
+    cp5.getController("pStrokeAlfa").setValue(cp5.getController("pStrokeAlfa").getValue()+(map(      faderValDiff[0], 0, 127, 0, cp5.getController("pStrokeAlfa").getMax()-cp5.getController("pStrokeAlfa").getMin())));
+    cp5.getController("soundWaveGain").setValue(cp5.getController("soundWaveGain").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("soundWaveGain").getMax()-cp5.getController("soundWaveGain").getMin())));
 
     cp5.getController("noiseGain").setValue(cp5.getController("noiseGain").getValue()+(map(   knobValDiff[0], 0, 127, 0, cp5.getController("noiseGain").getMax()-cp5.getController("noiseGain").getMin())));
+    cp5.getController("plateRotX").setValue(cp5.getController("plateRotX").getValue()+(map(   knobValDiff[1], 0, 127, 0, cp5.getController("plateRotX").getMax()-cp5.getController("plateRotX").getMin())));
+    cp5.getController("plateRotY").setValue(cp5.getController("plateRotY").getValue()+(map(   knobValDiff[2], 0, 127, 0, cp5.getController("plateRotY").getMax()-cp5.getController("plateRotY").getMin())));
 
     cp5.getController("vLineEnable").setValue((cp5.getController("vLineEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("hLineEnable").setValue((cp5.getController("hLineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
-    cp5.getController("pFaceEnable").setValue((cp5.getController("pFaceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
-    cp5.getController("pPointEnable").setValue((cp5.getController("pPointEnable").getValue()+abs(buttonsMValDiff[1]))%2);
+    cp5.getController("pFaceEnable").setValue((cp5.getController("pFaceEnable").getValue()+abs(buttonsMValDiff[1]))%2);
+    cp5.getController("pPointEnable").setValue((cp5.getController("pPointEnable").getValue()+abs(buttonsMValDiff[16]))%2);
+    cp5.getController("plateRotStop").setValue((cp5.getController("plateRotStop").getValue()+abs(buttonsMValDiff[9]))%2);
   }
 
   public void start() {
     println("Starting " + name);
     hint(DISABLE_DEPTH_TEST);
+    colorMode(HSB);
+
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -649,7 +667,8 @@ class dotPlate {
       if (lineId == 19) {
         offset[i].set((newNoise((frameCount*.01)+lineId*.1, i*.1, i*.1)*0+rad*lineId*5)*sin(map(i, 0, dotAmount, -PI, PI)), 
         0, 
-        (newNoise((frameCount*.01)+lineId*.1, i*.1, i*.1)*0+rad*lineId*5)*cos(map(i, 0, dotAmount, -PI, PI)));      } 
+        (newNoise((frameCount*.01)+lineId*.1, i*.1, i*.1)*0+rad*lineId*5)*cos(map(i, 0, dotAmount, -PI, PI)));
+      } 
       else {
         offset[i].set((newNoise((frameCount*.01)+lineId*.1, i*.1, i*.1)*0+rad*lineId*5)*sin(map(i, 0, dotAmount, -PI, PI)), 
         (newNoise((float)i/13, frameCount*0.01, pow(lineId, 3)) * TWO_PI*noiseGain)- (soundWaveGain*soundLPFBuf[int(((lineId+10)%plateAmount)*spectrumLength/plateAmount)]), 

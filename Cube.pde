@@ -34,7 +34,7 @@ float rotVariance;
 float rotSelf = 0.;
 float rotLimit = 2.;
 float cubeCircleRad = 300.;
-
+boolean cubeRotStop = false;
 boolean fogEnable = false;
 
 class Cube extends VisualEngine {
@@ -54,7 +54,8 @@ class Cube extends VisualEngine {
     "cubeSizeVarianceZ", 
     "outlineColor", 
     "outlineScale", 
-    "rotSelf"
+    "rotSelf", 
+    "cubeRotStop"
   };
 
   int presetSize = parameterNames.length+9;
@@ -68,9 +69,9 @@ class Cube extends VisualEngine {
   float[] parameters7 = new float[presetSize];
   float[] parameters8 = new float[presetSize];
   float[] parametersTemp = new float[presetSize];
-//  float[] parametersTemp = new float[presetSize];
-//  float[] parametersTemp = new float[presetSize];
- 
+  //  float[] parametersTemp = new float[presetSize];
+  //  float[] parametersTemp = new float[presetSize];
+
   float[] camRotations = new float[3];
   float[] camLookAt = new float[3];
   public float camDistance;
@@ -221,6 +222,12 @@ class Cube extends VisualEngine {
           .setRange(0.1, cubeCircleRad*6/10)
             .setWindow(controlWindow);
 
+    cp5.addToggle("cubeRotStop")
+      .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setWindow(controlWindow);
+
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
@@ -249,7 +256,11 @@ class Cube extends VisualEngine {
       lightSetting();
     } 
 
-    rS +=rotSpeed*0.05;
+    if (!cubeRotStop) {
+      rS +=rotSpeed*0.05;
+    } 
+
+
     rX += rotSelf*0.01;
 
     for (int i = 0; i < (int)cubeAmount; i++) {
@@ -314,49 +325,94 @@ class Cube extends VisualEngine {
     //    200, 0, 0); // Position
     //    point(2000, 0, 0);
     //    directionalLight(255, 0, 50, 0, -1, -1);
-    //directionalLight(255, 0, 50, 0, -1, 0); 
+    //    directionalLight(255, 0, 50, 1, 0, 0); 
     ambientLight(0, 255, 20);
-    int lightY = 150;
-    int lightYBr = 255;
-    int lightYCon = 100;
+    int lightY = 250;
+    int lightYBr = 100;
+    int lightYCon = 5;
 
-    spotLight(255, 0, 255, // Color
-    0, 100, 150, // Position
-    0, -0.3, -1, // Direction
-    PI, 20); // Angle, concentration
-    //    point(0, 10, 150);
+
+
+    //    spotLight(255, 0, 255, // Color
+    //    0, 100, 150, // Position
+    //    0, -0.3, -1, // Direction
+    //    PI, 20); // Angle, concentration
+    //    //    point(0, 10, 150);
+    //
+    //    spotLight(255, 0, 255, // Color
+    //    0, 100, -150, // Position
+    //    0, -0.3, 1, // Direction
+    //    PI, 20); // Angle, concentration
+
+
+    //    stroke(255);
+    //    strokeWeight(20);
+
+
 
     //    if ( key == 'q') {
-    spotLight(255, 0, lightYBr, // Color
-    0, -lightY, 0, // Position
-    0, 1, 0, // Direction
-    PI, 6); // Angle, concentration
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, 6); // Angle, concentration
     //    point(0, -lightY, 0);
 
     //    } else if ( key == 'w') {
-    spotLight(255, 0, lightYBr, // Color
-    cubeCircleRad, -lightY, 0, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
+    //    spotLight(255, 0, lightYBr, // Color
+    //    cubeCircleRad, -lightY, 0, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
     //    point(cubeCircleRad, -lightY, 0);
-    //    } else if ( key == 'e') {
-    spotLight(255, 0, lightYBr, // Color
-    -cubeCircleRad, -lightY, 0, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
-    //    point(-cubeCircleRad, -lightY, 0);
-    //    } else if ( key == 'r') {
-    spotLight(255, 0, lightYBr, // Color
-    0, -lightY, cubeCircleRad, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
+    //    //    } else if ( key == 'e') {
+    //
+    //    spotLight(255, 0, lightYBr, // Color
+    //    -cubeCircleRad, lightY, 0, // Position
+    //    0, -1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
+    //    point(-cubeCircleRad, lightY, 0);
+    //
+    //    //    } else if ( key == 'r') {
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
     //    point(0, -lightY, cubeCircleRad);
-    //    } else if ( key == 't') {
-    spotLight(255, 0, lightYBr, // Color
-    0, -lightY, -cubeCircleRad, // Position
-    0, 1, 0, // Direction
-    PI, lightYCon); // Angle, concentration
+    //    //    } else if ( key == 't') {
+    //
+    //    spotLight(255, 0, lightYBr, // Color
+    //    0, -lightY, -cubeCircleRad, // Position
+    //    0, 1, 0, // Direction
+    //    PI, lightYCon); // Angle, concentration
     //    point(0, -lightY, -cubeCircleRad);
+
+
+    spotLight(255, 0, 200, // Color
+    (cubeCircleRad+500), 0, 0, // Position
+    -1, 0, 0, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point((cubeCircleRad+500), 0, 0);
+    //    } else if ( key == 'e') {
+
+    spotLight(255, 0, 100, // Color
+    -(cubeCircleRad+500), 0, 0, // Position
+    1, 0, 0, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point(-(cubeCircleRad+500), 0, 0);
+
+    //    } else if ( key == 'r') {
+    spotLight(255, 0, 150, // Color
+    0, 0, (cubeCircleRad+500), // Position
+    0, 0, -1, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point(0, 0, (cubeCircleRad+500));
+    //    } else if ( key == 't') {
+
+    spotLight(255, 0, 50, // Color
+    0, 0, -(cubeCircleRad+500), // Position
+    0, 0, 1, // Direction
+    PI, lightYCon); // Angle, concentration
+    //    point(0, 0, -(cubeCircleRad+500));
+
     //}
   }
 
@@ -574,11 +630,16 @@ class Cube extends VisualEngine {
     cp5.getController("rotSpeed").setValue(cp5.getController("rotSpeed").getValue()+(map(                          knobValDiff[4], 0, 127, 0, cp5.getController("rotSpeed").getMax()-cp5.getController("rotSpeed").getMin())));
     cp5.getController("rotLimit").setValue(cp5.getController("rotLimit").getValue()+(map(                          knobValDiff[1], 0, 127, 0, cp5.getController("rotLimit").getMax()-cp5.getController("rotLimit").getMin())));
     cp5.getController("rotSelf").setValue(cp5.getController("rotSelf").getValue()+(map(                            knobValDiff[2], 0, 127, 0, cp5.getController("rotSelf").getMax()-cp5.getController("rotSelf").getMin())));
-  }
+
+    cp5.getController("cubeRotStop").setValue((cp5.getController("cubeRotStop").getValue()+abs(buttonsMValDiff[0]))%2);
+  
+
+}
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
+    colorMode(HSB);
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
