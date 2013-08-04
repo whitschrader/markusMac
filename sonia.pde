@@ -18,7 +18,6 @@ void drawSonia() {
   for(int i = 0; i<spectrumLength; i++){
     soundLevelLPF += (soundLPFBuf[i]/spectrumLength)*gain;
   }
-    
   
 }
 

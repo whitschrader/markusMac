@@ -44,7 +44,6 @@ class Vorovis extends VisualEngine {
     "showBezier", 
     "showStar", 
     "voroAlfa", 
-    "bezierAlfa", 
     "strokeAlfa", 
     "centerAlfa", 
     "flockSpeed"
@@ -84,7 +83,7 @@ class Vorovis extends VisualEngine {
 
   float[] camRotations = new float[3];
   float[] camLookAt = new float[3];
-  public float camDistance;
+  public float camDistance = 2020.;
 
   public Vorovis(PApplet myApplet, String name) {
     super(myApplet, name);
@@ -93,11 +92,11 @@ class Vorovis extends VisualEngine {
   }
 
   public void init() {
-    background(0);
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
-    perspective(PI/3, width/height, 1, 50000);
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
 
     // initialize points and calculate diagrams
     initFlock();
@@ -118,6 +117,18 @@ class Vorovis extends VisualEngine {
     if (midiEnable) {
       mapMidiInterface();
     }
+
+    cam.rotateX(0);
+    cam.rotateY(0);
+    if (mousePressed) {
+      if (mouseButton == LEFT) {
+        cam.setActive(false);
+      } else {
+        cam.setActive(true);
+      }
+    }
+
+
     mapPresets();
     frame.setTitle(int(frameRate) + "fps");
     background(0);
@@ -252,8 +263,8 @@ class Vorovis extends VisualEngine {
           float x1, x2, y1, y2, x3, y3;
           beginShape();
           //        fill(map(rcArea,  areaMin, areaMax, 127, 190), 255, 255, bezierAlfa); // use random color for each region
-//          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 100, areaMin, areaMax)-rcArea); // use random color for each region
-noFill();
+          //          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 100, areaMin, areaMax)-rcArea); // use random color for each region
+          noFill();
           for (int j = 0; j < nv; j++) {
             PVector v1 = new PVector (regionCoordinates[j % nv][0], regionCoordinates[j % nv][1], 0);
             PVector v2 = new PVector (regionCoordinates[(j+1) % nv][0], regionCoordinates[(j+1) % nv][1], 0);
@@ -375,12 +386,6 @@ noFill();
     columnIndex = 1; 
     cp5.addSlider("voroAlfa")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 255. )
-            .setWindow(controlWindow);
-    columnIndex = 2; 
-    cp5.addSlider("bezierAlfa")
-      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 255. )
             .setWindow(controlWindow);
@@ -609,7 +614,6 @@ noFill();
 
     cp5.getController("flockSpeed").setValue(cp5.getController("flockSpeed").getValue()+(map(   faderValDiff[0], 0, 127, 0, cp5.getController("flockSpeed").getMax()-cp5.getController("flockSpeed").getMin())));
     cp5.getController("voroAlfa").setValue(cp5.getController("voroAlfa").getValue()+(map(     faderValDiff[1], 0, 127, 0, cp5.getController("voroAlfa").getMax()-cp5.getController("voroAlfa").getMin())));
-    cp5.getController("bezierAlfa").setValue(cp5.getController("bezierAlfa").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("bezierAlfa").getMax()-cp5.getController("bezierAlfa").getMin())));
     cp5.getController("strokeAlfa").setValue(cp5.getController("strokeAlfa").getValue()+(map(   faderValDiff[3], 0, 127, 0, cp5.getController("strokeAlfa").getMax()-cp5.getController("strokeAlfa").getMin())));
     cp5.getController("centerAlfa").setValue(cp5.getController("centerAlfa").getValue()+(map(   faderValDiff[4], 0, 127, 0, cp5.getController("centerAlfa").getMax()-cp5.getController("centerAlfa").getMin())));
 
@@ -625,7 +629,7 @@ noFill();
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
     colorMode(HSB);
-
+    camDistance = 2020.;
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);

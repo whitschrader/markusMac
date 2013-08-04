@@ -26,6 +26,7 @@ void initializeSoundAnalysis() {
 
   getSpectrum();
 }
+
 float[] features;
 void soundAnalysis() {
   if (midiEnable) {

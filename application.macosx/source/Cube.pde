@@ -85,8 +85,9 @@ class Cube extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
+    cam.setMaximumDistance(5000000);
     background(0);
+    perspective(PI/3, width/height, 1, 5000000);
     bg = loadImage("cubesBG.jpg");
     f = loadImage("cfp.png");
     smooth();

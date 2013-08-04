@@ -53,14 +53,10 @@ class Polyface extends VisualEngine {
     "pointSize", //100-100000
     "pointSizeVariance", 
     "lineEnable", 
-    "lineSize", 
     "polyRotX", 
     "polyRotY", 
-    "movementAmount", 
     "lineThreshold", 
     "faceEnable", 
-    "faceAmount", 
-    "faceAnim", 
     "faceAlfa", 
     "resetGrid", 
     "containerX", 
@@ -101,9 +97,9 @@ class Polyface extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
+    cam.setMaximumDistance(5000000);
     background(0);
-    perspective(PI/3, width/height, 1, 50000);
+    perspective(PI/3, width/height, 1, 5000000);
     for (int i = 0; i<numLines;i++) {
       d[i] = new dotLines(numDots, i);
     }
@@ -184,10 +180,6 @@ class Polyface extends VisualEngine {
             float sv1 = int(map(abs(d[i].getY(j)), 0, 12500, 0, 5))*50;
             float bv1 = map(d[i].getZ(j), -10000, 10000, 50, 255);
 
-
-            //            fill(0, 100, 200, alfa/*, 255-(newNoise(i*sin(frameCount*0.001), j, frameCount*0.01)*faceAnim)*/);
-
-
             fill(hv1, sv1, bv1, alfa/*, 255-(newNoise(i*sin(frameCount*0.001), j, frameCount*0.01)*faceAnim)*/);
             vertex(d[i].getX(j), d[i].getY(j), d[i].getZ(j));
             fill(0, int(map(abs(d[i+1].getY(j)), 0, 12500, 0, 255)), map(d[i+1].getZ(j), -10000, 10000, 50, 255), alfa/*, 255-(newNoise(j*cos(frameCount*0.001), i, frameCount*0.01)*faceAnim)*/);
@@ -200,20 +192,17 @@ class Polyface extends VisualEngine {
           }
         }
 
+        float lineThresholdMap = map(containerX*containerY,10000,20000*20000,0.,lineThreshold);
 
         if (lineEnable) {
           for (int k = 0; k<numLines;k++) {
             for (int l = 0; l<numDots;l++) {
               colorMode(HSB);
               float dp = PVector.dist(d[i].getPos(j), d[k].getPos(l));
-              if ((dp<lineThreshold)) {
-                //                stroke(150, 255, map(dp, 0, lineThreshold, 255, 255), map(dp, 0, lineThreshold, 150, 0));
-                //            strokeWeight(40000./abs(cam.getPosition()[2]));
-                lineSizeVariance = map(mouseX, 0, width, 1, 1)*abs(noise(k+frameCount*0.01, l+frameCount*0.01));
+              if ((dp<lineThresholdMap)) {
 
-                //                strokeWeight(lineSize+lineSizeVariance);
                 strokeWeight(2);
-                float linesAlfa = map(dp, 0, lineThreshold, 220, 0);
+                float linesAlfa = map(dp, 0, lineThresholdMap, 220, 0);
                 noFill();
                 beginShape(LINES);
                 stroke(150, int(map(abs(d[i].getY(j)), 0, 12500, 0, 255)), map(d[i].getZ(j), -10000, 10000, 100, 200), linesAlfa);
@@ -353,40 +342,16 @@ class Polyface extends VisualEngine {
           .setRange(0, 100)
             .setWindow(controlWindow);
 
-    cp5.addSlider("lineSize")
-      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 5.)
-            .setWindow(controlWindow);
-
     cp5.addSlider("lineThreshold")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 3000.)
             .setWindow(controlWindow);
 
-    cp5.addSlider("faceAmount")
-      .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 1.)
-            .setWindow(controlWindow);
-
-    cp5.addSlider("faceAnim")
-      .setPosition(sliderPosX[5]+visualSpecificParametersBoxX, sliderPosY[5]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 1000.)
-            .setWindow(controlWindow);
-
     cp5.addSlider("faceAlfa")
       .setPosition(sliderPosX[6]+visualSpecificParametersBoxX, sliderPosY[6]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 1.)
-            .setWindow(controlWindow);
-
-    cp5.addSlider("movementAmount")
-      .setPosition(sliderPosX[7]+visualSpecificParametersBoxX, sliderPosY[7]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0, 3000)
             .setWindow(controlWindow);
 
     for (int i = 0; i < parameterNames.length; i++) {
@@ -609,12 +574,8 @@ class Polyface extends VisualEngine {
 
     cp5.getController("pointSize").setValue(cp5.getController("pointSize").getValue()+(map(           faderValDiff[0], 0, 127, 0, cp5.getController("pointSize").getMax()-cp5.getController("pointSize").getMin()             )));
     cp5.getController("pointSizeVariance").setValue(cp5.getController("pointSizeVariance").getValue()+(map(   faderValDiff[1], 0, 127, 0, cp5.getController("pointSizeVariance").getMax()-cp5.getController("pointSizeVariance").getMin())));
-    cp5.getController("lineSize").setValue(cp5.getController("lineSize").getValue()+(map(            faderValDiff[2], 0, 127, 0, cp5.getController("lineSize").getMax()-cp5.getController("lineSize").getMin()                )));
     cp5.getController("lineThreshold").setValue(cp5.getController("lineThreshold").getValue()+(map(       faderValDiff[3], 0, 127, 0, cp5.getController("lineThreshold").getMax()-cp5.getController("lineThreshold").getMin()      )));
-    cp5.getController("faceAmount").setValue(cp5.getController("faceAmount").getValue()+(map(          faderValDiff[4], 0, 127, 0, cp5.getController("faceAmount").getMax()-cp5.getController("faceAmount").getMin()            )));
-    cp5.getController("faceAnim").setValue(cp5.getController("faceAnim").getValue()+(map(            faderValDiff[5], 0, 127, 0, cp5.getController("faceAnim").getMax()-cp5.getController("faceAnim").getMin()                )));
     cp5.getController("faceAlfa").setValue(cp5.getController("faceAlfa").getValue()+(map(            faderValDiff[6], 0, 127, 0, cp5.getController("faceAlfa").getMax()-cp5.getController("faceAlfa").getMin()                )));
-    cp5.getController("movementAmount").setValue(cp5.getController("movementAmount").getValue()+(map(      faderValDiff[7], 0, 127, 0, cp5.getController("movementAmount").getMax()-cp5.getController("movementAmount").getMin()    )));
 
     cp5.getController("pointEnable").setValue((cp5.getController("pointEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("lineEnable").setValue(  (  cp5.getController("lineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
@@ -664,7 +625,6 @@ class dotLines {
   PVector[] target;
   PVector[] offset;
   PVector[] finalPos;
-  PVector sep;
   float kp = 0.5;
   float inc = 0.;
 
@@ -676,17 +636,11 @@ class dotLines {
   }
 
 
-
-
   void update() {
     //    dotAmount = mouseX;
     //    initializeArrays();
     //    inc += 0.01 + (1./(float)cam.getDistance());
     inc += 0.01;
-
-    sep.set(movementAmount*2, movementAmount*2, movementAmount*2);
-
-
 
     for (int i = 0; i<dotAmount;i++) {
       target[i].set(0, 0, 100*polySoundMatrix[lineId][i]);
@@ -704,7 +658,7 @@ class dotLines {
         float s = d/forceFieldRange;
         float f = 1 / pow(s, 0.5) - 1;
         f = f / forceFieldRange;
-        offset[i].add(dx*f*forceFieldPower*pow(sin(inc), 2), dy*f*forceFieldPower*pow(sin(inc), 2), dz*f*forceFieldPower);
+        offset[i].add(dx*f*forceFieldPower, dy*f*forceFieldPower, dz*f*forceFieldPower);
       }
 
       //container
@@ -766,15 +720,14 @@ class dotLines {
     target = new PVector[dotAmount];
     offset = new PVector[dotAmount];
     finalPos = new PVector[dotAmount];
-    sep = new PVector(movementAmount, movementAmount, movementAmount*10);
 
     for (int i = 0; i < dotAmount; i++) {
       pos[i] = new PVector(0, 0, 0);
       error[i] = new PVector(0, 0, 0);
       target[i] = new PVector(0, 0, 0);
       offset[i] = new PVector(
-      map(lineId, 0, numLines, -(sep.x*numLines)/2, (sep.x*numLines)/2), 
-      map(i, 0, dotAmount, -(sep.y*(dotAmount))/2, (sep.y*(dotAmount))/2), 
+      map(lineId, 0, numLines, -containerX, containerX), 
+      map(i, 0, dotAmount, -containerY, containerY), 
       0);
     }
   }

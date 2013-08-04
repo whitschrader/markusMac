@@ -71,8 +71,9 @@ class Splines extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(500000);
-
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
 
     colorMode(HSB);
     hint(ENABLE_DEPTH_TEST); 
@@ -572,18 +573,6 @@ class Splines extends VisualEngine {
   }
 
   public void mapMidiInterface() {
-    //    "ribbonCount", 
-    //    "ribbonSpeed", 
-    //    "ribbonLength", 
-    //    "ribbonSound", 
-    //    "ribbonSpaceX", 
-    //    "ribbonSpaceY", 
-    //    "ribbonSpaceZ", 
-    //    "ribbonHelix", 
-    //    "ribbonCycloid", 
-    //    "ribbonCX", 
-    //    "ribbonCY", 
-    //    "ribbonNoise"
 
     cp5.getController("ribbonCX").setValue(cp5.getController("ribbonCX").getValue()+(map(       faderValDiff[0], 0, 127, 0, cp5.getController("ribbonCX").getMax()-cp5.getController("ribbonCX").getMin())));
     cp5.getController("ribbonCY").setValue(cp5.getController("ribbonCY").getValue()+(map(       faderValDiff[1], 0, 127, 0, cp5.getController("ribbonCY").getMax()-cp5.getController("ribbonCY").getMin())));
@@ -601,8 +590,7 @@ class Splines extends VisualEngine {
     cp5.getController("ribbonHelix").setValue((cp5.getController("ribbonHelix").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("ribbonCycloid").setValue((cp5.getController("ribbonCycloid").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("ribbonNoise").setValue((cp5.getController("ribbonNoise").getValue()+abs(buttonsMValDiff[16]))%2);
-    cp5.getController("ribonRotStop").setValue((cp5.getController("ribonRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
-
+    cp5.getController("ribbonRotStop").setValue((cp5.getController("ribbonRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
   }
 
   public void start() {

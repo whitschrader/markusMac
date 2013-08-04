@@ -74,8 +74,9 @@ class Soundplate extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(500000);
-
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
     for (int i = 0; i<plateAmount;i++) {
       dp[i] = new dotPlate(dotsPerPlate, i);
     }

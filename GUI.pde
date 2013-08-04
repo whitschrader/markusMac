@@ -371,6 +371,12 @@ class MyCanvas extends ControlWindowCanvas {
 
       //    theApplet.image(preview,thumbnailBoxX, (thumbnailBoxY+borderMarginBig),373,207);
       theApplet.popStyle();
+
+//      if (currentEngineIndex == 0) {
+//        theApplet.text("asd", 100,100);
+//        theApplet.text("asdasd",200,200);
+//        theApplet.text("asdasdasd", 300,300);
+//      }
     }
   }
 }

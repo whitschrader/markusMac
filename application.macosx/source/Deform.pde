@@ -73,8 +73,9 @@ class Deform extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(500000);
-
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
     for (int i = 0; i<circleAmount;i++) {
       dc[i] = new dotCircle(dotsPerCircle, i);
     }
@@ -123,7 +124,7 @@ class Deform extends VisualEngine {
     cp5.addSlider("n11")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
-          .setRange(0.01, 20.)
+          .setRange(5., 20.)
             .setWindow(controlWindow);
     columnIndex = 2; 
     cp5.addSlider("n12")
@@ -149,7 +150,7 @@ class Deform extends VisualEngine {
     cp5.addSlider("n21")
       .setPosition(sliderPosX[5]+visualSpecificParametersBoxX, sliderPosY[5]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
-          .setRange(0.01, 20.)
+          .setRange(5., 20.)
             .setWindow(controlWindow);
     columnIndex = 2; 
     cp5.addSlider("n22")
@@ -655,9 +656,9 @@ class dotCircle {
       float tempTet = (tet * i);
       float tempPhi = (phi * lineId);
 
-      //      float soundData = 1+(soundLPFBuf[int(j*spectrumLength/rRes)])*gain;
-      float rr1 = superformulaPointR(m1, n11, n12, n13, tet*i)*soundDataV;
-      float rr2 = superformulaPointR(m2, n21, n22, n23, phi*lineId)*soundData;
+      //      float soundData = 1+(`LPFBuf[int(j*spectrumLength/rRes)])*gain;
+      float rr1 = constrain(superformulaPointR(m1, n11, n12, n13, tet*i)*soundDataV,0.,1000000.);
+      float rr2 = constrain(superformulaPointR(m2, n21, n22, n23, phi*lineId)*soundData,0.,1000000.);
 
       target[i].set(cos(tempTet)*sin(tempPhi)*rr1*rr2, sin(tempTet)*sin(tempPhi)*rr1*rr2, cos(tempPhi)*rr2);
       target[i].mult(100);

@@ -64,11 +64,11 @@ class Wireframe extends VisualEngine {
   }
 
   public void init() {
-    background(0);
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
-    perspective(PI/3, width/height, 1, 50000);
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
 
     colorMode(RGB);
     parameters1 =     loadPreset(presetDir, name, 1);

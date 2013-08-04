@@ -268,8 +268,9 @@ class Cube extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
+    cam.setMaximumDistance(5000000);
     background(0);
+    perspective(PI/3, width/height, 1, 5000000);
     bg = loadImage("cubesBG.jpg");
     f = loadImage("cfp.png");
     smooth();
@@ -928,8 +929,9 @@ class Deform extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(500000);
-
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
     for (int i = 0; i<circleAmount;i++) {
       dc[i] = new dotCircle(dotsPerCircle, i);
     }
@@ -978,7 +980,7 @@ class Deform extends VisualEngine {
     cp5.addSlider("n11")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
-          .setRange(0.01f, 20.f)
+          .setRange(5.f, 20.f)
             .setWindow(controlWindow);
     columnIndex = 2; 
     cp5.addSlider("n12")
@@ -1004,7 +1006,7 @@ class Deform extends VisualEngine {
     cp5.addSlider("n21")
       .setPosition(sliderPosX[5]+visualSpecificParametersBoxX, sliderPosY[5]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
-          .setRange(0.01f, 20.f)
+          .setRange(5.f, 20.f)
             .setWindow(controlWindow);
     columnIndex = 2; 
     cp5.addSlider("n22")
@@ -1510,9 +1512,9 @@ class dotCircle {
       float tempTet = (tet * i);
       float tempPhi = (phi * lineId);
 
-      //      float soundData = 1+(soundLPFBuf[int(j*spectrumLength/rRes)])*gain;
-      float rr1 = superformulaPointR(m1, n11, n12, n13, tet*i)*soundDataV;
-      float rr2 = superformulaPointR(m2, n21, n22, n23, phi*lineId)*soundData;
+      //      float soundData = 1+(`LPFBuf[int(j*spectrumLength/rRes)])*gain;
+      float rr1 = constrain(superformulaPointR(m1, n11, n12, n13, tet*i)*soundDataV,0.f,1000000.f);
+      float rr2 = constrain(superformulaPointR(m2, n21, n22, n23, phi*lineId)*soundData,0.f,1000000.f);
 
       target[i].set(cos(tempTet)*sin(tempPhi)*rr1*rr2, sin(tempTet)*sin(tempPhi)*rr1*rr2, cos(tempPhi)*rr2);
       target[i].mult(100);
@@ -1951,6 +1953,12 @@ class MyCanvas extends ControlWindowCanvas {
 
       //    theApplet.image(preview,thumbnailBoxX, (thumbnailBoxY+borderMarginBig),373,207);
       theApplet.popStyle();
+
+      if (currentEngineIndex == 0) {
+        theApplet.text("asd", 100,100);
+        theApplet.text("asdasd",200,200);
+        theApplet.text("asdasdasd", 300,300);
+      }
     }
   }
 }
@@ -2628,14 +2636,10 @@ class Polyface extends VisualEngine {
     "pointSize", //100-100000
     "pointSizeVariance", 
     "lineEnable", 
-    "lineSize", 
     "polyRotX", 
     "polyRotY", 
-    "movementAmount", 
     "lineThreshold", 
     "faceEnable", 
-    "faceAmount", 
-    "faceAnim", 
     "faceAlfa", 
     "resetGrid", 
     "containerX", 
@@ -2676,9 +2680,9 @@ class Polyface extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
+    cam.setMaximumDistance(5000000);
     background(0);
-    perspective(PI/3, width/height, 1, 50000);
+    perspective(PI/3, width/height, 1, 5000000);
     for (int i = 0; i<numLines;i++) {
       d[i] = new dotLines(numDots, i);
     }
@@ -2759,10 +2763,6 @@ class Polyface extends VisualEngine {
             float sv1 = PApplet.parseInt(map(abs(d[i].getY(j)), 0, 12500, 0, 5))*50;
             float bv1 = map(d[i].getZ(j), -10000, 10000, 50, 255);
 
-
-            //            fill(0, 100, 200, alfa/*, 255-(newNoise(i*sin(frameCount*0.001), j, frameCount*0.01)*faceAnim)*/);
-
-
             fill(hv1, sv1, bv1, alfa/*, 255-(newNoise(i*sin(frameCount*0.001), j, frameCount*0.01)*faceAnim)*/);
             vertex(d[i].getX(j), d[i].getY(j), d[i].getZ(j));
             fill(0, PApplet.parseInt(map(abs(d[i+1].getY(j)), 0, 12500, 0, 255)), map(d[i+1].getZ(j), -10000, 10000, 50, 255), alfa/*, 255-(newNoise(j*cos(frameCount*0.001), i, frameCount*0.01)*faceAnim)*/);
@@ -2775,20 +2775,17 @@ class Polyface extends VisualEngine {
           }
         }
 
+        float lineThresholdMap = map(containerX*containerY,10000,20000*20000,0.f,lineThreshold);
 
         if (lineEnable) {
           for (int k = 0; k<numLines;k++) {
             for (int l = 0; l<numDots;l++) {
               colorMode(HSB);
               float dp = PVector.dist(d[i].getPos(j), d[k].getPos(l));
-              if ((dp<lineThreshold)) {
-                //                stroke(150, 255, map(dp, 0, lineThreshold, 255, 255), map(dp, 0, lineThreshold, 150, 0));
-                //            strokeWeight(40000./abs(cam.getPosition()[2]));
-                lineSizeVariance = map(mouseX, 0, width, 1, 1)*abs(noise(k+frameCount*0.01f, l+frameCount*0.01f));
+              if ((dp<lineThresholdMap)) {
 
-                //                strokeWeight(lineSize+lineSizeVariance);
                 strokeWeight(2);
-                float linesAlfa = map(dp, 0, lineThreshold, 220, 0);
+                float linesAlfa = map(dp, 0, lineThresholdMap, 220, 0);
                 noFill();
                 beginShape(LINES);
                 stroke(150, PApplet.parseInt(map(abs(d[i].getY(j)), 0, 12500, 0, 255)), map(d[i].getZ(j), -10000, 10000, 100, 200), linesAlfa);
@@ -2928,40 +2925,16 @@ class Polyface extends VisualEngine {
           .setRange(0, 100)
             .setWindow(controlWindow);
 
-    cp5.addSlider("lineSize")
-      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0.f, 5.f)
-            .setWindow(controlWindow);
-
     cp5.addSlider("lineThreshold")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.f, 3000.f)
             .setWindow(controlWindow);
 
-    cp5.addSlider("faceAmount")
-      .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0.f, 1.f)
-            .setWindow(controlWindow);
-
-    cp5.addSlider("faceAnim")
-      .setPosition(sliderPosX[5]+visualSpecificParametersBoxX, sliderPosY[5]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0.f, 1000.f)
-            .setWindow(controlWindow);
-
     cp5.addSlider("faceAlfa")
       .setPosition(sliderPosX[6]+visualSpecificParametersBoxX, sliderPosY[6]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.f, 1.f)
-            .setWindow(controlWindow);
-
-    cp5.addSlider("movementAmount")
-      .setPosition(sliderPosX[7]+visualSpecificParametersBoxX, sliderPosY[7]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0, 3000)
             .setWindow(controlWindow);
 
     for (int i = 0; i < parameterNames.length; i++) {
@@ -3184,12 +3157,8 @@ class Polyface extends VisualEngine {
 
     cp5.getController("pointSize").setValue(cp5.getController("pointSize").getValue()+(map(           faderValDiff[0], 0, 127, 0, cp5.getController("pointSize").getMax()-cp5.getController("pointSize").getMin()             )));
     cp5.getController("pointSizeVariance").setValue(cp5.getController("pointSizeVariance").getValue()+(map(   faderValDiff[1], 0, 127, 0, cp5.getController("pointSizeVariance").getMax()-cp5.getController("pointSizeVariance").getMin())));
-    cp5.getController("lineSize").setValue(cp5.getController("lineSize").getValue()+(map(            faderValDiff[2], 0, 127, 0, cp5.getController("lineSize").getMax()-cp5.getController("lineSize").getMin()                )));
     cp5.getController("lineThreshold").setValue(cp5.getController("lineThreshold").getValue()+(map(       faderValDiff[3], 0, 127, 0, cp5.getController("lineThreshold").getMax()-cp5.getController("lineThreshold").getMin()      )));
-    cp5.getController("faceAmount").setValue(cp5.getController("faceAmount").getValue()+(map(          faderValDiff[4], 0, 127, 0, cp5.getController("faceAmount").getMax()-cp5.getController("faceAmount").getMin()            )));
-    cp5.getController("faceAnim").setValue(cp5.getController("faceAnim").getValue()+(map(            faderValDiff[5], 0, 127, 0, cp5.getController("faceAnim").getMax()-cp5.getController("faceAnim").getMin()                )));
     cp5.getController("faceAlfa").setValue(cp5.getController("faceAlfa").getValue()+(map(            faderValDiff[6], 0, 127, 0, cp5.getController("faceAlfa").getMax()-cp5.getController("faceAlfa").getMin()                )));
-    cp5.getController("movementAmount").setValue(cp5.getController("movementAmount").getValue()+(map(      faderValDiff[7], 0, 127, 0, cp5.getController("movementAmount").getMax()-cp5.getController("movementAmount").getMin()    )));
 
     cp5.getController("pointEnable").setValue((cp5.getController("pointEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("lineEnable").setValue(  (  cp5.getController("lineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
@@ -3239,7 +3208,6 @@ class dotLines {
   PVector[] target;
   PVector[] offset;
   PVector[] finalPos;
-  PVector sep;
   float kp = 0.5f;
   float inc = 0.f;
 
@@ -3251,17 +3219,11 @@ class dotLines {
   }
 
 
-
-
   public void update() {
     //    dotAmount = mouseX;
     //    initializeArrays();
     //    inc += 0.01 + (1./(float)cam.getDistance());
     inc += 0.01f;
-
-    sep.set(movementAmount*2, movementAmount*2, movementAmount*2);
-
-
 
     for (int i = 0; i<dotAmount;i++) {
       target[i].set(0, 0, 100*polySoundMatrix[lineId][i]);
@@ -3279,7 +3241,7 @@ class dotLines {
         float s = d/forceFieldRange;
         float f = 1 / pow(s, 0.5f) - 1;
         f = f / forceFieldRange;
-        offset[i].add(dx*f*forceFieldPower*pow(sin(inc), 2), dy*f*forceFieldPower*pow(sin(inc), 2), dz*f*forceFieldPower);
+        offset[i].add(dx*f*forceFieldPower, dy*f*forceFieldPower, dz*f*forceFieldPower);
       }
 
       //container
@@ -3341,15 +3303,14 @@ class dotLines {
     target = new PVector[dotAmount];
     offset = new PVector[dotAmount];
     finalPos = new PVector[dotAmount];
-    sep = new PVector(movementAmount, movementAmount, movementAmount*10);
 
     for (int i = 0; i < dotAmount; i++) {
       pos[i] = new PVector(0, 0, 0);
       error[i] = new PVector(0, 0, 0);
       target[i] = new PVector(0, 0, 0);
       offset[i] = new PVector(
-      map(lineId, 0, numLines, -(sep.x*numLines)/2, (sep.x*numLines)/2), 
-      map(i, 0, dotAmount, -(sep.y*(dotAmount))/2, (sep.y*(dotAmount))/2), 
+      map(lineId, 0, numLines, -containerX, containerX), 
+      map(i, 0, dotAmount, -containerY, containerY), 
       0);
     }
   }
@@ -3431,8 +3392,9 @@ class Soundplate extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(500000);
-
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
     for (int i = 0; i<plateAmount;i++) {
       dp[i] = new dotPlate(dotsPerPlate, i);
     }
@@ -4165,8 +4127,9 @@ class Splines extends VisualEngine {
   public void init() {
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(500000);
-
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
 
     colorMode(HSB);
     hint(ENABLE_DEPTH_TEST); 
@@ -4666,18 +4629,6 @@ class Splines extends VisualEngine {
   }
 
   public void mapMidiInterface() {
-    //    "ribbonCount", 
-    //    "ribbonSpeed", 
-    //    "ribbonLength", 
-    //    "ribbonSound", 
-    //    "ribbonSpaceX", 
-    //    "ribbonSpaceY", 
-    //    "ribbonSpaceZ", 
-    //    "ribbonHelix", 
-    //    "ribbonCycloid", 
-    //    "ribbonCX", 
-    //    "ribbonCY", 
-    //    "ribbonNoise"
 
     cp5.getController("ribbonCX").setValue(cp5.getController("ribbonCX").getValue()+(map(       faderValDiff[0], 0, 127, 0, cp5.getController("ribbonCX").getMax()-cp5.getController("ribbonCX").getMin())));
     cp5.getController("ribbonCY").setValue(cp5.getController("ribbonCY").getValue()+(map(       faderValDiff[1], 0, 127, 0, cp5.getController("ribbonCY").getMax()-cp5.getController("ribbonCY").getMin())));
@@ -4695,8 +4646,7 @@ class Splines extends VisualEngine {
     cp5.getController("ribbonHelix").setValue((cp5.getController("ribbonHelix").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("ribbonCycloid").setValue((cp5.getController("ribbonCycloid").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("ribbonNoise").setValue((cp5.getController("ribbonNoise").getValue()+abs(buttonsMValDiff[16]))%2);
-    cp5.getController("ribonRotStop").setValue((cp5.getController("ribonRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
-
+    cp5.getController("ribbonRotStop").setValue((cp5.getController("ribbonRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
   }
 
   public void start() {
@@ -5150,7 +5100,6 @@ class Vorovis extends VisualEngine {
     "showBezier", 
     "showStar", 
     "voroAlfa", 
-    "bezierAlfa", 
     "strokeAlfa", 
     "centerAlfa", 
     "flockSpeed"
@@ -5190,7 +5139,7 @@ class Vorovis extends VisualEngine {
 
   float[] camRotations = new float[3];
   float[] camLookAt = new float[3];
-  public float camDistance;
+  public float camDistance = 2020.f;
 
   public Vorovis(PApplet myApplet, String name) {
     super(myApplet, name);
@@ -5199,11 +5148,11 @@ class Vorovis extends VisualEngine {
   }
 
   public void init() {
-    background(0);
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
-    perspective(PI/3, width/height, 1, 50000);
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
 
     // initialize points and calculate diagrams
     initFlock();
@@ -5224,6 +5173,18 @@ class Vorovis extends VisualEngine {
     if (midiEnable) {
       mapMidiInterface();
     }
+
+    cam.rotateX(0);
+    cam.rotateY(0);
+    if (mousePressed) {
+      if (mouseButton == LEFT) {
+        cam.setActive(false);
+      } else {
+        cam.setActive(true);
+      }
+    }
+
+
     mapPresets();
     frame.setTitle(PApplet.parseInt(frameRate) + "fps");
     background(0);
@@ -5358,8 +5319,8 @@ class Vorovis extends VisualEngine {
           float x1, x2, y1, y2, x3, y3;
           beginShape();
           //        fill(map(rcArea,  areaMin, areaMax, 127, 190), 255, 255, bezierAlfa); // use random color for each region
-//          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 100, areaMin, areaMax)-rcArea); // use random color for each region
-noFill();
+          //          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 100, areaMin, areaMax)-rcArea); // use random color for each region
+          noFill();
           for (int j = 0; j < nv; j++) {
             PVector v1 = new PVector (regionCoordinates[j % nv][0], regionCoordinates[j % nv][1], 0);
             PVector v2 = new PVector (regionCoordinates[(j+1) % nv][0], regionCoordinates[(j+1) % nv][1], 0);
@@ -5481,12 +5442,6 @@ noFill();
     columnIndex = 1; 
     cp5.addSlider("voroAlfa")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0.f, 255.f )
-            .setWindow(controlWindow);
-    columnIndex = 2; 
-    cp5.addSlider("bezierAlfa")
-      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.f, 255.f )
             .setWindow(controlWindow);
@@ -5715,7 +5670,6 @@ noFill();
 
     cp5.getController("flockSpeed").setValue(cp5.getController("flockSpeed").getValue()+(map(   faderValDiff[0], 0, 127, 0, cp5.getController("flockSpeed").getMax()-cp5.getController("flockSpeed").getMin())));
     cp5.getController("voroAlfa").setValue(cp5.getController("voroAlfa").getValue()+(map(     faderValDiff[1], 0, 127, 0, cp5.getController("voroAlfa").getMax()-cp5.getController("voroAlfa").getMin())));
-    cp5.getController("bezierAlfa").setValue(cp5.getController("bezierAlfa").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("bezierAlfa").getMax()-cp5.getController("bezierAlfa").getMin())));
     cp5.getController("strokeAlfa").setValue(cp5.getController("strokeAlfa").getValue()+(map(   faderValDiff[3], 0, 127, 0, cp5.getController("strokeAlfa").getMax()-cp5.getController("strokeAlfa").getMin())));
     cp5.getController("centerAlfa").setValue(cp5.getController("centerAlfa").getValue()+(map(   faderValDiff[4], 0, 127, 0, cp5.getController("centerAlfa").getMax()-cp5.getController("centerAlfa").getMin())));
 
@@ -5731,7 +5685,7 @@ noFill();
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
     colorMode(HSB);
-
+    camDistance = 2020.f;
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
     cam.setDistance(camDistance);
@@ -6070,11 +6024,11 @@ class Wireframe extends VisualEngine {
   }
 
   public void init() {
-    background(0);
     cam = new PeasyCam(myApplet, 50);
     cam.setMinimumDistance(1);
-    cam.setMaximumDistance(50000);
-    perspective(PI/3, width/height, 1, 50000);
+    cam.setMaximumDistance(5000000);
+    background(0);
+    perspective(PI/3, width/height, 1, 5000000);
 
     colorMode(RGB);
     parameters1 =     loadPreset(presetDir, name, 1);
@@ -6870,7 +6824,6 @@ public void drawSonia() {
   for(int i = 0; i<spectrumLength; i++){
     soundLevelLPF += (soundLPFBuf[i]/spectrumLength)*gain;
   }
-    
   
 }
 
@@ -6958,6 +6911,7 @@ public void initializeSoundAnalysis() {
 
   getSpectrum();
 }
+
 float[] features;
 public void soundAnalysis() {
   if (midiEnable) {
