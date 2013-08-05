@@ -60,7 +60,7 @@ void changeVisualEngine(int newIndex)
 
 void setup() {
   java.util.Locale.setDefault(java.util.Locale.US);
-  size(1280, 1024, OPENGL);
+  size(1920, 1080, OPENGL);
   Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
   double displayWidth = screenSize.getWidth();
   double displayHeight = screenSize.getHeight();
@@ -95,7 +95,7 @@ void setup() {
     ve.init();
   }
 
-  changeVisualEngine(4);
+  changeVisualEngine(0);
   cursor(loadImage("cursorImg.jpg"));
   preview = createImage(width, height, HSB);
   //  noLoop();
