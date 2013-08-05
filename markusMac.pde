@@ -72,13 +72,13 @@ void setup() {
   frameRate(60);
   msLogo = loadImage("msLogo.png");
   engines = new VisualEngine[] {
-    new Cube(this, "Cubes"), 
-    new Polyface(this, "Polyface"), 
-    new Deform(this, "Deform"), 
-    new Soundplate(this, "Soundplate"), 
-    new Vorovis(this, "Vorovis"), 
-    new Splines(this, "Splines"), 
-    new Wireframe(this, "Wireframe")
+    new Cube(this, "CUBES"), 
+    new Polyface(this, "POLYFACE"), 
+    new Deform(this, "DEFORM"), 
+    new Soundplate(this, "SOUNDPLATE"), 
+    new Vorovis(this, "VOROVIS"), 
+    new Splines(this, "SPLINES"), 
+    new Wireframe(this, "WIREFRAME")
       //    new Particle(this, "Particles")
     };
 
@@ -88,14 +88,14 @@ void setup() {
     initializeMidi();
   }  
 
+  initializeGUI();
 
   initializeSoundAnalysis();
   for (VisualEngine ve: engines) {
     ve.init();
   }
 
-  initializeGUI();
-  changeVisualEngine(0);
+  changeVisualEngine(4);
   cursor(loadImage("cursorImg.jpg"));
   preview = createImage(width, height, HSB);
   //  noLoop();
@@ -130,7 +130,7 @@ void draw() {
   fill(0, blackAlpha);
   rect(-30, -30, 120, 120);
   tint(255, logoAlpha);
-  image(msLogo,-msLogo.width/80,-msLogo.height/80,msLogo.width/40,msLogo.height/40);
+  image(msLogo, -msLogo.width/80, -msLogo.height/80, msLogo.width/40, msLogo.height/40);
   cam.endHUD();
   hint(ENABLE_DEPTH_TEST);
 }

@@ -12,7 +12,8 @@ boolean ribbonCycloid;
 boolean ribbonNoise;
 float ribbonRotX;
 float ribbonRotY;
-boolean ribbonRotStop = false;
+boolean ribbonRotStopX = false;
+boolean ribbonRotStopY = false;
 
 class Splines extends VisualEngine {
   protected ArrayList<controlP5.Controller> controllers;
@@ -32,7 +33,8 @@ class Splines extends VisualEngine {
     "ribbonNoise", 
     "ribbonRotX", 
     "ribbonRotY", 
-    "ribbonRotStop"
+    "ribbonRotStopX", 
+    "ribbonRotStopY"
   };
 
   int presetSize = parameterNames.length+9;
@@ -75,7 +77,7 @@ class Splines extends VisualEngine {
     background(0);
     perspective(PI/3, width/height, 1, 5000000);
 
-    colorMode(HSB);
+    colorMode(RGB);
     hint(ENABLE_DEPTH_TEST); 
     background(0);
 
@@ -88,6 +90,7 @@ class Splines extends VisualEngine {
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
     parameters8 =     loadPreset(presetDir, name, 8);   
+    cp5.getController("preset5").setValue(1.);
 
     //    colorMode(HSB, 360, 100, 100);
     for (int i=0; i<agents.length; i++) {
@@ -110,8 +113,10 @@ class Splines extends VisualEngine {
     }
     mapPresets();
 
-    if (!ribbonRotStop) {
+    if (!ribbonRotStopX) {
       cam.rotateX(ribbonRotX);
+    }
+    if (!ribbonRotStopY) {
       cam.rotateY(ribbonRotY);
     }
 
@@ -173,7 +178,7 @@ class Splines extends VisualEngine {
 
   public void lightSetting() {
 
-    lightSpecular(0, 0, 255);
+    lightSpecular(255,150,50);
     shininess(255);
     specular(255);
     //    pointLight(0, 255, 255, // Color
@@ -181,53 +186,13 @@ class Splines extends VisualEngine {
     //    point(2000, 0, 0);
     //    directionalLight(255, 0, 50, 0, -1, -1);
     //directionalLight(255, 0, 50, 0, -1, 0); 
-    ambientLight(0, 0, 100);
-    directionalLight(0, 0, 200, 0, -1, -1); 
+    ambientLight(100, 100, 100);
+    directionalLight(200, 200, 200, 0, -1, -1); 
     //    directionalLight(0, 0, 200, 0, 1, -1); 
-    directionalLight(0, 0, 200, 1, 0, -1); 
+    directionalLight(200, 200, 200, 1, 0, -1);
+    directionalLight(200, 200, 200, -1, 1, 0);
+    directionalLight(200, 200, 200, 0, 0, 1);
 
-    //    int lightY = 150;
-    //    int lightYBr = 255;
-    //    int lightYCon = 100;
-    //
-    //    spotLight(255, 0, 255, // Color
-    //    0, 100, 150, // Position
-    //    0, -0.3, -1, // Direction
-    //    PI, 20); // Angle, concentration
-    //    //    point(0, 10, 150);
-    //
-    //    //    if ( key == 'q') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    0, -lightY, 0, // Position
-    //    0, 1, 0, // Direction
-    //    PI, 6); // Angle, concentration
-    //    //    point(0, -lightY, 0);
-    //
-    //    //    } else if ( key == 'w') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    cubeCircleRad, -lightY, 0, // Position
-    //    0, 1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    //    point(cubeCircleRad, -lightY, 0);
-    //    //    } else if ( key == 'e') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    -cubeCircleRad, -lightY, 0, // Position
-    //    0, 1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    //    point(-cubeCircleRad, -lightY, 0);
-    //    //    } else if ( key == 'r') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    0, -lightY, cubeCircleRad, // Position
-    //    0, 1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    //    point(0, -lightY, cubeCircleRad);
-    //    //    } else if ( key == 't') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    0, -lightY, -cubeCircleRad, // Position
-    //    0, 1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    //    point(0, -lightY, -cubeCircleRad);
-    //    //}
   }
 
 
@@ -259,9 +224,11 @@ class Splines extends VisualEngine {
     cp5.addKnob("ribbonCount")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0., 60.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(0., 60.)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("AMOUNT")   
+                  .setWindow(controlWindow);
 
 
     columnIndex = 1;       
@@ -269,50 +236,71 @@ class Splines extends VisualEngine {
       .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(0., 1.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("SPEED")   
+                  .setWindow(controlWindow);
 
     cp5.addKnob("ribbonRotX")
       .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.01, 0.01)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.01, 0.01)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("V. ROT.")   
+                  .setWindow(controlWindow);
 
     cp5.addKnob("ribbonRotY")
       .setPosition(knobPosX[3]+visualSpecificParametersBoxX-knobWidth, knobPosY[3]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.01, 0.01)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.01, 0.01)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("H. ROT.")   
+                  .setWindow(controlWindow);
 
     columnIndex = 2; 
     cp5.addToggle("ribbonHelix")
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
-            .setWindow(controlWindow);
+            .setCaptionLabel("HELIX")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonHelix").captionLabel().getStyle().marginLeft = 0;
 
     columnIndex = 3; 
     cp5.addToggle("ribbonCycloid")
       .setPosition(mRectPosX[1]+visualSpecificParametersBoxX, mRectPosY[1]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("CYCLOID")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonCycloid").captionLabel().getStyle().marginLeft = -7;
 
     columnIndex = 4; 
     cp5.addToggle("ribbonNoise")
       .setPosition(mRectPosX[2]+visualSpecificParametersBoxX, mRectPosY[2]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);            
+            .setCaptionLabel("NOISE")   
+              .setWindow(controlWindow);            
+    cp5.getController("ribbonNoise").captionLabel().getStyle().marginLeft = 0;
 
-    cp5.addToggle("ribbonRotStop")
+    cp5.addToggle("ribbonRotStopX")
       .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
-            .setWindow(controlWindow);
+            .setCaptionLabel("STOP V. ROT.")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonRotStopX").captionLabel().getStyle().marginLeft = -13;
 
+    cp5.addToggle("ribbonRotStopY")
+      .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setCaptionLabel("STOP H. ROT.")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonRotStopY").captionLabel().getStyle().marginLeft = -13;
 
     rowIndex = 1; 
     columnIndex = 0; 
@@ -320,57 +308,71 @@ class Splines extends VisualEngine {
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.00001, 0.01)
-            .setWindow(controlWindow);
+            .setCaptionLabel("CYCLOID X")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonCX").captionLabel().getStyle().marginLeft = -13;
 
     columnIndex = 1; 
     cp5.addSlider("ribbonCY")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.00001, 0.01)
-            .setWindow(controlWindow);    
+            .setCaptionLabel("CYCLOID Y")   
+              .setWindow(controlWindow);    
+    cp5.getController("ribbonCY").captionLabel().getStyle().marginLeft = -13;
 
     columnIndex = 2; 
     cp5.addSlider("ribbonLength")
       .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 1.)
-            .setWindow(controlWindow);
+            .setCaptionLabel(" LENGTH")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonLength").captionLabel().getStyle().marginLeft = -7;
 
     columnIndex = 3; 
     cp5.addSlider("ribbonSound")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 30.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SOUND GAIN")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonSound").captionLabel().getStyle().marginLeft = -15;
 
     columnIndex = 4; 
     cp5.addSlider("ribbonSpaceX")
       .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(100., 10000.)
-            .setWindow(controlWindow);
+            .setCaptionLabel(" SPACE X")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonSpaceX").captionLabel().getStyle().marginLeft = -8;
 
     columnIndex = 5; 
     cp5.addSlider("ribbonSpaceY")
       .setPosition(sliderPosX[5]+visualSpecificParametersBoxX, sliderPosY[5]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(100., 10000)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SPACE Y")   
+              .setWindow(controlWindow);
+    cp5.getController("ribbonSpaceY").captionLabel().getStyle().marginLeft = -8;
 
     columnIndex = 6; 
     cp5.addSlider("ribbonSpaceZ")
       .setPosition(sliderPosX[6]+visualSpecificParametersBoxX, sliderPosY[6]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(100., 10000)
-            .setWindow(controlWindow);          
+            .setCaptionLabel("SPACE Z")   
+              .setWindow(controlWindow);          
+    cp5.getController("ribbonSpaceZ").captionLabel().getStyle().marginLeft = -8;
 
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
           .setFont(fontLight)
-            .toUpperCase(false)
-              .setSize(15);
+            //            .toUpperCase(false)
+            .setSize(15);
       controllers.add(cp5.getController(parameterNames[i]));
     }
 
@@ -542,7 +544,7 @@ class Splines extends VisualEngine {
       cp5.getController("preset6").setValue(0.);
       cp5.getController("preset7").setValue(0.);
     } 
-    else if ( savePreset && !savePresetPre) {
+    else if ( savePreset && !savePresetPre && (presetIndex > 4)) {
       parametersTemp[0] = cam.getLookAt()[0];
       parametersTemp[1] = cam.getLookAt()[1];
       parametersTemp[2] = cam.getLookAt()[2];
@@ -590,13 +592,14 @@ class Splines extends VisualEngine {
     cp5.getController("ribbonHelix").setValue((cp5.getController("ribbonHelix").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("ribbonCycloid").setValue((cp5.getController("ribbonCycloid").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("ribbonNoise").setValue((cp5.getController("ribbonNoise").getValue()+abs(buttonsMValDiff[16]))%2);
-    cp5.getController("ribbonRotStop").setValue((cp5.getController("ribbonRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
+    cp5.getController("ribbonRotStopX").setValue((cp5.getController("ribbonRotStopX").getValue()+abs(buttonsMValDiff[1]))%2);
+    cp5.getController("ribbonRotStopY").setValue((cp5.getController("ribbonRotStopY").getValue()+abs(buttonsMValDiff[9]))%2);
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
-    colorMode(HSB);
+    colorMode(RGB);
 
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
@@ -878,8 +881,7 @@ class Ribbon {
 
   void drawMeshRibbon(color theMeshCol, float theWidth) {
     // draw the ribbons with meshes
-    int colorFader = 50;
-    float colorFadeDiff = 100;
+    int colorFader = 30;
 
     int alfaFader = 30;
     float alfaFadeDiff = 0;
@@ -902,19 +904,23 @@ class Ribbon {
       //      else
       //        ribbonAlfa = 255;
 
-      colR = 100;
-      colG = 127;
-      colB = 0;
-      if (i < colorFader) 
-        colR = colR -(colorFader-i)*(colorFadeDiff)/colorFader;
-      colG = colG -(colorFader-i)*(colorFadeDiff)/colorFader;
-      colB = colB -(colorFader-i)*(colorFadeDiff)/colorFader;
-      //      else if (count*ribbonLength - i < colorFader)
-      //        colR = colR -(colorFader-abs(count*ribbonLength-i))*(colorFadeDiff)/colorFader;
-      //      else
-      //        colR = 255;
+      colR = 0;
+      colG = 120;
+      colB = 150;
+      float colorFadeDiffR = -200;
+      float colorFadeDiffG = 100;
+      float colorFadeDiffB = 150;
 
-      fill(colR, 255, 255, ribbonAlfa);
+      if (i < colorFader) {
+        colR = colR -(colorFader-i)*(colorFadeDiffR)/colorFader;
+        colG = colG -(colorFader-i)*(colorFadeDiffG)/colorFader;
+        colB = colB -(colorFader-i)*(colorFadeDiffB)/colorFader;
+        //      else if (count*ribbonLength - i < colorFader)
+        //        colR = colR -(colorFader-abs(count*ribbonLength-i))*(colorFadeDiff)/colorFader;
+        //      else
+        //        colR = 255;
+      }
+      fill(colR, colG, colB, ribbonAlfa);
 
 
       theWidth = widthFadeDiff;

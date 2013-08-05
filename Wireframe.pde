@@ -15,13 +15,14 @@ int rRes = 40;
 int RRes = 20;
 float wireRotX = 0.;
 float wireRotY = 0.;
-boolean wireRotStop = false;
+boolean wireRotStopX = false;
+boolean wireRotStopY = false;
 float x, y, z;
 float rotIncX = 0.;
 float rotX = 0.;
 float rotIncY = 0.;
 float rotY = 0.;
-
+boolean rotYStop = false;
 class Wireframe extends VisualEngine {
   protected ArrayList<controlP5.Controller> controllers;
   String[] parameterNames = {
@@ -35,7 +36,9 @@ class Wireframe extends VisualEngine {
     "rotIncY", 
     "wireRotX", 
     "wireRotY", 
-    "wireRotStop"
+    "wireRotStopX", 
+    "rotYStop", 
+    "wireRotStopY"
   };
 
   int presetSize = parameterNames.length+9;
@@ -79,6 +82,7 @@ class Wireframe extends VisualEngine {
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
     parameters8 =     loadPreset(presetDir, name, 8);
+    cp5.getController("preset5").setValue(1.);
   }    // setup function
 
   public void update() {    
@@ -88,13 +92,18 @@ class Wireframe extends VisualEngine {
     mapPresets();
     frame.setTitle(int(frameRate) + "fps");
     background(0);
-    if (!wireRotStop) {
+    if (!wireRotStopX) {
       cam.rotateX(wireRotX);
+    }
+    if (!wireRotStopY) {
       cam.rotateY(wireRotY);
     }
 
     rotX += rotIncX;
-    rotY += rotIncY;
+    if (!rotYStop) {
+      rotY += rotIncY;
+    }
+
     //    float wireSoundVal = fftVar[0].getValue();
     float inLevelMax = 10.;
     float inLevelMin = 0.;
@@ -189,73 +198,118 @@ class Wireframe extends VisualEngine {
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(10, 350)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("INNER RADIUS")    
+                  .setWindow(controlWindow);
+
     cp5.addKnob("Rad")
       .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(10, 350)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(10, 350)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("OUTER RADIUS")    
+                  .setWindow(controlWindow);
+
     cp5.addKnob("rRes")
       .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(5, 150)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(5, 150)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("V. RES.")    
+                  .setWindow(controlWindow);
+
     cp5.addKnob("RRes")
       .setPosition(knobPosX[3]+visualSpecificParametersBoxX-knobWidth, knobPosY[3]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(1, 150)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("H. RES.")    
+                  .setWindow(controlWindow);
 
     cp5.addKnob("wireRotX")
       .setPosition(knobPosX[4]+visualSpecificParametersBoxX-knobWidth, knobPosY[4]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("V. ROT.")    
+                  .setWindow(controlWindow);
+
     cp5.addKnob("wireRotY")
       .setPosition(knobPosX[5]+visualSpecificParametersBoxX-knobWidth, knobPosY[5]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("H. ROT.")    
+                  .setWindow(controlWindow);
 
     cp5.addSlider("th")
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 1.)
-            .setWindow(controlWindow);              
+            .setCaptionLabel("H. SLICE")    
+              .setWindow(controlWindow);              
+    cp5.getController("th").captionLabel().getStyle().marginLeft = -5;
+
     cp5.addSlider("ph")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 1. )
-            .setWindow(controlWindow);              
+            .setCaptionLabel("V. SLICE")    
+              .setWindow(controlWindow);              
+    cp5.getController("ph").captionLabel().getStyle().marginLeft = -5;
+
     cp5.addSlider("rotIncX")
       .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(-0.05, 0.05 )
-            .setWindow(controlWindow);              
+            .setCaptionLabel("SELF V. ROT.")    
+              .setWindow(controlWindow);              
+    cp5.getController("rotIncX").captionLabel().getStyle().marginLeft = -15;
+
     cp5.addSlider("rotIncY")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(-0.05, 0.05 )
-            .setWindow(controlWindow);  
+            .setCaptionLabel("SELF H. ROT.")    
+              .setWindow(controlWindow);  
+    cp5.getController("rotIncY").captionLabel().getStyle().marginLeft = -15;
 
-    cp5.addToggle("wireRotStop")
+    cp5.addToggle("wireRotStopX")
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("STOP V. ROT.")    
+              .setWindow(controlWindow);
+    cp5.getController("wireRotStopX").captionLabel().getStyle().marginLeft = -15;
+
+    cp5.addToggle("wireRotStopY")
+      .setPosition(mRectPosX[1]+visualSpecificParametersBoxX, mRectPosY[1]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setCaptionLabel("STOP H. ROT.")    
+              .setWindow(controlWindow);
+    cp5.getController("wireRotStopY").captionLabel().getStyle().marginLeft = -15;
+
+    cp5.addToggle("rotYStop")
+      .setPosition(mRectPosX[9]+visualSpecificParametersBoxX, mRectPosY[9]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setCaptionLabel("STOP SELF ROT.")    
+              .setWindow(controlWindow);
+    cp5.getController("rotYStop").captionLabel().getStyle().marginLeft = -17;
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
           .setFont(fontLight)
-            .toUpperCase(false)
-              .setSize(15);
+            //            .toUpperCase(false)
+            .setSize(15);
       controllers.add(cp5.getController(parameterNames[i]));
     }
 
@@ -421,7 +475,7 @@ class Wireframe extends VisualEngine {
       cp5.getController("preset6").setValue(0.);
       cp5.getController("preset7").setValue(0.);
     } 
-    else if ( savePreset && !savePresetPre) {
+    else if ( savePreset && !savePresetPre && (presetIndex > 4)) {
       parametersTemp[0] = cam.getLookAt()[0];
       parametersTemp[1] = cam.getLookAt()[1];
       parametersTemp[2] = cam.getLookAt()[2];
@@ -471,7 +525,9 @@ class Wireframe extends VisualEngine {
     cp5.getController("rotIncX").setValue(cp5.getController("rotIncX").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("rotIncX").getMax()-cp5.getController("rotIncX").getMin())));
     cp5.getController("rotIncY").setValue(cp5.getController("rotIncY").getValue()+(map(   faderValDiff[3], 0, 127, 0, cp5.getController("rotIncY").getMax()-cp5.getController("rotIncY").getMin())));
 
-    cp5.getController("wireRotStop").setValue((cp5.getController("wireRotStop").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("wireRotStopX").setValue((cp5.getController("wireRotStopX").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("wireRotStopY").setValue((cp5.getController("wireRotStopY").getValue()+abs(buttonsMValDiff[8]))%2);
+    cp5.getController("rotYStop").setValue((cp5.getController("rotYStop").getValue()+abs(buttonsMValDiff[3]))%2);
   }
 
   public void start() {

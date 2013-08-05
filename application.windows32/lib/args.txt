@@ -1,0 +1,3 @@
+ -Xms64m -Xmx1024m
+markusMac
+markusMac.jar,core.jar,gluegen-rt.jar,jogl.jar,opengl.jar,peasycam.jar,fog.jar,controlP5.jar,toxiclibscore.jar,verletphysics.jar,mesh.jar,quickhull3d.1.4.jar,promidi.jar,jsyn-beta-16.5.14.jar,JSynClasses.jar,sonia_v2_9.jar

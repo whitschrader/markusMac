@@ -111,6 +111,7 @@ class Vorovis extends VisualEngine {
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
     parameters8 =     loadPreset(presetDir, name, 8);
+    cp5.getController("preset5").setValue(1.);
   }    // setup function
 
   public void update() {    
@@ -123,7 +124,8 @@ class Vorovis extends VisualEngine {
     if (mousePressed) {
       if (mouseButton == LEFT) {
         cam.setActive(false);
-      } else {
+      } 
+      else {
         cam.setActive(true);
       }
     }
@@ -233,7 +235,8 @@ class Vorovis extends VisualEngine {
 
         if (showVoro) {
           //        fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa*soundLevelLPF); // use random color for each region
-          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 3000, areaMin, areaMax)-rcArea); // use random color for each region
+//          fill(map(rcArea, areaMin, areaMax, 0, 255), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 3000, areaMin, areaMax)-rcArea); // use random color for each region
+          fill(map(rcArea, areaMin, areaMax, 255, 50), map(abs(flock.bPos[i][1]), 0, 2000, 255, 0), 255, map(soundLPFBuf[int(i*spectrumLength/myRegions.length)], 10, 3000, areaMin, areaMax)-rcArea); // use random color for each region
 
           beginShape();
           for (int j = 0; j < regionCoordinates.length;j++) {
@@ -243,10 +246,10 @@ class Vorovis extends VisualEngine {
         }
         if (showStar) {
           beginShape(TRIANGLE_FAN);
-          fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, centerAlfa); // use random color for each region
+          fill(map(rcArea, areaMin, areaMax, 150, 255), 255, 255, centerAlfa); // use random color for each region
           vertex(flock.bPos[i][0], flock.bPos[i][1]);
           for (int j = 0; j < regionCoordinates.length+1;j++) {
-            fill(map(rcArea, areaMin, areaMax, 0, 255), 255, 255, voroAlfa); // use random color for each region
+            fill(map(rcArea, areaMin, areaMax, 150, 255), 255, 255, voroAlfa); // use random color for each region
 
             vertex(regionCoordinates[j%regionCoordinates.length][0], regionCoordinates[j%regionCoordinates.length][1], 0);
           }
@@ -347,33 +350,50 @@ class Vorovis extends VisualEngine {
     cp5.addKnob("flockAmount")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(10, 150)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(10, 150)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("FLOCK AMOUNT")    
+                  .setWindow(controlWindow);
     columnIndex = 1; 
     cp5.addToggle("showDela")
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
-        .setSize(mRectWidth, mRectHeight)
-          .setValue(false)
-            .setWindow(controlWindow);
+        .setColorValueLabel(valueLabel)
+          .setSize(mRectWidth, mRectHeight)
+            .setValue(false)
+              .setCaptionLabel("DELAUNAY")    
+                .setWindow(controlWindow);
+    cp5.getController("showDela").captionLabel().getStyle().marginLeft = -12;
+
     columnIndex = 2; 
     cp5.addToggle("showVoro")
       .setPosition(mRectPosX[1]+visualSpecificParametersBoxX, mRectPosY[1]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
-          .setValue(true)
-            .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setValue(true)
+              .setCaptionLabel("VORONOI")    
+                .setWindow(controlWindow);
+    cp5.getController("showVoro").captionLabel().getStyle().marginLeft = -7;
+
     columnIndex = 3; 
     cp5.addToggle("showBezier")
       .setPosition(mRectPosX[2]+visualSpecificParametersBoxX, mRectPosY[2]+visualSpecificParametersBoxY)   
-        .setSize(mRectWidth, mRectHeight)
-          .setValue(false)
-            .setWindow(controlWindow);
+        .setColorValueLabel(valueLabel)
+          .setSize(mRectWidth, mRectHeight)
+            .setValue(false)
+              .setCaptionLabel("BEZIER")    
+                .setWindow(controlWindow);
+    cp5.getController("showBezier").captionLabel().getStyle().marginLeft = -3;
+
     columnIndex = 4; 
     cp5.addToggle("showStar")
       .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
-          .setValue(false)
-            .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setValue(false)
+              .setCaptionLabel("STAR")    
+                .setWindow(controlWindow);
+    cp5.getController("showStar").captionLabel().getStyle().marginLeft = 0;
 
     rowIndex = 1; 
     columnIndex = 0; 
@@ -382,33 +402,44 @@ class Vorovis extends VisualEngine {
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 100.)
             .setValue(3.)
-              .setWindow(controlWindow);
+              .setCaptionLabel("SPEED")    
+                .setWindow(controlWindow);
+    cp5.getController("flockSpeed").captionLabel().getStyle().marginLeft = -3;
+
     columnIndex = 1; 
     cp5.addSlider("voroAlfa")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 255. )
-            .setWindow(controlWindow);
+            .setCaptionLabel("      VORONOI\n TRANSPARENCY")    
+              .setWindow(controlWindow);
+    cp5.getController("voroAlfa").captionLabel().getStyle().marginLeft = -27;
+
     columnIndex = 3; 
     cp5.addSlider("strokeAlfa")
+      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
+        .setSize(sliderWidth, sliderHeight)
+          .setRange(0., 255. )
+            .setCaptionLabel("         LINE\n TRANSPARENCY")    
+              .setWindow(controlWindow);
+    cp5.getController("strokeAlfa").captionLabel().getStyle().marginLeft = -24;
+
+    columnIndex = 4; 
+    cp5.addSlider("centerAlfa")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 255. )
-            .setWindow(controlWindow);
-    columnIndex = 4; 
-    cp5.addSlider("centerAlfa")
-      .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
-        .setSize(sliderWidth, sliderHeight)
-          .setRange(0., 255. )
-            .setWindow(controlWindow);
+            .setCaptionLabel("       CENTER\n TRANSPARENCY")    
+              .setWindow(controlWindow);
+    cp5.getController("centerAlfa").captionLabel().getStyle().marginLeft = -27;
 
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
           .setFont(fontLight)
-            .toUpperCase(false)
-              .setSize(15);
+            //            .toUpperCase(false)
+            .setSize(15);
       controllers.add(cp5.getController(parameterNames[i]));
     }
 
@@ -574,7 +605,7 @@ class Vorovis extends VisualEngine {
       cp5.getController("preset6").setValue(0.);
       cp5.getController("preset7").setValue(0.);
     } 
-    else if ( savePreset && !savePresetPre) {
+    else if ( savePreset && !savePresetPre && (presetIndex > 4)) {
       parametersTemp[0] = cam.getLookAt()[0];
       parametersTemp[1] = cam.getLookAt()[1];
       parametersTemp[2] = cam.getLookAt()[2];
@@ -614,8 +645,8 @@ class Vorovis extends VisualEngine {
 
     cp5.getController("flockSpeed").setValue(cp5.getController("flockSpeed").getValue()+(map(   faderValDiff[0], 0, 127, 0, cp5.getController("flockSpeed").getMax()-cp5.getController("flockSpeed").getMin())));
     cp5.getController("voroAlfa").setValue(cp5.getController("voroAlfa").getValue()+(map(     faderValDiff[1], 0, 127, 0, cp5.getController("voroAlfa").getMax()-cp5.getController("voroAlfa").getMin())));
-    cp5.getController("strokeAlfa").setValue(cp5.getController("strokeAlfa").getValue()+(map(   faderValDiff[3], 0, 127, 0, cp5.getController("strokeAlfa").getMax()-cp5.getController("strokeAlfa").getMin())));
-    cp5.getController("centerAlfa").setValue(cp5.getController("centerAlfa").getValue()+(map(   faderValDiff[4], 0, 127, 0, cp5.getController("centerAlfa").getMax()-cp5.getController("centerAlfa").getMin())));
+    cp5.getController("strokeAlfa").setValue(cp5.getController("strokeAlfa").getValue()+(map(   faderValDiff[2], 0, 127, 0, cp5.getController("strokeAlfa").getMax()-cp5.getController("strokeAlfa").getMin())));
+    cp5.getController("centerAlfa").setValue(cp5.getController("centerAlfa").getValue()+(map(   faderValDiff[3], 0, 127, 0, cp5.getController("centerAlfa").getMax()-cp5.getController("centerAlfa").getMin())));
 
     cp5.getController("flockAmount").setValue(cp5.getController("flockAmount").getValue()+(map(  knobValDiff[0], 0, 127, 0, cp5.getController("flockAmount").getMax()-cp5.getController("flockAmount").getMin())));
 

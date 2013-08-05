@@ -20,7 +20,8 @@ float linesAlfa = 255;
 float facesAlfa = 255;
 float deformRotX;
 float deformRotY;
-boolean deformRotStop = false;
+boolean deformRotStopX = false;
+boolean deformRotStopY = false;
 float posTemp;
 float posMin = 1000.;
 float posMax = 0.;
@@ -43,7 +44,8 @@ class Deform extends VisualEngine {
     "deformRotY", 
     "linesAlfa", 
     "facesAlfa", 
-    "deformRotStop"
+    "deformRotStopX", 
+    "deformRotStopY"
   };
 
   int presetSize = parameterNames.length+9;
@@ -79,7 +81,7 @@ class Deform extends VisualEngine {
     for (int i = 0; i<circleAmount;i++) {
       dc[i] = new dotCircle(dotsPerCircle, i);
     }
-    colorMode(HSB);
+    colorMode(RGB);
     hint(ENABLE_DEPTH_TEST);
     parameters1 =     loadPreset(presetDir, name, 1);
     parameters2 =     loadPreset(presetDir, name, 2);
@@ -89,8 +91,9 @@ class Deform extends VisualEngine {
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
     parameters8 =     loadPreset(presetDir, name, 8);
+    cp5.getController("preset5").setValue(1.);
 
-    tex = loadImage("Deform.jpg");
+    //    tex = loadImage("Deform.jpg");
   }
 
   public void initGUI(ControlP5 cp5, ControlWindow controlWindow) {
@@ -113,114 +116,145 @@ class Deform extends VisualEngine {
     }
 
 
-    rowIndex = 1; 
-    columnIndex = 0; 
     cp5.addSlider("m1")
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 20.)
-            .setWindow(controlWindow);
-    columnIndex = 1; 
+            .setCaptionLabel("H. SPIKE AMOUNT")
+              .setWindow(controlWindow);
+    cp5.getController("m1").captionLabel().getStyle().marginLeft = -26;
+
     cp5.addSlider("n11")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(5., 20.)
-            .setWindow(controlWindow);
-    columnIndex = 2; 
+            .setCaptionLabel("H. SPIKE DAMP")        
+              .setWindow(controlWindow); 
+    cp5.getController("n11").captionLabel().getStyle().marginLeft = -20;
+
     cp5.addSlider("n12")
       .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 20.)
-            .setWindow(controlWindow);
-    columnIndex = 3; 
+            .setCaptionLabel("H. SPIKE GAIN\n     COARSE")         
+              .setWindow(controlWindow); 
+    cp5.getController("n12").captionLabel().getStyle().marginLeft = -22;
+
     cp5.addSlider("n13")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 20.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("H. SPIKE GAIN\n        FINE")        
+              .setWindow(controlWindow); 
+    cp5.getController("n13").captionLabel().getStyle().marginLeft = -22;
 
-    rowIndex = 2; 
-    columnIndex = 0; 
     cp5.addSlider("m2")
       .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 20.)
-            .setWindow(controlWindow);
-    columnIndex = 1; 
+            .setCaptionLabel("V. SPIKE AMOUNT")
+              .setWindow(controlWindow); 
+    cp5.getController("m2").captionLabel().getStyle().marginLeft = -26;
+    
     cp5.addSlider("n21")
       .setPosition(sliderPosX[5]+visualSpecificParametersBoxX, sliderPosY[5]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(5., 20.)
-            .setWindow(controlWindow);
-    columnIndex = 2; 
+            .setCaptionLabel("V. SPIKE DAMP")        
+              .setWindow(controlWindow); 
+    cp5.getController("n21").captionLabel().getStyle().marginLeft = -20;
+    
     cp5.addSlider("n22")
       .setPosition(sliderPosX[6]+visualSpecificParametersBoxX, sliderPosY[6]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 20.)
-            .setWindow(controlWindow);
-    columnIndex = 3; 
+            .setCaptionLabel("V. SPIKE GAIN\n     COARSE")         
+              .setWindow(controlWindow); 
+    cp5.getController("n22").captionLabel().getStyle().marginLeft = -22;
+    
     cp5.addSlider("n23")
       .setPosition(sliderPosX[7]+visualSpecificParametersBoxX, sliderPosY[7]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 20.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("V. SPIKE GAIN\n        FINE")        
+              .setWindow(controlWindow); 
+    cp5.getController("n23").captionLabel().getStyle().marginLeft = -22;
 
-    rowIndex = 0; 
-    columnIndex = 0; 
     cp5.addToggle("linesEnable")
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
-    columnIndex = 1; 
+            .setCaptionLabel("ENABLE LINES")          
+              .setWindow(controlWindow); 
+    cp5.getController("linesEnable").captionLabel().getStyle().marginLeft = -20;
+    
     cp5.addToggle("facesEnable")
       .setPosition(mRectPosX[1]+visualSpecificParametersBoxX, mRectPosY[1]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
-            .setWindow(controlWindow);
+            .setCaptionLabel("ENABLE FACES")          
+              .setWindow(controlWindow); 
+    cp5.getController("facesEnable").captionLabel().getStyle().marginLeft = -20;
 
-    cp5.addToggle("deformRotStop")
+    cp5.addToggle("deformRotStopX")
       .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
-            .setWindow(controlWindow);
+            .setCaptionLabel("STOP VERTICAL\n    ROTATION")         
+              .setWindow(controlWindow); 
+    cp5.getController("deformRotStopX").captionLabel().getStyle().marginLeft = -20;
 
-    columnIndex = 2; 
+    cp5.addToggle("deformRotStopY")
+      .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setCaptionLabel("STOP HORIZONTAL\n      ROTATION")        
+              .setWindow(controlWindow);             
+    cp5.getController("deformRotStopY").captionLabel().getStyle().marginLeft = -28;
+    
     cp5.addKnob("linesAlfa")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0., 255.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(0., 255.)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("LINES TRANSPARENCY")        
+                  .setWindow(controlWindow); 
     columnIndex = 3; 
     cp5.addKnob("facesAlfa")
       .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(0., 255.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("FACES TRANSPARENCY")       
+                  .setWindow(controlWindow); 
 
     cp5.addKnob("deformRotX")
       .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("VERTICAL ROTATION")       
+                  .setWindow(controlWindow); 
 
     cp5.addKnob("deformRotY")
       .setPosition(knobPosX[3]+visualSpecificParametersBoxX-knobWidth, knobPosY[3]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("HORIZONTAL ROTATION")       
+                  .setWindow(controlWindow); 
 
     columnIndex = 4; 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
           .setFont(fontLight)
-            .toUpperCase(false)
-              .setSize(15);
+            //            .toUpperCase(false)
+            .setSize(15);
       controllers.add(cp5.getController(parameterNames[i]));
     }
 
@@ -235,8 +269,10 @@ class Deform extends VisualEngine {
     }
     mapPresets();
 
-    if (!deformRotStop) {
+    if (!deformRotStopX) {
       cam.rotateX(deformRotX);
+    }
+    if (!deformRotStopY) {
       cam.rotateY(deformRotY);
     }
 
@@ -245,7 +281,7 @@ class Deform extends VisualEngine {
     }
 
     rotateY(PI);
-    //    lightSettings();
+//    lightSettings();
 
     for (int i = 0; i<circleAmount;i++) {
       //      beginShape(POINTS);
@@ -300,15 +336,17 @@ class Deform extends VisualEngine {
   public void colorVertex(int i, int j) {
     //    fill(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0),0.5,2,0,255), facesAlfa);    
     //    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
-    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), facesAlfa, facesAlfa, 255);    
+//    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 50, facesAlfa, 255);    
 
+    fill(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 500, 20, 0, 255), map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 500, 20, 200, 10), map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 500, 20, 250, 10), facesAlfa);    
     //    tint(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 100, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), facesAlfa);    
 
     if (!facesEnable) {
       noFill();
     }
     //    stroke(map(j, 0, dotsPerCircle, 0, 255), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0),0,2,0,255), linesAlfa);    
-    stroke(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 255, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), linesAlfa);    
+//    stroke(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 20, 200, 50, 150), 50, map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 50, 200, 0, 255), linesAlfa);    
+    stroke(map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 500, 20, 0, 255), map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 500, 20, 200, 10), map(dist(dc[i].getX(j), dc[i].getY(j), dc[i].getZ(j), 0, 0, 0), 500, 20, 250, 10), linesAlfa);    
     strokeWeight(2);
     if (!linesEnable) {
       //      noStroke();
@@ -542,7 +580,7 @@ class Deform extends VisualEngine {
       cp5.getController("preset6").setValue(0.);
       cp5.getController("preset7").setValue(0.);
     } 
-    else if ( savePreset && !savePresetPre) {
+    else if ( savePreset && !savePresetPre && (presetIndex > 4)) {
       parametersTemp[0] = cam.getLookAt()[0];
       parametersTemp[1] = cam.getLookAt()[1];
       parametersTemp[2] = cam.getLookAt()[2];
@@ -590,14 +628,14 @@ class Deform extends VisualEngine {
 
     cp5.getController("linesEnable").setValue((cp5.getController("linesEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("facesEnable").setValue((cp5.getController("facesEnable").getValue()+abs(buttonsMValDiff[8]))%2);
-    cp5.getController("deformRotStop").setValue((cp5.getController("deformRotStop").getValue()+abs(buttonsMValDiff[1]))%2);
-
+    cp5.getController("deformRotStopX").setValue((cp5.getController("deformRotStopX").getValue()+abs(buttonsMValDiff[1]))%2);
+    cp5.getController("deformRotStopY").setValue((cp5.getController("deformRotStopY").getValue()+abs(buttonsMValDiff[9]))%2);
   }
 
   public void start() {
     println("Starting " + name);
     hint(ENABLE_DEPTH_TEST);
-    colorMode(HSB);
+    colorMode(RGB);
 
     cam.lookAt(camLookAt[0], camLookAt[1], camLookAt[2]);
     cam.setRotations(camRotations[0], camRotations[1], camRotations[2]);
@@ -657,8 +695,8 @@ class dotCircle {
       float tempPhi = (phi * lineId);
 
       //      float soundData = 1+(`LPFBuf[int(j*spectrumLength/rRes)])*gain;
-      float rr1 = constrain(superformulaPointR(m1, n11, n12, n13, tet*i)*soundDataV,0.,1000000.);
-      float rr2 = constrain(superformulaPointR(m2, n21, n22, n23, phi*lineId)*soundData,0.,1000000.);
+      float rr1 = constrain(superformulaPointR(m1, n11, n12, n13, tet*i)*soundDataV, 0., 1000000.);
+      float rr2 = constrain(superformulaPointR(m2, n21, n22, n23, phi*lineId)*soundData, 0., 1000000.);
 
       target[i].set(cos(tempTet)*sin(tempPhi)*rr1*rr2, sin(tempTet)*sin(tempPhi)*rr1*rr2, cos(tempPhi)*rr2);
       target[i].mult(100);
@@ -720,7 +758,4 @@ class dotCircle {
     }
   }
 }
-
-
-// cos sin - sin sin - cos
 

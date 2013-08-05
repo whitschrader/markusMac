@@ -22,7 +22,9 @@ float noiseGain = 100.;
 float soundWaveGain = 1000.;
 float plateRotX = 0.;
 float plateRotY = 0.;
-boolean plateRotStop = false;
+boolean plateRotStopX = false;
+boolean plateRotStopY = false;
+
 float soundPlateVal = 0.;
 int dotsPerPlate = 100;
 int plateAmount = 20;
@@ -41,7 +43,8 @@ class Soundplate extends VisualEngine {
     "soundWaveGain", 
     "plateRotX", 
     "plateRotY", 
-    "plateRotStop"
+    "plateRotStopX", 
+    "plateRotStopY"
   };
 
 
@@ -92,6 +95,7 @@ class Soundplate extends VisualEngine {
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
     parameters8 =     loadPreset(presetDir, name, 8);
+    cp5.getController("preset5").setValue(1.);
   }
 
   public void initGUI(ControlP5 cp5, ControlWindow controlWindow) {
@@ -119,51 +123,81 @@ class Soundplate extends VisualEngine {
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("V. LINES")  
+              .setWindow(controlWindow);     
+    cp5.getController("vLineEnable").captionLabel().getStyle().marginLeft = -5;
+
     columnIndex = 1; 
     cp5.addToggle("hLineEnable")
       .setPosition(mRectPosX[1]+visualSpecificParametersBoxX, mRectPosY[1]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("H. LINES")    
+              .setWindow(controlWindow); 
+    cp5.getController("hLineEnable").captionLabel().getStyle().marginLeft = -5;
+
     columnIndex = 2; 
     cp5.addToggle("pPointEnable")
       .setPosition(mRectPosX[2]+visualSpecificParametersBoxX, mRectPosY[2]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("POINTS")   
+              .setWindow(controlWindow); 
+    cp5.getController("pPointEnable").captionLabel().getStyle().marginLeft = -5;
+
     columnIndex = 3; 
     cp5.addToggle("pFaceEnable")
       .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
-            .setWindow(controlWindow);
+            .setCaptionLabel("FACES")   
+              .setWindow(controlWindow); 
+    cp5.getController("pFaceEnable").captionLabel().getStyle().marginLeft = -2;
 
-    cp5.addToggle("plateRotStop")
+    cp5.addToggle("plateRotStopX")
       .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("STOP V. ROT.")  
+              .setWindow(controlWindow); 
+    cp5.getController("plateRotStopX").captionLabel().getStyle().marginLeft = -16;
+
+    cp5.addToggle("plateRotStopY")
+      .setPosition(mRectPosX[5]+visualSpecificParametersBoxX, mRectPosY[5]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setCaptionLabel("STOP H. ROT.")  
+              .setWindow(controlWindow); 
+    cp5.getController("plateRotStopY").captionLabel().getStyle().marginLeft = -16;
 
     columnIndex = 4; 
     cp5.addKnob("noiseGain")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0., 750.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(0., 750.)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("NOISE")   
+                  .setWindow(controlWindow); 
+
     cp5.addKnob("plateRotX")
       .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("VERTICAL ROTATION")  
+                  .setWindow(controlWindow); 
+
     cp5.addKnob("plateRotY")
       .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("HORIZONTAL ROTATION")   
+                  .setWindow(controlWindow); 
+
 
     rowIndex = 1; 
     columnIndex = 0; 
@@ -172,27 +206,35 @@ class Soundplate extends VisualEngine {
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 255.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("         FACE\n TRANSPARENCY")   
+              .setWindow(controlWindow); 
+    cp5.getController("pFaceAlfa").captionLabel().getStyle().marginLeft = -27;
+
     columnIndex = 3; 
     cp5.addSlider("pStrokeAlfa")
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 255.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("         LINE\n TRANSPARENCY")    
+              .setWindow(controlWindow); 
+    cp5.getController("pStrokeAlfa").captionLabel().getStyle().marginLeft = -25;
+
     columnIndex = 4; 
     cp5.addSlider("soundWaveGain")
       .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.01, 2.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SOUND GAIN")   
+              .setWindow(controlWindow); 
+    cp5.getController("soundWaveGain").captionLabel().getStyle().marginLeft = -16;
 
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
           .setFont(fontLight)
-            .toUpperCase(false)
-              .setSize(15);
+            //            .toUpperCase(false)
+            .setSize(15);
       controllers.add(cp5.getController(parameterNames[i]));
     }
 
@@ -205,8 +247,10 @@ class Soundplate extends VisualEngine {
       mapMidiInterface();
     }
     mapPresets();
-    if (!plateRotStop) {
+    if (!plateRotStopX) {
       cam.rotateX(plateRotX);
+    }
+    if (!plateRotStopY) {
       cam.rotateY(plateRotY);
     }
     //    soundPlateVal = fftVar[0].getValue();
@@ -295,18 +339,18 @@ class Soundplate extends VisualEngine {
     if (pFaceEnable) {
       //      fill(map(j, 0, dotsPerPlate, 0, 255), 255, 255, 255-pFaceAlfa);
       noStroke();
-      fill(map(i, 0, plateAmount, 0, 255), 255, map(abs(dp[i].getY(j)), 200, 2000, 0, 255), pFaceAlfa);
+      fill(map(i, 0, plateAmount, 0, 255), 120, map(abs(dp[i].getY(j)), 200, 2000, 0, 255), pFaceAlfa);
     }
     if (pPointEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 120, 255, pStrokeAlfa);
       strokeWeight(3);
     }
     if (hLineEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 120, 255, pStrokeAlfa);
       strokeWeight(1);
     }
     if (vLineEnable) {
-      stroke(map(i, 0, plateAmount, 0, 255), 255, 255, pStrokeAlfa);
+      stroke(map(i, 0, plateAmount, 0, 255), 120, 255, pStrokeAlfa);
       strokeWeight(1);
     }
   }
@@ -543,7 +587,7 @@ class Soundplate extends VisualEngine {
       cp5.getController("preset6").setValue(0.);
       cp5.getController("preset7").setValue(0.);
     } 
-    else if ( savePreset && !savePresetPre) {
+    else if ( savePreset && !savePresetPre && (presetIndex > 4)) {
       parametersTemp[0] = cam.getLookAt()[0];
       parametersTemp[1] = cam.getLookAt()[1];
       parametersTemp[2] = cam.getLookAt()[2];
@@ -587,7 +631,8 @@ class Soundplate extends VisualEngine {
     cp5.getController("hLineEnable").setValue((cp5.getController("hLineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("pFaceEnable").setValue((cp5.getController("pFaceEnable").getValue()+abs(buttonsMValDiff[1]))%2);
     cp5.getController("pPointEnable").setValue((cp5.getController("pPointEnable").getValue()+abs(buttonsMValDiff[16]))%2);
-    cp5.getController("plateRotStop").setValue((cp5.getController("plateRotStop").getValue()+abs(buttonsMValDiff[9]))%2);
+    cp5.getController("plateRotStopX").setValue((cp5.getController("plateRotStopX").getValue()+abs(buttonsMValDiff[9]))%2);
+    cp5.getController("plateRotStopY").setValue((cp5.getController("plateRotStopY").getValue()+abs(buttonsMValDiff[17]))%2);
   }
 
   public void start() {

@@ -34,7 +34,8 @@ float ffy = 0.;
 float movementAmount = 1000;
 float polyRotX = 0.;
 float polyRotY = 0.;
-boolean polyRotStop = false;
+boolean polyRotStopX = false;
+boolean polyRotStopY = false;
 float[][] polySoundMatrix = new float[numLines][numDots];
 
 color[] palette1;
@@ -65,7 +66,8 @@ class Polyface extends VisualEngine {
     "forceFieldXFreq", 
     "forceFieldYFreq", 
     "forceFieldPower", 
-    "polyRotStop" 
+    "polyRotStopX", 
+    "polyRotStopY" 
       //    "palette1", 
     //    "palette2", 
     //    "palette3"
@@ -115,6 +117,7 @@ class Polyface extends VisualEngine {
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
     parameters8 =     loadPreset(presetDir, name, 8);
+    cp5.getController("preset5").setValue(1.);
   }    // setup function
 
   public void update() {
@@ -129,10 +132,12 @@ class Polyface extends VisualEngine {
 
     mapPresets();
 
-    if (!polyRotStop) {
+    if (!polyRotStopX) {
       cam.rotateX(polyRotX);
-      cam.rotateY(polyRotY);
     }
+    if (!polyRotStopY) {
+      cam.rotateY(polyRotY);
+    }    
 
     for (int i = 0; i < numLines-1; i++) {
       for (int j = 0; j < numDots-1; j++) {
@@ -192,7 +197,7 @@ class Polyface extends VisualEngine {
           }
         }
 
-        float lineThresholdMap = map(containerX*containerY,10000,20000*20000,0.,lineThreshold);
+        float lineThresholdMap = map(containerX*containerY, 10000, 20000*20000, 0., lineThreshold);
 
         if (lineEnable) {
           for (int k = 0; k<numLines;k++) {
@@ -246,120 +251,161 @@ class Polyface extends VisualEngine {
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
-            .setWindow(controlWindow);
+            .setCaptionLabel("ENABLE POINTS")
+              .setWindow(controlWindow);
+    cp5.getController("pointEnable").captionLabel().getStyle().marginLeft = -20;
 
     cp5.addToggle("lineEnable")
       .setPosition(mRectPosX[1]+visualSpecificParametersBoxX, mRectPosY[1]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("ENABLE LINES")
+              .setWindow(controlWindow);
+    cp5.getController("lineEnable").captionLabel().getStyle().marginLeft = -18;
 
     cp5.addToggle("faceEnable")
       .setPosition(mRectPosX[2]+visualSpecificParametersBoxX, mRectPosY[2]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("ENABLE FACES")
+              .setWindow(controlWindow);
+    cp5.getController("faceEnable").captionLabel().getStyle().marginLeft = -17;
 
     cp5.addToggle("resetGrid")
       .setPosition(mRectPosX[3]+visualSpecificParametersBoxX, mRectPosY[3]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
-            
-    cp5.addToggle("polyRotStop")
+            .setCaptionLabel("RESET TO GRID")
+              .setWindow(controlWindow);
+    cp5.getController("resetGrid").captionLabel().getStyle().marginLeft = -17;
+
+    cp5.addToggle("polyRotStopX")
       .setPosition(mRectPosX[4]+visualSpecificParametersBoxX, mRectPosY[4]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(true)
-            .setWindow(controlWindow);
-            
+            .setCaptionLabel("STOP V.ROT.")
+              .setWindow(controlWindow);
+    cp5.getController("polyRotStopX").captionLabel().getStyle().marginLeft = -13;
+
+    cp5.addToggle("polyRotStopY")
+      .setPosition(mRectPosX[5]+visualSpecificParametersBoxX, mRectPosY[5]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(true)
+            .setCaptionLabel("STOP H.ROT.")
+              .setWindow(controlWindow);
+    cp5.getController("polyRotStopY").captionLabel().getStyle().marginLeft = -15;
+
     cp5.addKnob("forceFieldPower")
       .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(-1000., 1000.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("ATTRACTION POWER")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("forceFieldRange")
       .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(1, 10000)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(1, 10000)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("ATTRACION RANGE")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("forceFieldXFreq")
       .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0.0001, 0.1)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(0.0001, 0.1)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel(" VERTICAL ATTRACTION FREQ")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("forceFieldYFreq")
       .setPosition(knobPosX[3]+visualSpecificParametersBoxX-knobWidth, knobPosY[3]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0.0001, 0.1)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(0.0001, 0.1)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("HORIZONTAL ATTRACTION FREQ")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("containerX")
       .setPosition(knobPosX[4]+visualSpecificParametersBoxX-knobWidth, knobPosY[4]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(100., 20000.)
-            .setValue(10000.)
-              .setViewStyle(Knob.ARC)
-                .setWindow(controlWindow);
+          .setRange(2000., 20000.)
+            .setColorValueLabel(valueLabel)
+              .setValue(10000.)
+                .setViewStyle(Knob.ARC)
+                  .setCaptionLabel("HORIZONTAL LIMIT")
+                    .setWindow(controlWindow);
 
     cp5.addKnob("containerY")
       .setPosition(knobPosX[5]+visualSpecificParametersBoxX-knobWidth, knobPosY[5]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(100., 20000.)
-            .setValue(10000.)
-              .setViewStyle(Knob.ARC)
-                .setWindow(controlWindow);
+          .setRange(2000., 20000.)
+            .setColorValueLabel(valueLabel)
+              .setValue(10000.)
+                .setViewStyle(Knob.ARC)
+                  .setCaptionLabel("VERTICAL LIMIT")
+                    .setWindow(controlWindow);
 
     cp5.addKnob("polyRotX")
       .setPosition(knobPosX[6]+visualSpecificParametersBoxX-knobWidth, knobPosY[6]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("VERTICAL ROTATION")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("polyRotY")
       .setPosition(knobPosX[7]+visualSpecificParametersBoxX-knobWidth, knobPosY[7]+visualSpecificParametersBoxY-knobHeight)   
-        .setRadius(knobWidth)
-          .setRange(-0.05, 0.05)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+        .setColorValueLabel(valueLabel)
+          .setRadius(knobWidth)
+            .setRange(-0.05, 0.05)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("HORIZONTAL ROTATION")
+                  .setWindow(controlWindow);
 
     cp5.addSlider("pointSize")
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 30.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("POINTS SIZE")
+              .setWindow(controlWindow);
 
     cp5.addSlider("pointSizeVariance")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0, 100)
-            .setWindow(controlWindow);
+            .setCaptionLabel("POINTS SIZE\n VARIANCE")
+              .setWindow(controlWindow);
+    cp5.getController("pointSizeVariance").captionLabel().getStyle().marginLeft = -12;
 
     cp5.addSlider("lineThreshold")
-      .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
+      .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 3000.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("LINES THRESHOLD")
+              .setWindow(controlWindow);
+    cp5.getController("lineThreshold").captionLabel().getStyle().marginLeft = -28;
 
     cp5.addSlider("faceAlfa")
-      .setPosition(sliderPosX[6]+visualSpecificParametersBoxX, sliderPosY[6]+visualSpecificParametersBoxY)   
+      .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0., 1.)
-            .setWindow(controlWindow);
+            .setCaptionLabel("FACES TRANSPARENCY")
+              .setWindow(controlWindow);
+    cp5.getController("faceAlfa").captionLabel().getStyle().marginLeft = -36;
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
           .setFont(fontLight)
-            .toUpperCase(false)
-              .setSize(15);
+            //            .toUpperCase(false)
+            .setSize(15);
       controllers.add(cp5.getController(parameterNames[i]));
     }
 
@@ -525,7 +571,7 @@ class Polyface extends VisualEngine {
       cp5.getController("preset6").setValue(0.);
       cp5.getController("preset7").setValue(0.);
     } 
-    else if ( savePreset && !savePresetPre) {
+    else if ( savePreset && !savePresetPre && (presetIndex > 4)) {
       parametersTemp[0] = cam.getLookAt()[0];
       parametersTemp[1] = cam.getLookAt()[1];
       parametersTemp[2] = cam.getLookAt()[2];
@@ -574,15 +620,15 @@ class Polyface extends VisualEngine {
 
     cp5.getController("pointSize").setValue(cp5.getController("pointSize").getValue()+(map(           faderValDiff[0], 0, 127, 0, cp5.getController("pointSize").getMax()-cp5.getController("pointSize").getMin()             )));
     cp5.getController("pointSizeVariance").setValue(cp5.getController("pointSizeVariance").getValue()+(map(   faderValDiff[1], 0, 127, 0, cp5.getController("pointSizeVariance").getMax()-cp5.getController("pointSizeVariance").getMin())));
-    cp5.getController("lineThreshold").setValue(cp5.getController("lineThreshold").getValue()+(map(       faderValDiff[3], 0, 127, 0, cp5.getController("lineThreshold").getMax()-cp5.getController("lineThreshold").getMin()      )));
-    cp5.getController("faceAlfa").setValue(cp5.getController("faceAlfa").getValue()+(map(            faderValDiff[6], 0, 127, 0, cp5.getController("faceAlfa").getMax()-cp5.getController("faceAlfa").getMin()                )));
+    cp5.getController("lineThreshold").setValue(cp5.getController("lineThreshold").getValue()+(map(       faderValDiff[2], 0, 127, 0, cp5.getController("lineThreshold").getMax()-cp5.getController("lineThreshold").getMin()      )));
+    cp5.getController("faceAlfa").setValue(cp5.getController("faceAlfa").getValue()+(map(            faderValDiff[3], 0, 127, 0, cp5.getController("faceAlfa").getMax()-cp5.getController("faceAlfa").getMin()                )));
 
     cp5.getController("pointEnable").setValue((cp5.getController("pointEnable").getValue()+abs(buttonsMValDiff[0]))%2);
     cp5.getController("lineEnable").setValue(  (  cp5.getController("lineEnable").getValue()+abs(buttonsMValDiff[8]))%2);
     cp5.getController("faceEnable").setValue( (cp5.getController("faceEnable").getValue()+abs(buttonsMValDiff[16]))%2);
     cp5.getController("resetGrid").setValue(  ( cp5.getController("resetGrid").getValue()+ abs(buttonsMValDiff[1]))%2);
-    cp5.getController("polyRotStop").setValue((cp5.getController("polyRotStop").getValue()+abs(buttonsMValDiff[9]))%2);
-
+    cp5.getController("polyRotStopX").setValue((cp5.getController("polyRotStopX").getValue()+abs(buttonsMValDiff[9]))%2);
+    cp5.getController("polyRotStopY").setValue((cp5.getController("polyRotStopY").getValue()+abs(buttonsMValDiff[17]))%2);
   }
 
   public void start() {

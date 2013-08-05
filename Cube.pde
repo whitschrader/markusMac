@@ -29,12 +29,17 @@ float outlineStroke;
 float outlineLength;
 float outlineColor;
 float outlineScale;
-float rotSpeed = 0.;
+float rotSpeedX = 0.;
+float rotSpeedY = 0.;
+
 float rotVariance;
 float rotSelf = 0.;
 float rotLimit = 2.;
 float cubeCircleRad = 300.;
-boolean cubeRotStop = false;
+boolean cubeRotStopX = false;
+boolean cubeRotStopY = false;
+
+
 boolean fogEnable = false;
 
 class Cube extends VisualEngine {
@@ -48,14 +53,16 @@ class Cube extends VisualEngine {
     "outlineStroke", 
     "rotLimit", 
     "rotVariance", 
-    "rotSpeed", 
+    "rotSpeedY", 
     "cubeSizeVarianceX", 
     "cubeSizeVarianceY", 
     "cubeSizeVarianceZ", 
     "outlineColor", 
     "outlineScale", 
     "rotSelf", 
-    "cubeRotStop"
+    "cubeRotStopX", 
+    "rotSpeedX", 
+    "cubeRotStopY"
   };
 
   int presetSize = parameterNames.length+9;
@@ -108,6 +115,7 @@ class Cube extends VisualEngine {
     parameters6 =     loadPreset(presetDir, name, 6);
     parameters7 =     loadPreset(presetDir, name, 7);
     parameters8 =     loadPreset(presetDir, name, 8);
+    cp5.getController("preset5").setValue(1.);
   }
 
   public void initGUI(ControlP5 cp5, ControlWindow controlWindow) {
@@ -131,110 +139,155 @@ class Cube extends VisualEngine {
       }
     }
 
-    cp5.addKnob("cubeAmount")
-      .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
-        .setRadius(knobWidth)
-          .setRange(1, 250)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
     cp5.addKnob("rotLimit")
-      .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
+      .setPosition(knobPosX[0]+visualSpecificParametersBoxX-knobWidth, knobPosY[0]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(0., 4.)
             .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+              .setColorValueLabel(valueLabel)
+                .setCaptionLabel("SELF ROTATION LIMIT")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("rotSelf")
-      .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
+      .setPosition(knobPosX[1]+visualSpecificParametersBoxX-knobWidth, knobPosY[1]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(-2., 2.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("SELF ROTATION SPEED")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("rotVariance")
+      .setPosition(knobPosX[2]+visualSpecificParametersBoxX-knobWidth, knobPosY[2]+visualSpecificParametersBoxY-knobHeight)   
+        .setRadius(knobWidth)
+          .setColorValueLabel(valueLabel)
+            .setRange(0., 30.)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("SHAPE DISTORTION")
+                  .setWindow(controlWindow);
+    cp5.addKnob("rotSpeedX")
       .setPosition(knobPosX[3]+visualSpecificParametersBoxX-knobWidth, knobPosY[3]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0., 30.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
-
-    cp5.addKnob("rotSpeed")
+          .setColorValueLabel(valueLabel)
+            .setRange(-1., 1.)
+              .setViewStyle(Knob.ARC)        
+                .setCaptionLabel("VERTICAL ROTATION")
+                  .setWindow(controlWindow);
+    cp5.addKnob("rotSpeedY")
       .setPosition(knobPosX[4]+visualSpecificParametersBoxX-knobWidth, knobPosY[4]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(-1., 1.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("HORIZONTAL ROTATION")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("outlineStroke")
       .setPosition(knobPosX[5]+visualSpecificParametersBoxX-knobWidth, knobPosY[5]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(0., 255.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("OUTLINE TRANSPARENCY")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("outlineColor")
       .setPosition(knobPosX[6]+visualSpecificParametersBoxX-knobWidth, knobPosY[6]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
           .setRange(0., 255.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+            .setColorValueLabel(valueLabel)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("OUTLINE COLOR")
+                  .setWindow(controlWindow);
 
     cp5.addKnob("outlineScale")
       .setPosition(knobPosX[7]+visualSpecificParametersBoxX-knobWidth, knobPosY[7]+visualSpecificParametersBoxY-knobHeight)   
         .setRadius(knobWidth)
-          .setRange(0., 1.)
-            .setViewStyle(Knob.ARC)
-              .setWindow(controlWindow);
+          .setColorValueLabel(valueLabel)
+            .setRange(0., 1.)
+              .setViewStyle(Knob.ARC)
+                .setCaptionLabel("OUTLINE LENGTH")
+                  .setWindow(controlWindow);
 
-    cp5.addSlider("cubeSizeOffsetX")
+    cp5.addSlider("cubeAmount")
       .setPosition(sliderPosX[0]+visualSpecificParametersBoxX, sliderPosY[0]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
-          .setRange(0.1, cubeCircleRad*6/10)
-            .setWindow(controlWindow);
+          .setRange(1, 250)
+            .setCaptionLabel("CUBE AMOUNT")
+              .setWindow(controlWindow);
+  cp5.getController("cubeAmount").captionLabel().getStyle().marginLeft = -20;
 
-    cp5.addSlider("cubeSizeOffsetY")
+    cp5.addSlider("cubeSizeOffsetX")
       .setPosition(sliderPosX[1]+visualSpecificParametersBoxX, sliderPosY[1]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.1, cubeCircleRad*6/10)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SIZE OFFSET X")
+              .setWindow(controlWindow);
+  cp5.getController("cubeSizeOffsetX").captionLabel().getStyle().marginLeft = -18;
 
-    cp5.addSlider("cubeSizeOffsetZ")
+    cp5.addSlider("cubeSizeOffsetY")
       .setPosition(sliderPosX[2]+visualSpecificParametersBoxX, sliderPosY[2]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.1, cubeCircleRad*6/10)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SIZE OFFSET Y")
+              .setWindow(controlWindow);
+  cp5.getController("cubeSizeOffsetY").captionLabel().getStyle().marginLeft = -18;
 
-    cp5.addSlider("cubeSizeVarianceX")
+    cp5.addSlider("cubeSizeOffsetZ")
       .setPosition(sliderPosX[3]+visualSpecificParametersBoxX, sliderPosY[3]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.1, cubeCircleRad*6/10)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SIZE OFFSET Z")
+              .setWindow(controlWindow);
+  cp5.getController("cubeSizeOffsetZ").captionLabel().getStyle().marginLeft = -18;
 
-    cp5.addSlider("cubeSizeVarianceY")
+    cp5.addSlider("cubeSizeVarianceX")
       .setPosition(sliderPosX[4]+visualSpecificParametersBoxX, sliderPosY[4]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.1, cubeCircleRad*6/10)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SIZE VARIANCE X")
+              .setWindow(controlWindow);
+  cp5.getController("cubeSizeVarianceX").captionLabel().getStyle().marginLeft = -25;
 
-    cp5.addSlider("cubeSizeVarianceZ")
+    cp5.addSlider("cubeSizeVarianceY")
       .setPosition(sliderPosX[5]+visualSpecificParametersBoxX, sliderPosY[5]+visualSpecificParametersBoxY)   
         .setSize(sliderWidth, sliderHeight)
           .setRange(0.1, cubeCircleRad*6/10)
-            .setWindow(controlWindow);
+            .setCaptionLabel("SIZE VARIANCE Y")
+              .setWindow(controlWindow);
+  cp5.getController("cubeSizeVarianceY").captionLabel().getStyle().marginLeft = -25;
 
-    cp5.addToggle("cubeRotStop")
+    cp5.addSlider("cubeSizeVarianceZ")
+      .setPosition(sliderPosX[6]+visualSpecificParametersBoxX, sliderPosY[6]+visualSpecificParametersBoxY)   
+        .setSize(sliderWidth, sliderHeight)
+          .setRange(0.1, cubeCircleRad*6/10)
+            .setCaptionLabel("SIZE VARIANCE Z")
+              .setWindow(controlWindow);
+  cp5.getController("cubeSizeVarianceZ").captionLabel().getStyle().marginLeft = -25;
+
+    cp5.addToggle("cubeRotStopX")
       .setPosition(mRectPosX[0]+visualSpecificParametersBoxX, mRectPosY[0]+visualSpecificParametersBoxY)   
         .setSize(mRectWidth, mRectHeight)
           .setValue(false)
-            .setWindow(controlWindow);
+            .setCaptionLabel("STOP VERTICAL\n    ROTATION")
+              .setWindow(controlWindow);
+  cp5.getController("cubeRotStopX").captionLabel().getStyle().marginLeft = -20;
+  
+    cp5.addToggle("cubeRotStopY")
+      .setPosition(mRectPosX[1]+visualSpecificParametersBoxX, mRectPosY[1]+visualSpecificParametersBoxY)   
+        .setSize(mRectWidth, mRectHeight)
+          .setValue(false)
+            .setCaptionLabel("STOP HORIZONTAL\n      ROTATION")
+              .setWindow(controlWindow);            
+  cp5.getController("cubeRotStopY").captionLabel().getStyle().marginLeft = -28;
+
 
     for (int i = 0; i < parameterNames.length; i++) {
       cp5.getController(parameterNames[i])
         .getCaptionLabel()
-          .setFont(fontLight)
-            .toUpperCase(false)
-              .setSize(18);
+          .setFont(fontLight) 
+            //            .toUpperCase(false)
+            .setSize(15);
       controllers.add(cp5.getController(parameterNames[i]));
     }
 
@@ -257,9 +310,13 @@ class Cube extends VisualEngine {
       lightSetting();
     } 
 
-    if (!cubeRotStop) {
-      rS +=rotSpeed*0.05;
+    if (!cubeRotStopX) {
+      cam.rotateX(rotSpeedX*0.05);
     } 
+    if (!cubeRotStopY) {
+      cam.rotateY(rotSpeedY*0.05);
+    } 
+
 
 
     rX += rotSelf*0.01;
@@ -331,61 +388,6 @@ class Cube extends VisualEngine {
     int lightY = 250;
     int lightYBr = 100;
     int lightYCon = 5;
-
-
-
-    //    spotLight(255, 0, 255, // Color
-    //    0, 100, 150, // Position
-    //    0, -0.3, -1, // Direction
-    //    PI, 20); // Angle, concentration
-    //    //    point(0, 10, 150);
-    //
-    //    spotLight(255, 0, 255, // Color
-    //    0, 100, -150, // Position
-    //    0, -0.3, 1, // Direction
-    //    PI, 20); // Angle, concentration
-
-
-    //    stroke(255);
-    //    strokeWeight(20);
-
-
-
-    //    if ( key == 'q') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    0, -lightY, 0, // Position
-    //    0, 1, 0, // Direction
-    //    PI, 6); // Angle, concentration
-    //    point(0, -lightY, 0);
-
-    //    } else if ( key == 'w') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    cubeCircleRad, -lightY, 0, // Position
-    //    0, 1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    point(cubeCircleRad, -lightY, 0);
-    //    //    } else if ( key == 'e') {
-    //
-    //    spotLight(255, 0, lightYBr, // Color
-    //    -cubeCircleRad, lightY, 0, // Position
-    //    0, -1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    point(-cubeCircleRad, lightY, 0);
-    //
-    //    //    } else if ( key == 'r') {
-    //    spotLight(255, 0, lightYBr, // Color
-    //    0, -lightY, cubeCircleRad, // Position
-    //    0, 1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    point(0, -lightY, cubeCircleRad);
-    //    //    } else if ( key == 't') {
-    //
-    //    spotLight(255, 0, lightYBr, // Color
-    //    0, -lightY, -cubeCircleRad, // Position
-    //    0, 1, 0, // Direction
-    //    PI, lightYCon); // Angle, concentration
-    //    point(0, -lightY, -cubeCircleRad);
-
 
     spotLight(255, 0, 200, // Color
     (cubeCircleRad+500), 0, 0, // Position
@@ -586,7 +588,7 @@ class Cube extends VisualEngine {
       cp5.getController("preset6").setValue(0.);
       cp5.getController("preset7").setValue(0.);
     } 
-    else if ( savePreset && !savePresetPre) {
+    else if ( savePreset && !savePresetPre && (presetIndex > 4)) {
       parametersTemp[0] = cam.getLookAt()[0];
       parametersTemp[1] = cam.getLookAt()[1];
       parametersTemp[2] = cam.getLookAt()[2];
@@ -617,25 +619,25 @@ class Cube extends VisualEngine {
   }
 
   public void mapMidiInterface() { 
-    cp5.getController("cubeAmount").setValue(cp5.getController("cubeAmount").getValue()+(map(                      knobValDiff[0], 0, 127, 0, cp5.getController("cubeAmount").getMax()-cp5.getController("cubeAmount").getMin())));
-    cp5.getController("cubeSizeOffsetX").setValue(cp5.getController("cubeSizeOffsetX").getValue()+(map(            faderValDiff[0], 0, 127, 0, cp5.getController("cubeSizeOffsetX").getMax()-cp5.getController("cubeSizeOffsetX").getMin())));
-    cp5.getController("cubeSizeOffsetY").setValue(cp5.getController("cubeSizeOffsetY").getValue()+(map(            faderValDiff[1], 0, 127, 0, cp5.getController("cubeSizeOffsetY").getMax()-cp5.getController("cubeSizeOffsetY").getMin())));
-    cp5.getController("cubeSizeOffsetZ").setValue(cp5.getController("cubeSizeOffsetZ").getValue()+(map(            faderValDiff[2], 0, 127, 0, cp5.getController("cubeSizeOffsetZ").getMax()-cp5.getController("cubeSizeOffsetZ").getMin())));
-    cp5.getController("cubeSizeVarianceX").setValue(cp5.getController("cubeSizeVarianceX").getValue()+(map(        faderValDiff[3], 0, 127, 0, cp5.getController("cubeSizeVarianceX").getMax()-cp5.getController("cubeSizeVarianceX").getMin())));
-    cp5.getController("cubeSizeVarianceY").setValue(cp5.getController("cubeSizeVarianceY").getValue()+(map(        faderValDiff[4], 0, 127, 0, cp5.getController("cubeSizeVarianceY").getMax()-cp5.getController("cubeSizeVarianceY").getMin())));
-    cp5.getController("cubeSizeVarianceZ").setValue(cp5.getController("cubeSizeVarianceZ").getValue()+(map(        faderValDiff[5], 0, 127, 0, cp5.getController("cubeSizeVarianceZ").getMax()-cp5.getController("cubeSizeVarianceZ").getMin())));
+    cp5.getController("cubeAmount").setValue(cp5.getController("cubeAmount").getValue()+(map(                      faderValDiff[0], 0, 127, 0, cp5.getController("cubeAmount").getMax()-cp5.getController("cubeAmount").getMin())));
+    cp5.getController("cubeSizeOffsetX").setValue(cp5.getController("cubeSizeOffsetX").getValue()+(map(            faderValDiff[1], 0, 127, 0, cp5.getController("cubeSizeOffsetX").getMax()-cp5.getController("cubeSizeOffsetX").getMin())));
+    cp5.getController("cubeSizeOffsetY").setValue(cp5.getController("cubeSizeOffsetY").getValue()+(map(            faderValDiff[2], 0, 127, 0, cp5.getController("cubeSizeOffsetY").getMax()-cp5.getController("cubeSizeOffsetY").getMin())));
+    cp5.getController("cubeSizeOffsetZ").setValue(cp5.getController("cubeSizeOffsetZ").getValue()+(map(            faderValDiff[3], 0, 127, 0, cp5.getController("cubeSizeOffsetZ").getMax()-cp5.getController("cubeSizeOffsetZ").getMin())));
+    cp5.getController("cubeSizeVarianceX").setValue(cp5.getController("cubeSizeVarianceX").getValue()+(map(        faderValDiff[4], 0, 127, 0, cp5.getController("cubeSizeVarianceX").getMax()-cp5.getController("cubeSizeVarianceX").getMin())));
+    cp5.getController("cubeSizeVarianceY").setValue(cp5.getController("cubeSizeVarianceY").getValue()+(map(        faderValDiff[5], 0, 127, 0, cp5.getController("cubeSizeVarianceY").getMax()-cp5.getController("cubeSizeVarianceY").getMin())));
+    cp5.getController("cubeSizeVarianceZ").setValue(cp5.getController("cubeSizeVarianceZ").getValue()+(map(        faderValDiff[6], 0, 127, 0, cp5.getController("cubeSizeVarianceZ").getMax()-cp5.getController("cubeSizeVarianceZ").getMin())));
     cp5.getController("outlineStroke").setValue(cp5.getController("outlineStroke").getValue()+(map(                knobValDiff[5], 0, 127, 0, cp5.getController("outlineStroke").getMax()-cp5.getController("outlineStroke").getMin())));
     cp5.getController("outlineColor").setValue(cp5.getController("outlineColor").getValue()+(map(                  knobValDiff[6], 0, 127, 0, cp5.getController("outlineColor").getMax()-cp5.getController("outlineColor").getMin())));
     cp5.getController("outlineScale").setValue(cp5.getController("outlineScale").getValue()+(map(                  knobValDiff[7], 0, 127, 0, cp5.getController("outlineScale").getMax()-cp5.getController("outlineScale").getMin())));
-    cp5.getController("rotVariance").setValue(cp5.getController("rotVariance").getValue()+(map(                    knobValDiff[3], 0, 127, 0, cp5.getController("rotVariance").getMax()-cp5.getController("rotVariance").getMin())));
-    cp5.getController("rotSpeed").setValue(cp5.getController("rotSpeed").getValue()+(map(                          knobValDiff[4], 0, 127, 0, cp5.getController("rotSpeed").getMax()-cp5.getController("rotSpeed").getMin())));
-    cp5.getController("rotLimit").setValue(cp5.getController("rotLimit").getValue()+(map(                          knobValDiff[1], 0, 127, 0, cp5.getController("rotLimit").getMax()-cp5.getController("rotLimit").getMin())));
-    cp5.getController("rotSelf").setValue(cp5.getController("rotSelf").getValue()+(map(                            knobValDiff[2], 0, 127, 0, cp5.getController("rotSelf").getMax()-cp5.getController("rotSelf").getMin())));
+    cp5.getController("rotVariance").setValue(cp5.getController("rotVariance").getValue()+(map(                    knobValDiff[2], 0, 127, 0, cp5.getController("rotVariance").getMax()-cp5.getController("rotVariance").getMin())));
+    cp5.getController("rotSpeedX").setValue(cp5.getController("rotSpeedX").getValue()+(map(                          knobValDiff[3], 0, 127, 0, cp5.getController("rotSpeedX").getMax()-cp5.getController("rotSpeedX").getMin())));
+    cp5.getController("rotSpeedY").setValue(cp5.getController("rotSpeedY").getValue()+(map(                          knobValDiff[4], 0, 127, 0, cp5.getController("rotSpeedY").getMax()-cp5.getController("rotSpeedY").getMin())));
+    cp5.getController("rotLimit").setValue(cp5.getController("rotLimit").getValue()+(map(                          knobValDiff[0], 0, 127, 0, cp5.getController("rotLimit").getMax()-cp5.getController("rotLimit").getMin())));
+    cp5.getController("rotSelf").setValue(cp5.getController("rotSelf").getValue()+(map(                            knobValDiff[1], 0, 127, 0, cp5.getController("rotSelf").getMax()-cp5.getController("rotSelf").getMin())));
 
-    cp5.getController("cubeRotStop").setValue((cp5.getController("cubeRotStop").getValue()+abs(buttonsMValDiff[0]))%2);
-  
-
-}
+    cp5.getController("cubeRotStopX").setValue((cp5.getController("cubeRotStopX").getValue()+abs(buttonsMValDiff[0]))%2);
+    cp5.getController("cubeRotStopY").setValue((cp5.getController("cubeRotStopY").getValue()+abs(buttonsMValDiff[8]))%2);
+  }
 
   public void start() {
     println("Starting " + name);
